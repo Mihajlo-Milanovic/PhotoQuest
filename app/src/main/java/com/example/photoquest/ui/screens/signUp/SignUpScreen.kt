@@ -1,7 +1,5 @@
-package com.example.photoquest.ui.screens.logIn
+package com.example.photoquest.ui.screens.signUp
 
-import android.content.Context
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,21 +11,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,18 +28,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.photoquest.R
-import com.example.photoquest.Screens
 import com.example.photoquest.ui.theme.PhotoQuestTheme
 import com.example.photoquest.ui.util.DrawLogo
 
-@Composable
-fun LogInScreen(
-    navController: NavController
-) {
-    val vm = LogInScreenViewModel.getInstance()
-    val context = LocalContext.current
-    Surface {
 
+@Composable
+fun SignUpScreen(
+    navController: NavController
+){
+
+    val vm = SignUpScreenViewModel.getInstance()
+    val context = LocalContext.current
+
+    //TODO: this
+    Surface {
 
         LazyColumn(
             modifier = Modifier
@@ -56,7 +51,7 @@ fun LogInScreen(
             verticalArrangement = Arrangement.Center
         ) {
 
-            item{
+            item {
 
                 DrawLogo()
 
@@ -64,26 +59,21 @@ fun LogInScreen(
             }
 
             item{
-                if(vm.validationDone.value){
+                SignUpInputFields(vm = vm)
 
-                    if (vm.userLoggedIn.value) {
-                        if (!navController.popBackStack(Screens.Profile.name, false))
-                            navController.navigate(Screens.Profile.name)
-                    } else {
+                Spacer(modifier = Modifier.height(32.dp))
+            }
 
-                            LogInInputFields(vm = vm)
+            item{
 
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            LogInButtons(vm = vm, context = context, navController = navController)
-                    }
-
-                }else {
-
-                    LaunchedEffect(Unit) {
-                        vm.validateUser()
-                    }
-                    CircularProgressIndicator( color = MaterialTheme.colorScheme.primary, )
+                Button(
+                    onClick = { vm.onSignInClick(context = context) },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.signUp),
+                        fontSize = 20.sp
+                    )
                 }
             }
         }
@@ -91,7 +81,18 @@ fun LogInScreen(
 }
 
 @Composable
-fun LogInInputFields(vm: LogInScreenViewModel){
+fun SignUpInputFields(vm: SignUpScreenViewModel){
+
+    OutlinedTextField(
+        value = vm.username.value,
+        onValueChange = {
+            vm.onUsernameChange(it)
+        },
+        label = { Text(stringResource(id = R.string.username)) },
+        modifier = Modifier.fillMaxWidth()
+    )
+
+    Spacer(modifier = Modifier.height(16.dp))
 
     OutlinedTextField(
         value = vm.email.value,
@@ -108,10 +109,15 @@ fun LogInInputFields(vm: LogInScreenViewModel){
         value = vm.password.value,
         onValueChange = { vm.onPasswordChange(it) },
         label = { Text(stringResource(id = R.string.password)) },
-        visualTransformation = if (vm.showPassword.value) VisualTransformation.None else PasswordVisualTransformation(),
+        visualTransformation = if (vm.showPassword.value)
+            VisualTransformation.None
+        else
+            PasswordVisualTransformation(),
         trailingIcon = {
-            val image = if (vm.showPassword.value) Icons.Default.Warning else Icons.Default.Check
-
+            val image = if (vm.showPassword.value)
+                Icons.Default.Warning
+            else
+                Icons.Default.Check
             IconButton(onClick = { vm.onShowPasswordClick() }) {
                 Icon(imageVector = image, contentDescription = null)
             }
@@ -119,42 +125,20 @@ fun LogInInputFields(vm: LogInScreenViewModel){
         modifier = Modifier.fillMaxWidth()
     )
 
-}
-
-@Composable
-fun LogInButtons(vm: LogInScreenViewModel, context: Context, navController: NavController){
-
-    Button(
-        onClick = { vm.onLogInClick(context = context, navController = navController) },
+    OutlinedTextField(
+        value = vm.repPassword.value,
+        onValueChange = { vm.onPasswordChange(it) },
+        label = { Text(stringResource(id = R.string.confirmPassword)) },
+        visualTransformation = if (vm.showPassword.value) VisualTransformation.None else PasswordVisualTransformation(),
         modifier = Modifier.fillMaxWidth()
-    ) {
-        Text(
-            text = stringResource(id = R.string.logIn),
-            fontSize = 20.sp
-        )
-    }
-    Spacer(modifier = Modifier.height(32.dp))
-
-    Text(
-        text = AnnotatedString(
-            stringResource(id = R.string.dontHaveAcc),
-        ),
-        style = TextStyle(
-            color = MaterialTheme.colorScheme.primary,
-            fontSize = 18.sp
-        ),
-        modifier = Modifier.clickable {
-            if(!navController.popBackStack(Screens.SignUp.name, false))
-                navController.navigate(Screens.SignUp.name)
-        }
     )
 }
 
-
-@Preview(showBackground = false)
+@Preview(showBackground = true)
 @Composable
-fun LoginScreenPreview() {
-    PhotoQuestTheme {
-        LogInScreen(navController = NavController(context = LocalContext.current))
+fun SignUpScreenPreview(){
+
+    PhotoQuestTheme{
+        SignUpScreen(navController = NavController(LocalContext.current))
     }
 }

@@ -2,6 +2,7 @@ package com.example.photoquest.services
 
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 
@@ -29,8 +30,11 @@ class AuthenticationServices(){
         //TODO: To check the username or Not ???
 
         runBlocking {
-            Firebase.auth.createUserWithEmailAndPassword(email, password).await()
-            logIn(email, password)
+            launch {
+
+                Firebase.auth.createUserWithEmailAndPassword(email, password).await()
+                logIn(email, password)
+            }
         }
 
         //TODO: Add username to the user
