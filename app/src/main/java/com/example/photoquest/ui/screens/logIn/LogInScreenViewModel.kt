@@ -3,18 +3,15 @@ package com.example.photoquest.ui.screens.logIn
 import android.content.Context
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.navigation.NavController
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 
 
 class LogInScreenViewModel private constructor():ViewModel(){
-
-    var email = mutableStateOf("")
-        private set
-
-    var password = mutableStateOf("")
-        private set
-
-    var showPassword = mutableStateOf(false)
-        private set
 
     companion object{
 
@@ -29,7 +26,31 @@ class LogInScreenViewModel private constructor():ViewModel(){
                     }
 
         }
+
+        fun clearData(){
+            INSTANCE = null
+        }
     }
+
+
+    var email = mutableStateOf("")
+        private set
+
+    var password = mutableStateOf("")
+        private set
+
+    var showPassword = mutableStateOf(false)
+        private set
+
+    var validationDone = mutableStateOf(false)
+        private set
+
+    var userLoggedIn = mutableStateOf(false)
+        private set
+
+    var validationStarted = mutableStateOf(false)
+        private set
+
 
     fun onEmailChange(newEmail: String) {
         email.value = newEmail
@@ -43,16 +64,27 @@ class LogInScreenViewModel private constructor():ViewModel(){
         showPassword.value = !showPassword.value
     }
 
-    fun onLoginClick(context: Context) {
+    suspend fun validateUser() {
+        coroutineScope{
+
+            validationStarted.value = true
+
+            userLoggedIn.value = async (Dispatchers.Default){
+                Firebase.auth.currentUser != null
+                //true
+            }.await()
+
+            validationDone.value = true
+            validationStarted.value = false
+
+        }
+    }
+
+    fun onLogInClick(context: Context, navController: NavController) {
 
 //        AuthenticationServices.getInstance().logIn(email = email.value,
 //                                                    password = password.value
 //                                                    )
     }
-
-    fun onGoToSignInScreen(context: Context) {
-
-    }
-
 
 }

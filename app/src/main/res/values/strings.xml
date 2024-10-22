@@ -9,4 +9,9 @@
     <string name="photoQuest">Photo Quest</string>
     <string name="dontHaveAcc">You don\'t have an account?</string>
     <string name="register">Register</string>
+    <string name="confirmPassword">Confirm password</string>
+    <string name="username">Username</string>
+    <string name="signUp">Sign up</string>
+    <string name="passwordTooShort">Password must be at least 8 characters long.</string>
+    <string name="passwordsDoNotMatch">Passwords don\'t match.</string>
 </resources>
