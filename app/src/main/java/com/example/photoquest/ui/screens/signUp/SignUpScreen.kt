@@ -7,9 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -19,10 +16,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,7 +37,6 @@ fun SignUpScreen(
     val vm = SignUpScreenViewModel.getInstance()
     val context = LocalContext.current
 
-    //TODO: this
     Surface {
 
         LazyColumn(
@@ -59,6 +55,7 @@ fun SignUpScreen(
             }
 
             item{
+
                 SignUpInputFields(vm = vm)
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -67,7 +64,7 @@ fun SignUpScreen(
             item{
 
                 Button(
-                    onClick = { vm.onSignInClick(context = context) },
+                    onClick = { vm.onSignInClick(context = context, navController = navController) },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
@@ -109,17 +106,10 @@ fun SignUpInputFields(vm: SignUpScreenViewModel){
         value = vm.password.value,
         onValueChange = { vm.onPasswordChange(it) },
         label = { Text(stringResource(id = R.string.password)) },
-        visualTransformation = if (vm.showPassword.value)
-            VisualTransformation.None
-        else
-            PasswordVisualTransformation(),
+        visualTransformation = vm.passwordTransformation.value,
         trailingIcon = {
-            val image = if (vm.showPassword.value)
-                Icons.Default.Warning
-            else
-                Icons.Default.Check
             IconButton(onClick = { vm.onShowPasswordClick() }) {
-                Icon(imageVector = image, contentDescription = null)
+                Icon(imageVector = ImageVector.vectorResource(id = vm.passwordIcon.value), contentDescription = null)
             }
         },
         modifier = Modifier.fillMaxWidth()
@@ -127,9 +117,9 @@ fun SignUpInputFields(vm: SignUpScreenViewModel){
 
     OutlinedTextField(
         value = vm.repPassword.value,
-        onValueChange = { vm.onPasswordChange(it) },
+        onValueChange = { vm.onRepPasswordChange(it) },
         label = { Text(stringResource(id = R.string.confirmPassword)) },
-        visualTransformation = if (vm.showPassword.value) VisualTransformation.None else PasswordVisualTransformation(),
+        visualTransformation = vm.passwordTransformation.value,
         modifier = Modifier.fillMaxWidth()
     )
 }

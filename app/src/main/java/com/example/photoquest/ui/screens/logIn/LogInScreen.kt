@@ -47,7 +47,6 @@ fun LogInScreen(
     val context = LocalContext.current
     Surface {
 
-
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -83,6 +82,7 @@ fun LogInScreen(
                     LaunchedEffect(Unit) {
                         vm.validateUser()
                     }
+
                     CircularProgressIndicator( color = MaterialTheme.colorScheme.primary, )
                 }
             }
@@ -110,10 +110,11 @@ fun LogInInputFields(vm: LogInScreenViewModel){
         label = { Text(stringResource(id = R.string.password)) },
         visualTransformation = if (vm.showPassword.value) VisualTransformation.None else PasswordVisualTransformation(),
         trailingIcon = {
-            val image = if (vm.showPassword.value) Icons.Default.Warning else Icons.Default.Check
 
             IconButton(onClick = { vm.onShowPasswordClick() }) {
-                Icon(imageVector = image, contentDescription = null)
+                Icon(imageVector = if (vm.showPassword.value) Icons.Default.Warning else Icons.Default.Check,
+                    contentDescription = null
+                )
             }
         },
         modifier = Modifier.fillMaxWidth()
@@ -133,6 +134,7 @@ fun LogInButtons(vm: LogInScreenViewModel, context: Context, navController: NavC
             fontSize = 20.sp
         )
     }
+
     Spacer(modifier = Modifier.height(32.dp))
 
     Text(
@@ -144,12 +146,10 @@ fun LogInButtons(vm: LogInScreenViewModel, context: Context, navController: NavC
             fontSize = 18.sp
         ),
         modifier = Modifier.clickable {
-            if(!navController.popBackStack(Screens.SignUp.name, false))
-                navController.navigate(Screens.SignUp.name)
+            vm.goToSignUpScreen(navController)
         }
     )
 }
-
 
 @Preview(showBackground = false)
 @Composable
