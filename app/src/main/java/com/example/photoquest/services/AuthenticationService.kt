@@ -1,12 +1,13 @@
 package com.example.photoquest.services
 
+import androidx.navigation.NavController
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 
-class AuthenticationServices(){
+class AuthenticationServices private constructor(){
 
     val currentUserId: String
         get() = Firebase.auth.currentUser?.uid.orEmpty()
@@ -23,9 +24,13 @@ class AuthenticationServices(){
                 INSTANCE!!
             }
         }
+
+        fun clearData(){
+            AuthenticationServices.INSTANCE = null
+        }
     }
 
-    fun signUp(email: String, password: String, username: String) {
+    fun signUp(email: String, password: String, username: String, navController: NavController) {
 
         //TODO: To check the username or Not ???
 
@@ -33,15 +38,11 @@ class AuthenticationServices(){
             launch {
 
                 Firebase.auth.createUserWithEmailAndPassword(email, password).await()
-                logIn(email, password)
+                //logIn(email = email, password = password, navController = navController)
             }
         }
 
         //TODO: Add username to the user
-    }
-
-    suspend fun logIn(email: String, password: String) {
-        Firebase.auth.signInWithEmailAndPassword(email, password).await()
     }
 
     suspend fun logOut() {

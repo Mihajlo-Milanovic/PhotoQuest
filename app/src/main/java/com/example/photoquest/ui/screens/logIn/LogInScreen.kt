@@ -1,6 +1,7 @@
 package com.example.photoquest.ui.screens.logIn
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
@@ -9,9 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -22,22 +20,24 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.photoquest.R
-import com.example.photoquest.Screens
 import com.example.photoquest.ui.theme.PhotoQuestTheme
 import com.example.photoquest.ui.util.DrawLogo
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun LogInScreen(
@@ -45,6 +45,13 @@ fun LogInScreen(
 ) {
     val vm = LogInScreenViewModel.getInstance()
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        vm.validateUser(navController)
+        Log.d("MIKI", "e vidis da ga ima")
+    }
+
     Surface {
 
         LazyColumn(
@@ -65,23 +72,13 @@ fun LogInScreen(
             item{
                 if(vm.validationDone.value){
 
-                    if (vm.userLoggedIn.value) {
-                        if (!navController.popBackStack(Screens.Profile.name, false))
-                            navController.navigate(Screens.Profile.name)
-                    } else {
+                    LogInInputFields(vm = vm)
 
-                            LogInInputFields(vm = vm)
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            LogInButtons(vm = vm, context = context, navController = navController)
-                    }
+                    LogInButtons(vm = vm, context = context, navController = navController, coroutineScope = coroutineScope)
 
                 }else {
-
-                    LaunchedEffect(Unit) {
-                        vm.validateUser()
-                    }
 
                     CircularProgressIndicator( color = MaterialTheme.colorScheme.primary, )
                 }
@@ -108,11 +105,11 @@ fun LogInInputFields(vm: LogInScreenViewModel){
         value = vm.password.value,
         onValueChange = { vm.onPasswordChange(it) },
         label = { Text(stringResource(id = R.string.password)) },
-        visualTransformation = if (vm.showPassword.value) VisualTransformation.None else PasswordVisualTransformation(),
+        visualTransformation = vm.passwordTransformation.value,
         trailingIcon = {
 
             IconButton(onClick = { vm.onShowPasswordClick() }) {
-                Icon(imageVector = if (vm.showPassword.value) Icons.Default.Warning else Icons.Default.Check,
+                Icon(imageVector = ImageVector.vectorResource(id = vm.passwordIcon.value),
                     contentDescription = null
                 )
             }
@@ -123,11 +120,19 @@ fun LogInInputFields(vm: LogInScreenViewModel){
 }
 
 @Composable
-fun LogInButtons(vm: LogInScreenViewModel, context: Context, navController: NavController){
+fun LogInButtons(vm: LogInScreenViewModel, context: Context, navController: NavController, coroutineScope: CoroutineScope){
+
+
 
     Button(
-        onClick = { vm.onLogInClick(context = context, navController = navController) },
-        modifier = Modifier.fillMaxWidth()
+        onClick = {
+            coroutineScope.launch {
+                vm.onLogInClick(context = context, navController = navController)
+            }
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+
     ) {
         Text(
             text = stringResource(id = R.string.logIn),
