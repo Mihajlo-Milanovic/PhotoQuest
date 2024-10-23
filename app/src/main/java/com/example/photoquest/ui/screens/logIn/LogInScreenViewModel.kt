@@ -4,11 +4,15 @@ import android.content.Context
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
+import com.example.photoquest.Screens
+import com.example.photoquest.services.AuthenticationServices
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 
 class LogInScreenViewModel private constructor():ViewModel(){
@@ -31,7 +35,6 @@ class LogInScreenViewModel private constructor():ViewModel(){
             INSTANCE = null
         }
     }
-
 
     var email = mutableStateOf("")
         private set
@@ -80,11 +83,23 @@ class LogInScreenViewModel private constructor():ViewModel(){
         }
     }
 
+    fun goToSignUpScreen(navController: NavController){
+        if(!navController.popBackStack(Screens.SignUp.name, false))
+            navController.navigate(Screens.SignUp.name)
+    }
+
     fun onLogInClick(context: Context, navController: NavController) {
 
-//        AuthenticationServices.getInstance().logIn(email = email.value,
-//                                                    password = password.value
-//                                                    )
+        runBlocking {
+
+            launch{
+                AuthenticationServices.getInstance().logIn(email = email.value,
+                    password = password.value
+                )
+            }
+
+
+        }
     }
 
 }
