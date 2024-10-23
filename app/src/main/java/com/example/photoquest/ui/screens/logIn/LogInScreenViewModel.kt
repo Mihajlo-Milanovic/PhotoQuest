@@ -1,18 +1,22 @@
 package com.example.photoquest.ui.screens.logIn
 
 import android.content.Context
+import android.util.Log
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
+import com.example.photoquest.R
 import com.example.photoquest.Screens
-import com.example.photoquest.services.AuthenticationServices
+import com.example.photoquest.services.MakeShortToast
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 
 
 class LogInScreenViewModel private constructor():ViewModel(){
@@ -42,17 +46,17 @@ class LogInScreenViewModel private constructor():ViewModel(){
     var password = mutableStateOf("")
         private set
 
-    var showPassword = mutableStateOf(false)
-        private set
-
     var validationDone = mutableStateOf(false)
         private set
 
-    var userLoggedIn = mutableStateOf(false)
+    var passwordTransformation: MutableState<VisualTransformation> = mutableStateOf(
+        PasswordVisualTransformation()
+    )
         private set
 
-    var validationStarted = mutableStateOf(false)
+    var passwordIcon = mutableStateOf(R.drawable.black_eye)
         private set
+
 
 
     fun onEmailChange(newEmail: String) {
@@ -64,42 +68,54 @@ class LogInScreenViewModel private constructor():ViewModel(){
     }
 
     fun onShowPasswordClick(){
-        showPassword.value = !showPassword.value
-    }
 
-    suspend fun validateUser() {
-        coroutineScope{
-
-            validationStarted.value = true
-
-            userLoggedIn.value = async (Dispatchers.Default){
-                Firebase.auth.currentUser != null
-                //true
-            }.await()
-
-            validationDone.value = true
-            validationStarted.value = false
-
+        passwordTransformation.value = when(passwordTransformation.value){
+            VisualTransformation.None -> {
+                passwordIcon.value = R.drawable.black_eye
+                PasswordVisualTransformation()
+            }
+            else -> {
+                passwordIcon.value = R.drawable.red_warning
+                VisualTransformation.None
+            }
         }
     }
+
+    suspend fun validateUser(navController: NavController) = coroutineScope{
+
+            if ( async(Dispatchers.Default) {
+                    Firebase.auth.currentUser != null
+//                    true
+                }.await()
+            ) {
+
+                Log.d("MIKI", "signInWithEmail:success")
+
+                if (!navController.popBackStack(Screens.Profile.name, false))
+                    navController.navigate(Screens.Profile.name)
+
+                Log.d("MIKI", "tako sam i mislio")
+            }
+
+            validationDone.value = true
+    }
+
+    suspend fun onLogInClick(context: Context, navController: NavController) {
+
+        validationDone.value = false
+
+        try{
+            Firebase.auth.signInWithEmailAndPassword(email.value, password.value).await()
+        }catch (ex:Exception){
+            MakeShortToast(context = context, message = ex.localizedMessage ?: "Hmm...Something suspicious happened!")
+        }
+
+        validateUser(navController = navController)
+    }
+
 
     fun goToSignUpScreen(navController: NavController){
         if(!navController.popBackStack(Screens.SignUp.name, false))
             navController.navigate(Screens.SignUp.name)
     }
-
-    fun onLogInClick(context: Context, navController: NavController) {
-
-        runBlocking {
-
-            launch{
-                AuthenticationServices.getInstance().logIn(email = email.value,
-                    password = password.value
-                )
-            }
-
-
-        }
-    }
-
 }
