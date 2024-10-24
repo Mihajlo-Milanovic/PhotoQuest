@@ -1,7 +1,6 @@
 package com.example.photoquest.ui.screens.logIn
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
@@ -37,6 +36,7 @@ import com.example.photoquest.R
 import com.example.photoquest.ui.theme.PhotoQuestTheme
 import com.example.photoquest.ui.util.DrawLogo
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
@@ -48,8 +48,9 @@ fun LogInScreen(
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        vm.validateUser(navController)
-        Log.d("MIKI", "e vidis da ga ima")
+        launch (Dispatchers.Default){
+            vm.validateUser(navController)
+        }
     }
 
     Surface {
@@ -80,7 +81,7 @@ fun LogInScreen(
 
                 }else {
 
-                    CircularProgressIndicator( color = MaterialTheme.colorScheme.primary, )
+                    CircularProgressIndicator( color = MaterialTheme.colorScheme.primary)
                 }
             }
         }
@@ -109,7 +110,7 @@ fun LogInInputFields(vm: LogInScreenViewModel){
         trailingIcon = {
 
             IconButton(onClick = { vm.onShowPasswordClick() }) {
-                Icon(imageVector = ImageVector.vectorResource(id = vm.passwordIcon.value),
+                Icon(imageVector = ImageVector.vectorResource(id = vm.passwordIcon.intValue),
                     contentDescription = null
                 )
             }
@@ -122,11 +123,9 @@ fun LogInInputFields(vm: LogInScreenViewModel){
 @Composable
 fun LogInButtons(vm: LogInScreenViewModel, context: Context, navController: NavController, coroutineScope: CoroutineScope){
 
-
-
     Button(
         onClick = {
-            coroutineScope.launch {
+            coroutineScope.launch (Dispatchers.Default){
                 vm.onLogInClick(context = context, navController = navController)
             }
         },

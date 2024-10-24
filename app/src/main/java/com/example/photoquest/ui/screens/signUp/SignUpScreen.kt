@@ -1,5 +1,6 @@
 package com.example.photoquest.ui.screens.signUp
 
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,12 +9,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -27,6 +31,9 @@ import androidx.navigation.NavController
 import com.example.photoquest.R
 import com.example.photoquest.ui.theme.PhotoQuestTheme
 import com.example.photoquest.ui.util.DrawLogo
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -36,6 +43,7 @@ fun SignUpScreen(
 
     val vm = SignUpScreenViewModel.getInstance()
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
 
     Surface {
 
@@ -56,22 +64,20 @@ fun SignUpScreen(
 
             item{
 
-                SignUpInputFields(vm = vm)
+                if (!vm.signUpInProgress.value) {
 
-                Spacer(modifier = Modifier.height(32.dp))
-            }
+                    SignUpInputFields(vm = vm)
 
-            item{
+                    Spacer(modifier = Modifier.height(32.dp))
 
-                Button(
-                    onClick = { vm.onSignInClick(context = context, navController = navController) },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.signUp),
-                        fontSize = 20.sp
+                    SignUpScreenButton(
+                        vm = vm,
+                        context = context,
+                        coroutineScope = coroutineScope,
+                        navController = navController
                     )
                 }
+                else CircularProgressIndicator( color = MaterialTheme.colorScheme.primary)
             }
         }
     }
@@ -109,7 +115,7 @@ fun SignUpInputFields(vm: SignUpScreenViewModel){
         visualTransformation = vm.passwordTransformation.value,
         trailingIcon = {
             IconButton(onClick = { vm.onShowPasswordClick() }) {
-                Icon(imageVector = ImageVector.vectorResource(id = vm.passwordIcon.value), contentDescription = null)
+                Icon(imageVector = ImageVector.vectorResource(id = vm.passwordIcon.intValue), contentDescription = null)
             }
         },
         modifier = Modifier.fillMaxWidth()
@@ -122,6 +128,28 @@ fun SignUpInputFields(vm: SignUpScreenViewModel){
         visualTransformation = vm.passwordTransformation.value,
         modifier = Modifier.fillMaxWidth()
     )
+}
+
+@Composable
+fun SignUpScreenButton(
+    vm: SignUpScreenViewModel,
+    context: Context,
+    coroutineScope: CoroutineScope,
+    navController: NavController
+){
+    Button(
+        onClick = {
+            vm.signUpInProgress.value = true
+            coroutineScope.launch (Dispatchers.Default){
+                vm.onSignInClick(context = context, navController = navController) }
+        },
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = stringResource(id = R.string.signUp),
+            fontSize = 20.sp
+        )
+    }
 }
 
 @Preview(showBackground = true)

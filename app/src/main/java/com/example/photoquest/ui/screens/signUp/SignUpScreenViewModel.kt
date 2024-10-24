@@ -3,12 +3,21 @@ package com.example.photoquest.ui.screens.signUp
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.photoquest.R
+import com.example.photoquest.Screens
+import com.example.photoquest.services.MakeShortToast
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 class SignUpScreenViewModel private constructor(): ViewModel() {
 
@@ -44,13 +53,13 @@ class SignUpScreenViewModel private constructor(): ViewModel() {
     var repPassword = mutableStateOf("")
         private set
 
-//    var showPassword = mutableStateOf(false)
-//        private set
-
     var passwordTransformation: MutableState<VisualTransformation> = mutableStateOf(PasswordVisualTransformation())
         private set
 
-    var passwordIcon = mutableStateOf(R.drawable.black_eye)
+    var passwordIcon = mutableIntStateOf(R.drawable.black_eye)
+        private set
+
+    var signUpInProgress = mutableStateOf(false)
         private set
 
     fun onUsernameChange(newUsername: String) {
@@ -73,36 +82,62 @@ class SignUpScreenViewModel private constructor(): ViewModel() {
 
         passwordTransformation.value = when(passwordTransformation.value){
             VisualTransformation.None -> {
-                passwordIcon.value = R.drawable.black_eye
+                passwordIcon.intValue = R.drawable.black_eye
                 PasswordVisualTransformation()
             }
             else -> {
-                passwordIcon.value = R.drawable.red_warning
+                passwordIcon.intValue = R.drawable.red_warning
                 VisualTransformation.None
             }
         }
     }
 
-    fun onSignInClick(context: Context, navController: NavController) {
+    suspend fun onSignInClick(context: Context, navController: NavController) = coroutineScope{
 
         if(validatePassword(context = context)){
 
+            try {
+                Firebase.auth.createUserWithEmailAndPassword(email.value, password.value).await()
+                Firebase.auth.signInWithEmailAndPassword(email.value, password.value).await()
+            }
+            catch (ex: Exception) {
+                withContext(Dispatchers.Main) {
+                    MakeShortToast(
+                        context = context,
+                        message = ex.message ?: "Hmm...Something suspicious happened!"
+                    )
+                }
+            }
+
+            if ( Firebase.auth.currentUser != null) {
+                withContext(Dispatchers.Main){
+                    if (!navController.popBackStack(Screens.LogIn.name, true))
+                        navController.navigate(Screens.Profile.name)
+                }
+            }
+
         }
-        TODO("Not yet implemented")
+
+        signUpInProgress.value = false
     }
 
-    private fun validatePassword(context : Context): Boolean {
+    private suspend fun validatePassword(context : Context): Boolean  =  coroutineScope {
 
         if(password.value.length < 8) {
-            Toast.makeText(context, R.string.passwordTooShort, Toast.LENGTH_SHORT).show()
-            return false
+            withContext(Dispatchers.Main) {
+                Toast.makeText(context, R.string.passwordTooShort, Toast.LENGTH_SHORT).show()
+            }
+            false
         }
+        else if (!password.value.contentEquals(repPassword.value)){
+            withContext(Dispatchers.Main) {
+                Toast.makeText(context, R.string.passwordsDoNotMatch, Toast.LENGTH_SHORT).show()
+            }
+            false
+        }
+        else
+            true
 
-        if (!password.value.contentEquals(repPassword.value)){
-            Toast.makeText(context, R.string.passwordsDoNotMatch, Toast.LENGTH_SHORT).show()
-            return false
-        }
-        return true
     }
 
 
