@@ -11,12 +11,15 @@ import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.photoquest.R
 import com.example.photoquest.Screens
+import com.example.photoquest.models.data.User
 import com.example.photoquest.services.MakeShortToast
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
+import com.example.photoquest.services.UserDbAPI
+import com.example.photoquest.services.currentUserUid
+import com.example.photoquest.services.signUserIn
+import com.example.photoquest.services.signUserUp
+import com.example.photoquest.services.userSignedIn
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 class SignUpScreenViewModel private constructor(): ViewModel() {
@@ -41,29 +44,31 @@ class SignUpScreenViewModel private constructor(): ViewModel() {
     }
 
 
-    var username = mutableStateOf("")
-        private set
+    val username = mutableStateOf("")
+    val firstName = mutableStateOf("")
+    val lastName = mutableStateOf("")
 
-    var email = mutableStateOf("")
-        private set
+    val email = mutableStateOf("")
 
-    var password = mutableStateOf("")
-        private set
+    val password = mutableStateOf("")
+    val repPassword = mutableStateOf("")
 
-    var repPassword = mutableStateOf("")
-        private set
 
-    var passwordTransformation: MutableState<VisualTransformation> = mutableStateOf(PasswordVisualTransformation())
-        private set
+    val passwordTransformation: MutableState<VisualTransformation> = mutableStateOf(PasswordVisualTransformation())
+    val passwordIcon = mutableIntStateOf(R.drawable.black_eye)
 
-    var passwordIcon = mutableIntStateOf(R.drawable.black_eye)
-        private set
-
-    var signUpInProgress = mutableStateOf(false)
-        private set
+    val signUpInProgress = mutableStateOf(false)
 
     fun onUsernameChange(newUsername: String) {
         username.value = newUsername
+    }
+
+    fun onFirstNameChange(newFirstName: String) {
+        firstName.value = newFirstName
+    }
+
+    fun onLastNameChange(newLastName: String) {
+        lastName.value = newLastName
     }
 
     fun onEmailChange(newEmail: String) {
@@ -97,8 +102,21 @@ class SignUpScreenViewModel private constructor(): ViewModel() {
         if(validatePassword(context = context)){
 
             try {
-                Firebase.auth.createUserWithEmailAndPassword(email.value, password.value).await()
-                Firebase.auth.signInWithEmailAndPassword(email.value, password.value).await()
+                signUserUp(email = email.value, password = password.value)
+                val udb = UserDbAPI()
+
+                currentUserUid()?.let {
+                    udb.createNewUser(id = it,
+                        user = User(
+                            username = username.value,
+                            lastName = lastName.value,
+                            firstName = firstName.value,
+                            pictureURL = ""
+                        )
+                    )
+                }
+
+                signUserIn(email = email.value, password = password.value)
             }
             catch (ex: Exception) {
                 withContext(Dispatchers.Main) {
@@ -109,10 +127,10 @@ class SignUpScreenViewModel private constructor(): ViewModel() {
                 }
             }
 
-            if ( Firebase.auth.currentUser != null) {
+            if ( userSignedIn() ) {
                 withContext(Dispatchers.Main){
-                    if (!navController.popBackStack(Screens.LogIn.name, true))
-                        navController.navigate(Screens.Profile.name)
+                    navController.popBackStack(Screens.LOG_IN.name, true)
+                    navController.navigate(Screens.PROFILE.name)
                 }
             }
 

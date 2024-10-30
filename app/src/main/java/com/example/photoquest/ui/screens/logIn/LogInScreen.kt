@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.photoquest.R
 import com.example.photoquest.ui.theme.PhotoQuestTheme
-import com.example.photoquest.ui.util.DrawLogo
+import com.example.photoquest.ui.components.DrawLogo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.photoquest.R
 import com.example.photoquest.ui.theme.PhotoQuestTheme
-import com.example.photoquest.ui.util.DrawLogo
+import com.example.photoquest.ui.components.DrawLogo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -39,7 +39,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun SignUpScreen(
     navController: NavController
-){
+) {
 
     val vm = SignUpScreenViewModel.getInstance()
     val context = LocalContext.current
@@ -56,14 +56,14 @@ fun SignUpScreen(
         ) {
 
             item {
-
                 DrawLogo()
+            }
 
+            item {
                 Spacer(modifier = Modifier.height(64.dp))
             }
 
-            item{
-
+            item {
                 if (!vm.signUpInProgress.value) {
 
                     SignUpInputFields(vm = vm)
@@ -76,15 +76,14 @@ fun SignUpScreen(
                         coroutineScope = coroutineScope,
                         navController = navController
                     )
-                }
-                else CircularProgressIndicator( color = MaterialTheme.colorScheme.primary)
+                } else CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
         }
     }
 }
 
 @Composable
-fun SignUpInputFields(vm: SignUpScreenViewModel){
+fun SignUpInputFields(vm: SignUpScreenViewModel) {
 
     OutlinedTextField(
         value = vm.username.value,
@@ -92,6 +91,24 @@ fun SignUpInputFields(vm: SignUpScreenViewModel){
             vm.onUsernameChange(it)
         },
         label = { Text(stringResource(id = R.string.username)) },
+        modifier = Modifier.fillMaxWidth()
+    )
+
+    OutlinedTextField(
+        value = vm.firstName.value,
+        onValueChange = {
+            vm.onFirstNameChange(it)
+        },
+        label = { Text(stringResource(id = R.string.firstName)) },
+        modifier = Modifier.fillMaxWidth()
+    )
+
+    OutlinedTextField(
+        value = vm.lastName.value,
+        onValueChange = {
+            vm.onLastNameChange(it)
+        },
+        label = { Text(stringResource(id = R.string.lastName)) },
         modifier = Modifier.fillMaxWidth()
     )
 
@@ -115,11 +132,15 @@ fun SignUpInputFields(vm: SignUpScreenViewModel){
         visualTransformation = vm.passwordTransformation.value,
         trailingIcon = {
             IconButton(onClick = { vm.onShowPasswordClick() }) {
-                Icon(imageVector = ImageVector.vectorResource(id = vm.passwordIcon.intValue), contentDescription = null)
+                Icon(
+                    imageVector = ImageVector.vectorResource(id = vm.passwordIcon.intValue),
+                    contentDescription = null
+                )
             }
         },
         modifier = Modifier.fillMaxWidth()
     )
+
 
     OutlinedTextField(
         value = vm.repPassword.value,
@@ -136,12 +157,13 @@ fun SignUpScreenButton(
     context: Context,
     coroutineScope: CoroutineScope,
     navController: NavController
-){
+) {
     Button(
         onClick = {
             vm.signUpInProgress.value = true
-            coroutineScope.launch (Dispatchers.Default){
-                vm.onSignInClick(context = context, navController = navController) }
+            coroutineScope.launch(Dispatchers.Default) {
+                vm.onSignInClick(context = context, navController = navController)
+            }
         },
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -154,9 +176,9 @@ fun SignUpScreenButton(
 
 @Preview(showBackground = true)
 @Composable
-fun SignUpScreenPreview(){
+fun SignUpScreenPreview() {
 
-    PhotoQuestTheme{
+    PhotoQuestTheme {
         SignUpScreen(navController = NavController(LocalContext.current))
     }
 }

@@ -14,4 +14,12 @@
     <string name="signUp">Sign up</string>
     <string name="passwordTooShort">Password must be at least 8 characters long.</string>
     <string name="passwordsDoNotMatch">Passwords don\'t match.</string>
+    <string name="firstName">First name</string>
+    <string name="lastName">Last name</string>
+    <string name="signOut">Sign out</string>
+    <string name="score">Score:</string>
+    <string name="questsMade">Quests made:</string>
+    <string name="makeNewQuest">Make new quest</string>
+    <string name="toMakeQuest">To create a quest you must enable location tracking so we can record the precise location from which the image was taken.</string>
+    <string name="iUnderstand">I understand</string>
 </resources>
