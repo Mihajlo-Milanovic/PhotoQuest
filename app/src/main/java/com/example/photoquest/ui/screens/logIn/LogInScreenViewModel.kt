@@ -40,20 +40,13 @@ class LogInScreenViewModel private constructor():ViewModel(){
         }
     }
 
-    var email = mutableStateOf("")
-        private set
+    val email = mutableStateOf("")
+    val password = mutableStateOf("")
 
-    var password = mutableStateOf("")
-        private set
+    val validationDone = mutableStateOf(false)
 
-    var validationDone = mutableStateOf(false)
-        private set
-
-    var passwordTransformation: MutableState<VisualTransformation> = mutableStateOf(PasswordVisualTransformation())
-        private set
-
-    var passwordIcon = mutableIntStateOf(R.drawable.black_eye)
-        private set
+    val passwordTransformation: MutableState<VisualTransformation> = mutableStateOf(PasswordVisualTransformation())
+    val passwordIcon = mutableIntStateOf(R.drawable.black_eye)
 
     fun onEmailChange(newEmail: String) {
         email.value = newEmail
@@ -82,7 +75,7 @@ class LogInScreenViewModel private constructor():ViewModel(){
             if ( Firebase.auth.currentUser != null ) {
                 withContext(Dispatchers.Main){
                     if (!navController.popBackStack())
-                        navController.navigate(Screens.Profile.name)
+                        navController.navigate(Screens.PROFILE.name)
                 }
             }
             else validationDone.value = true
@@ -108,7 +101,7 @@ class LogInScreenViewModel private constructor():ViewModel(){
 
 
     fun goToSignUpScreen(navController: NavController){
-        if(!navController.popBackStack(Screens.SignUp.name, false))
-            navController.navigate(Screens.SignUp.name)
+        if(!navController.popBackStack(Screens.SIGN_UP.name, false))
+            navController.navigate(Screens.SIGN_UP.name)
     }
 }

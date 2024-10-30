@@ -1,4 +1,4 @@
-package com.example.photoquest.ui.util
+package com.example.photoquest.ui.components
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text

@@ -8,20 +8,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import com.example.photoquest.ui.screens.logIn.LogInScreen
+import com.example.photoquest.ui.screens.makeQuest.MakeQuestScreen
+import com.example.photoquest.ui.screens.profile.ProfilePicture
 import com.example.photoquest.ui.screens.profile.ProfileScreen
 import com.example.photoquest.ui.screens.signUp.SignUpScreen
-import com.example.photoquest.ui.screens.start.StartScreen
 import com.example.photoquest.ui.theme.PhotoQuestTheme
 
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         enableEdgeToEdge()
 
         setContent {
+
             PhotoQuestTheme {
 
                 PhotoQuestApp()
@@ -31,28 +34,32 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun PhotoQuestApp(){
+fun PhotoQuestApp() {
 
     val navController = rememberNavController()
 
-    NavHost(navController, startDestination = Screens.LogIn.name) {
-        composable(Screens.Start.name) { StartScreen(navController = navController) }
-        composable(Screens.LogIn.name) { LogInScreen(navController = navController) }
-        composable(Screens.SignUp.name) { SignUpScreen(navController = navController) }
-        composable(Screens.Profile.name) { ProfileScreen(navController = navController) }
+    NavHost(navController, startDestination = Screens.LOG_IN.name) {
+        composable(Screens.LOG_IN.name) { LogInScreen(navController = navController) }
+        composable(Screens.SIGN_UP.name) { SignUpScreen(navController = navController) }
+        composable(Screens.PROFILE.name) { ProfileScreen(navController = navController) }
+        composable(Screens.MAKE_QUEST.name) { MakeQuestScreen(navController = navController) }
+        dialog(Screens.PROFILE_PICTURE.name) { ProfilePicture() }
     }
 }
 
 enum class Screens {
-    Start,
-    LogIn,
-    SignUp,
-    Profile,
+    LOG_IN,
+    SIGN_UP,
+    PROFILE,
+    PROFILE_PICTURE,
+    MAKE_QUEST,
+    MAP,
+    LEADERBOARD
 }
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun GreetingPreview() {
+fun AppPreview() {
     PhotoQuestTheme {
         PhotoQuestApp()
     }
