@@ -45,7 +45,7 @@ fun MakeQuestScreen(
 
 }
 
-@Preview(name = "LightTheme", showBackground = true)
+//@Preview(name = "LightTheme", showBackground = true)
 @Preview(name = "DarkTheme", uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
 @Composable
 fun MakeQuestScreenPreview() {

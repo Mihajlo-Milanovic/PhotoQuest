@@ -1,4 +1,4 @@
-package com.example.photoquest.ui.components.navBar
+package com.example.photoquest.ui.components.bottomBar
 
 import androidx.compose.runtime.mutableStateOf
 import com.example.photoquest.Screens
