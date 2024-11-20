@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
@@ -23,7 +25,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,6 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.photoquest.R
+import com.example.photoquest.ui.components.bottomBar.NavBar
 import com.example.photoquest.ui.theme.PhotoQuestTheme
 
 @Composable
@@ -51,9 +54,28 @@ fun ProfileScreen(
 
     val vm = ProfileScreenViewModel.getInstance(navController = navController)
 
-    Surface(
-        modifier = Modifier.fillMaxSize()
-    ) {
+    Scaffold(
+        modifier = Modifier
+            .fillMaxSize(),
+        topBar = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.onSecondary),
+                horizontalArrangement = Arrangement.End
+            ) {
+                ProfileScreenOptionsToggle(
+                    vm = vm,
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .windowInsetsPadding(insets = WindowInsets(top = 16.dp))
+                )
+            }
+        },
+        bottomBar = {
+            NavBar(navController = navController)
+        }
+    ) { padding ->
 
         if (!vm.userLoaded.value) {
             LaunchedEffect(Unit) {
@@ -65,18 +87,46 @@ fun ProfileScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(padding),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top,
             userScrollEnabled = true,
 
             ) {
 
+            item {//Settings
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    //.padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceAround,
+                ) {
+
+                    if (!vm.showOptions.value) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(MaterialTheme.colorScheme.onSecondary)
+                                .padding(8.dp)
+                                .align(Alignment.Top),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Top,
+                        ) {
+                            Button(onClick = { vm.onSignOut() }) {
+                                Text(text = stringResource(id = R.string.signOut))
+                            }
+                        }
+                    }
+                }
+            }
+
             item {//Picture, username, score ...
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(8.dp),
+                        .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
                 ) {
@@ -89,43 +139,7 @@ fun ProfileScreen(
                 }
             }
 
-            item {//Settings
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceAround,
-                ) {
-
-                    if (vm.showOptions.value) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize(0.8f)
-                                .background(MaterialTheme.colorScheme.secondary)
-                                .padding(8.dp)
-                                .align(Alignment.Top),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Top,
-                        ) {
-                            Button(onClick = { vm.onSignOut() }) {
-                                Text(text = stringResource(id = R.string.signOut))
-                            }
-                        }
-                    }
-
-                    ProfileScreenOptionsToggle(
-                        vm = vm,
-                        modifier = Modifier
-                            .align(Alignment.Top)
-                    )
-
-
-                }
-            }
-
-            item {
+            item { //Users quests
 
                 Box(
                     modifier = Modifier
