@@ -19,23 +19,23 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 
-class LogInScreenViewModel private constructor():ViewModel(){
+class LogInScreenViewModel private constructor() : ViewModel() {
 
-    companion object{
+    companion object {
 
-        private var INSTANCE:LogInScreenViewModel? = null
+        private var INSTANCE: LogInScreenViewModel? = null
 
-        fun getInstance(): LogInScreenViewModel{
+        fun getInstance(): LogInScreenViewModel {
 
             return INSTANCE ?: synchronized(this) {
 
-                       INSTANCE = LogInScreenViewModel()
-                        INSTANCE!!
-                    }
+                INSTANCE = LogInScreenViewModel()
+                INSTANCE!!
+            }
 
         }
 
-        fun clearData(){
+        fun clearData() {
             INSTANCE = null
         }
     }
@@ -45,7 +45,8 @@ class LogInScreenViewModel private constructor():ViewModel(){
 
     val validationDone = mutableStateOf(false)
 
-    val passwordTransformation: MutableState<VisualTransformation> = mutableStateOf(PasswordVisualTransformation())
+    val passwordTransformation: MutableState<VisualTransformation> =
+        mutableStateOf(PasswordVisualTransformation())
     val passwordIcon = mutableIntStateOf(R.drawable.black_eye)
 
     fun onEmailChange(newEmail: String) {
@@ -56,38 +57,38 @@ class LogInScreenViewModel private constructor():ViewModel(){
         password.value = newPassword
     }
 
-    fun onShowPasswordClick(){
+    fun onShowPasswordClick() {
 
-        passwordTransformation.value = when(passwordTransformation.value){
+        passwordTransformation.value = when (passwordTransformation.value) {
             VisualTransformation.None -> {
                 passwordIcon.intValue = R.drawable.black_eye
                 PasswordVisualTransformation()
             }
+
             else -> {
-                passwordIcon.intValue = R.drawable.red_warning
+                passwordIcon.intValue = R.drawable.red_eye
                 VisualTransformation.None
             }
         }
     }
 
-    suspend fun validateUser(navController: NavController) = coroutineScope{
+    suspend fun validateUser(navController: NavController) = coroutineScope {
 
-            if ( Firebase.auth.currentUser != null ) {
-                withContext(Dispatchers.Main){
-                    if (!navController.popBackStack())
-                        navController.navigate(Screens.PROFILE.name)
-                }
+        if (Firebase.auth.currentUser != null) {
+            withContext(Dispatchers.Main) {
+                if (!navController.popBackStack())
+                    navController.navigate(Screens.PROFILE.name)
             }
-            else validationDone.value = true
+        } else validationDone.value = true
     }
 
     suspend fun onLogInClick(context: Context, navController: NavController) {
 
         validationDone.value = false
 
-        try{
+        try {
             Firebase.auth.signInWithEmailAndPassword(email.value, password.value).await()
-        }catch (ex:Exception) {
+        } catch (ex: Exception) {
             withContext(Dispatchers.Main) {
                 MakeShortToast(
                     context = context,
@@ -100,8 +101,8 @@ class LogInScreenViewModel private constructor():ViewModel(){
     }
 
 
-    fun goToSignUpScreen(navController: NavController){
-        if(!navController.popBackStack(Screens.SIGN_UP.name, false))
+    fun goToSignUpScreen(navController: NavController) {
+        if (!navController.popBackStack(Screens.SIGN_UP.name, false))
             navController.navigate(Screens.SIGN_UP.name)
     }
 }
