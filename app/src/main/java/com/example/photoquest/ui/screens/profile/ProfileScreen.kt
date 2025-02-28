@@ -1,9 +1,10 @@
 package com.example.photoquest.ui.screens.profile
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,17 +34,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.photoquest.R
 import com.example.photoquest.ui.components.bottomBar.NavBar
-import com.example.photoquest.ui.theme.PhotoQuestTheme
 
 @Composable
 fun ProfileScreen(
@@ -52,7 +51,9 @@ fun ProfileScreen(
 
     //TODO: Implement profile screen loading and quests
 
-    val vm = ProfileScreenViewModel.getInstance(navController = navController)
+    val vm = ProfileScreenViewModel.getInstance()
+    if (vm.navController == null)
+        vm.setNavController(navController)
 
     Scaffold(
         modifier = Modifier
@@ -104,7 +105,7 @@ fun ProfileScreen(
                     horizontalArrangement = Arrangement.SpaceAround,
                 ) {
 
-                    if (!vm.showOptions.value) {
+                    if (vm.showOptions.value) {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -184,22 +185,11 @@ fun ProfilePictureUsernameAndFullName(vm: ProfileScreenViewModel) {
         verticalArrangement = Arrangement.Bottom,
     ) {
 
-        Box(
+        ProfilePicture(
+            vm = vm,
             modifier = Modifier
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.secondary)
-                //.border(5.dp, Color.Black)
-                .size(100.dp)
                 .align(Alignment.CenterHorizontally)
-
-        ) {
-            Text(
-                text = vm.displayedUser.value.pictureURL,
-                color = MaterialTheme.colorScheme.onSecondary,
-                modifier = Modifier
-                    .align(Alignment.Center)
-            )
-        }
+        )
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -289,15 +279,59 @@ fun ProfileScreenOptionsToggle(
 
 
 @Composable
-fun ProfilePicture() {
-    //TODO: implement profile pic view
-}
+fun ProfilePicture(vm: ProfileScreenViewModel, modifier: Modifier) {
 
-@Preview(name = "LightTheme", showBackground = true)
-@Preview(name = "DarkTheme", uiMode = UI_MODE_NIGHT_YES, showBackground = true)
-@Composable
-fun ProfileScreenPreview() {
-    PhotoQuestTheme {
-        ProfileScreen(navController = NavController(context = LocalContext.current))
+    Box(
+        modifier = modifier
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.secondary)
+            //.border(5.dp, Color.Black)
+            .size(100.dp)
+            .clickable { vm.isFullScreen.value = false }, // Click outside to exit full screen
+        contentAlignment = Alignment.Center
+    ) {
+        val sizeModifier = if (vm.isFullScreen.value) {
+            Modifier
+                .fillMaxSize()
+                .background(Color.Black) // Background for fullscreen mode
+        } else {
+            Modifier
+                .size(100.dp) // Initial small size
+        }
+
+        Image(
+            painter = painterResource(id = R.drawable.ic_launcher_orange_camera_foreground),
+            contentDescription = "Expandable Image",
+            modifier = sizeModifier
+                .clickable { vm.zoomProfilePicture() },
+            contentScale = if (vm.isFullScreen.value) ContentScale.Fit else ContentScale.Crop
+        )
     }
 }
+
+@Composable
+fun ProfilePictureFullSize(navController: NavController) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.0f))
+            .clickable { navController.popBackStack() }, // Click outside to exit full screen
+        contentAlignment = Alignment.Center
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.ic_launcher_foreground),
+            modifier = Modifier
+                .fillMaxWidth(),
+            contentDescription = null,
+        )
+    }
+}
+
+//@Preview(name = "LightTheme", showBackground = true)
+//@Preview(name = "DarkTheme", uiMode = UI_MODE_NIGHT_YES, showBackground = true)
+//@Composable
+//fun ProfileScreenPreview() {
+//    PhotoQuestTheme {
+//        ProfileScreen(navController = NavController(context = LocalContext.current))
+//    }
+//}

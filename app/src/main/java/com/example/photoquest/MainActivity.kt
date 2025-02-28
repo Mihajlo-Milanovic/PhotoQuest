@@ -12,7 +12,7 @@ import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import com.example.photoquest.ui.screens.logIn.LogInScreen
 import com.example.photoquest.ui.screens.makeQuest.MakeQuestScreen
-import com.example.photoquest.ui.screens.profile.ProfilePicture
+import com.example.photoquest.ui.screens.profile.ProfilePictureFullSize
 import com.example.photoquest.ui.screens.profile.ProfileScreen
 import com.example.photoquest.ui.screens.signUp.SignUpScreen
 import com.example.photoquest.ui.theme.PhotoQuestTheme
@@ -43,7 +43,7 @@ fun PhotoQuestApp() {
         composable(Screens.SIGN_UP.name) { SignUpScreen(navController = navController) }
         composable(Screens.PROFILE.name) { ProfileScreen(navController = navController) }
         composable(Screens.MAKE_QUEST.name) { MakeQuestScreen(navController = navController) }
-        dialog(Screens.PROFILE_PICTURE.name) { ProfilePicture() }
+        dialog(Screens.PROFILE_PICTURE.name) { ProfilePictureFullSize(navController = navController) }
     }
 }
 

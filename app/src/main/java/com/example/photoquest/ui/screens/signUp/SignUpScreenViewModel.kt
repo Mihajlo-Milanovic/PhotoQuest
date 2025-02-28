@@ -22,9 +22,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 
-class SignUpScreenViewModel private constructor(): ViewModel() {
+class SignUpScreenViewModel private constructor() : ViewModel() {
 
-    companion object{
+    companion object {
 
         private var INSTANCE: SignUpScreenViewModel? = null
 
@@ -38,7 +38,7 @@ class SignUpScreenViewModel private constructor(): ViewModel() {
 
         }
 
-        fun clearData(){
+        fun clearData() {
             INSTANCE = null
         }
     }
@@ -54,7 +54,8 @@ class SignUpScreenViewModel private constructor(): ViewModel() {
     val repPassword = mutableStateOf("")
 
 
-    val passwordTransformation: MutableState<VisualTransformation> = mutableStateOf(PasswordVisualTransformation())
+    val passwordTransformation: MutableState<VisualTransformation> =
+        mutableStateOf(PasswordVisualTransformation())
     val passwordIcon = mutableIntStateOf(R.drawable.black_eye)
 
     val signUpInProgress = mutableStateOf(false)
@@ -83,30 +84,32 @@ class SignUpScreenViewModel private constructor(): ViewModel() {
         repPassword.value = newRepPassword
     }
 
-    fun onShowPasswordClick(){
+    fun onShowPasswordClick() {
 
-        passwordTransformation.value = when(passwordTransformation.value){
+        passwordTransformation.value = when (passwordTransformation.value) {
             VisualTransformation.None -> {
                 passwordIcon.intValue = R.drawable.black_eye
                 PasswordVisualTransformation()
             }
+
             else -> {
-                passwordIcon.intValue = R.drawable.red_warning
+                passwordIcon.intValue = R.drawable.red_eye
                 VisualTransformation.None
             }
         }
     }
 
-    suspend fun onSignInClick(context: Context, navController: NavController) = coroutineScope{
+    suspend fun onSignInClick(context: Context, navController: NavController) = coroutineScope {
 
-        if(validatePassword(context = context)){
+        if (validatePassword(context = context)) {
 
             try {
                 signUserUp(email = email.value, password = password.value)
                 val udb = UserDbAPI()
 
                 currentUserUid()?.let {
-                    udb.createNewUser(id = it,
+                    udb.createNewUser(
+                        id = it,
                         user = User(
                             username = username.value,
                             lastName = lastName.value,
@@ -117,8 +120,7 @@ class SignUpScreenViewModel private constructor(): ViewModel() {
                 }
 
                 signUserIn(email = email.value, password = password.value)
-            }
-            catch (ex: Exception) {
+            } catch (ex: Exception) {
                 withContext(Dispatchers.Main) {
                     MakeShortToast(
                         context = context,
@@ -127,8 +129,8 @@ class SignUpScreenViewModel private constructor(): ViewModel() {
                 }
             }
 
-            if ( userSignedIn() ) {
-                withContext(Dispatchers.Main){
+            if (userSignedIn()) {
+                withContext(Dispatchers.Main) {
                     navController.popBackStack(Screens.LOG_IN.name, true)
                     navController.navigate(Screens.PROFILE.name)
                 }
@@ -139,21 +141,19 @@ class SignUpScreenViewModel private constructor(): ViewModel() {
         signUpInProgress.value = false
     }
 
-    private suspend fun validatePassword(context : Context): Boolean  =  coroutineScope {
+    private suspend fun validatePassword(context: Context): Boolean = coroutineScope {
 
-        if(password.value.length < 8) {
+        if (password.value.length < 8) {
             withContext(Dispatchers.Main) {
                 Toast.makeText(context, R.string.passwordTooShort, Toast.LENGTH_SHORT).show()
             }
             false
-        }
-        else if (!password.value.contentEquals(repPassword.value)){
+        } else if (!password.value.contentEquals(repPassword.value)) {
             withContext(Dispatchers.Main) {
                 Toast.makeText(context, R.string.passwordsDoNotMatch, Toast.LENGTH_SHORT).show()
             }
             false
-        }
-        else
+        } else
             true
 
     }

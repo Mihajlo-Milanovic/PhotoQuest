@@ -15,31 +15,30 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
-class ProfileScreenViewModel private constructor(
+class ProfileScreenViewModel private constructor() : ViewModel() {
 
-    val navController: NavController
+    var navController: NavController? = null
+        private set
 
-): ViewModel() {
-
-    companion object{
+    companion object {
 
         private var INSTANCE: ProfileScreenViewModel? = null
 
-        fun getInstance(navController: NavController): ProfileScreenViewModel{
+        fun getInstance(): ProfileScreenViewModel {
 
-            return INSTANCE?: synchronized(this){
+            return INSTANCE ?: synchronized(this) {
 
-                INSTANCE = ProfileScreenViewModel(navController = navController)
+                INSTANCE = ProfileScreenViewModel()
                 INSTANCE!!
             }
         }
 
-        private fun clearData(){
-            INSTANCE = INSTANCE?.let { ProfileScreenViewModel(navController = it.navController) }
+        private fun clearData() {
+            INSTANCE = INSTANCE?.let { ProfileScreenViewModel() }
         }
     }
 
-    val displayedUser = mutableStateOf( User() )
+    val displayedUser = mutableStateOf(User(pictureURL = "?"))
     var usersQuests = emptyList<Quest>()
         private set
 
@@ -48,40 +47,49 @@ class ProfileScreenViewModel private constructor(
     val usersQuestsLoaded = mutableStateOf(true)
 
 
-    suspend fun getUsersInfo() = coroutineScope{
+    fun setNavController(navController: NavController) {
+        this.navController = navController
+    }
 
-        launch(Dispatchers.Default){
+    suspend fun getUsersInfo() = coroutineScope {
+
+        launch(Dispatchers.Default) {
             displayedUser.value = currentUserUid()?.let { UserDbAPI().getUserWithUid(it) }!!
             userLoaded.value = true
         }
     }
 
-    suspend fun getUsersQuests() = coroutineScope{
+    suspend fun getUsersQuests() = coroutineScope {
 
-        launch(Dispatchers.Default){
+        launch(Dispatchers.Default) {
             usersQuests = currentUserUid()?.let { QuestDbAPI().getUsersQuests(it) }!!
             usersQuestsLoaded.value = true
         }
     }
 
 
-    fun onSignOut(){
+    fun onSignOut() {
         runBlocking {
 
             launch(Dispatchers.Default) {
                 signUserOut()
             }
 
-            navController.popBackStack(Screens.PROFILE.name, true)
-            navController.navigate(Screens.LOG_IN.name)
+            navController?.popBackStack(Screens.PROFILE.name, true)
+            navController?.navigate(Screens.LOG_IN.name)
 
             clearData()
         }
     }
 
-    fun onMakeNewQuest(){
+    fun onMakeNewQuest() {
+        navController?.navigate(Screens.MAKE_QUEST.name)
+    }
 
-        navController.navigate(Screens.MAKE_QUEST.name)
+    val isFullScreen = mutableStateOf(false)
+
+    fun zoomProfilePicture() {
+        navController?.navigate(Screens.PROFILE_PICTURE.name)
     }
 
 }
