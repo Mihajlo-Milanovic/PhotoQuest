@@ -1,5 +1,6 @@
 package com.example.photoquest.ui.screens.profile
 
+import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -34,15 +35,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.photoquest.R
 import com.example.photoquest.ui.components.bottomBar.NavBar
+import com.example.photoquest.ui.theme.PhotoQuestTheme
 
 @Composable
 fun ProfileScreen(
@@ -53,7 +56,7 @@ fun ProfileScreen(
 
     val vm = ProfileScreenViewModel.getInstance()
     if (vm.navController == null)
-        vm.setNavController(navController)
+        vm.setNavCtrl(navController)
 
     Scaffold(
         modifier = Modifier
@@ -277,7 +280,6 @@ fun ProfileScreenOptionsToggle(
 
 }
 
-
 @Composable
 fun ProfilePicture(vm: ProfileScreenViewModel, modifier: Modifier) {
 
@@ -285,26 +287,15 @@ fun ProfilePicture(vm: ProfileScreenViewModel, modifier: Modifier) {
         modifier = modifier
             .clip(CircleShape)
             .background(MaterialTheme.colorScheme.secondary)
-            //.border(5.dp, Color.Black)
-            .size(100.dp)
-            .clickable { vm.isFullScreen.value = false }, // Click outside to exit full screen
+            .size(100.dp),
         contentAlignment = Alignment.Center
     ) {
-        val sizeModifier = if (vm.isFullScreen.value) {
-            Modifier
-                .fillMaxSize()
-                .background(Color.Black) // Background for fullscreen mode
-        } else {
-            Modifier
-                .size(100.dp) // Initial small size
-        }
 
         Image(
             painter = painterResource(id = R.drawable.ic_launcher_orange_camera_foreground),
-            contentDescription = "Expandable Image",
-            modifier = sizeModifier
+            contentDescription = "Profile picture",
+            modifier = Modifier
                 .clickable { vm.zoomProfilePicture() },
-            contentScale = if (vm.isFullScreen.value) ContentScale.Fit else ContentScale.Crop
         )
     }
 }
@@ -315,7 +306,7 @@ fun ProfilePictureFullSize(navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background.copy(alpha = 0.0f))
-            .clickable { navController.popBackStack() }, // Click outside to exit full screen
+            .clickable { navController.popBackStack() },
         contentAlignment = Alignment.Center
     ) {
         Image(
@@ -327,11 +318,15 @@ fun ProfilePictureFullSize(navController: NavController) {
     }
 }
 
-//@Preview(name = "LightTheme", showBackground = true)
-//@Preview(name = "DarkTheme", uiMode = UI_MODE_NIGHT_YES, showBackground = true)
-//@Composable
-//fun ProfileScreenPreview() {
-//    PhotoQuestTheme {
-//        ProfileScreen(navController = NavController(context = LocalContext.current))
-//    }
-//}
+@Preview(name = "LightTheme", showBackground = true)
+@Preview(
+    name = "DarkTheme",
+    uiMode = Configuration.UI_MODE_NIGHT_NO or Configuration.UI_MODE_TYPE_NORMAL,
+    showBackground = true
+)
+@Composable
+fun ProfileScreenPreview() {
+    PhotoQuestTheme {
+        ProfileScreen(navController = NavController(context = LocalContext.current))
+    }
+}

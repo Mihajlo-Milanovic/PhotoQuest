@@ -28,6 +28,8 @@ import com.example.photoquest.ui.theme.PhotoQuestTheme
 fun NavBar(navController: NavController) {
 
     val vm = NavBarViewModel.getInstance()
+    if (vm.navController == null)
+        vm.setNavCtrl(navController)
 
     NavigationBar(
         modifier = Modifier
@@ -47,6 +49,13 @@ fun NavBar(navController: NavController) {
                 vm = vm,
                 iconId = R.drawable.baseline_leaderboard,
                 navigateTo = Screens.LEADERBOARD,
+            )
+
+            //Make quest
+            NavButton(
+                vm = vm,
+                iconId = R.drawable.round_add_box_24,
+                navigateTo = Screens.MAKE_QUEST,
             )
 
             //Profile Button
