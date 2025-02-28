@@ -10,15 +10,13 @@ import com.example.photoquest.services.QuestDbAPI
 import com.example.photoquest.services.UserDbAPI
 import com.example.photoquest.services.currentUserUid
 import com.example.photoquest.services.signUserOut
+import com.example.photoquest.ui.screens.auxiliary.NavExtender
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
-class ProfileScreenViewModel private constructor() : ViewModel() {
-
-    var navController: NavController? = null
-        private set
+class ProfileScreenViewModel private constructor() : ViewModel(), NavExtender {
 
     companion object {
 
@@ -38,6 +36,8 @@ class ProfileScreenViewModel private constructor() : ViewModel() {
         }
     }
 
+    override var navController: NavController? = null
+
     val displayedUser = mutableStateOf(User(pictureURL = "?"))
     var usersQuests = emptyList<Quest>()
         private set
@@ -46,10 +46,6 @@ class ProfileScreenViewModel private constructor() : ViewModel() {
     val userLoaded = mutableStateOf(false)
     val usersQuestsLoaded = mutableStateOf(true)
 
-
-    fun setNavController(navController: NavController) {
-        this.navController = navController
-    }
 
     suspend fun getUsersInfo() = coroutineScope {
 
