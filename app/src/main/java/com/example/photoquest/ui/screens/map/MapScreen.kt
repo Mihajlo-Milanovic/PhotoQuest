@@ -1,4 +1,4 @@
-package com.example.photoquest.ui.screens.leaderboard
+package com.example.photoquest.ui.screens.map
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -10,9 +10,9 @@ import androidx.navigation.NavController
 import com.example.photoquest.ui.components.bottomBar.NavBar
 
 @Composable
-fun LeaderboardScreen(navController: NavController) {
+fun MapScreen(navController: NavController) {
 
-    val vm = LeaderboardScreenViewModel.getInstance()
+    val vm = MapScreenViewModel.getInstance()
     if (vm.navController == null)
         vm.setNavCtrl(navController)
 
@@ -23,6 +23,6 @@ fun LeaderboardScreen(navController: NavController) {
             NavBar(navController = navController)
         }
     ) { padding ->
-        Text("Leaderboard screen", modifier = Modifier.padding(padding))
+        Text("Map screen", modifier = Modifier.padding(padding))
     }
 }

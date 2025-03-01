@@ -1,22 +1,22 @@
-package com.example.photoquest.ui.screens.leaderboard
+package com.example.photoquest.ui.screens.map
 
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.photoquest.ui.screens.auxiliary.NavExtender
 
-class LeaderboardScreenViewModel : ViewModel(), NavExtender {
+class MapScreenViewModel private constructor() : ViewModel(), NavExtender {
 
     companion object {
+        private var INSTANCE: MapScreenViewModel? = null
 
-        private var INSTANCE: LeaderboardScreenViewModel? = null
-
-        fun getInstance(): LeaderboardScreenViewModel {
+        fun getInstance(): MapScreenViewModel {
             return INSTANCE ?: synchronized(this) {
-                INSTANCE = LeaderboardScreenViewModel()
+                INSTANCE = MapScreenViewModel()
                 INSTANCE!!
             }
         }
     }
 
     override var navController: NavController? = null
+        
 }

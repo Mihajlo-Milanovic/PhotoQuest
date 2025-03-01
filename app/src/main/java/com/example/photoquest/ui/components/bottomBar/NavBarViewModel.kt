@@ -1,11 +1,12 @@
 package com.example.photoquest.ui.components.bottomBar
 
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.photoquest.Screens
 import com.example.photoquest.ui.screens.auxiliary.NavExtender
 
-class NavBarViewModel private constructor() : NavExtender {
+class NavBarViewModel private constructor() : ViewModel(), NavExtender {
 
     companion object {
         private var INSTANCE: NavBarViewModel? = null
