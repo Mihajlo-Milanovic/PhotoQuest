@@ -51,6 +51,13 @@ fun NavBar(navController: NavController) {
                 navigateTo = Screens.LEADERBOARD,
             )
 
+            //Map
+            NavButton(
+                vm = vm,
+                iconId = R.drawable.baseline_map_24,
+                navigateTo = Screens.MAP
+            )
+
             //Make quest
             NavButton(
                 vm = vm,
