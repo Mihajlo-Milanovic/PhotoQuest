@@ -7,13 +7,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
+import com.example.photoquest.R
 import com.example.photoquest.ui.components.bottomBar.NavBar
+import com.example.photoquest.ui.permissions.PermitLocationTrackingDialog
+
 
 @Composable
 fun MapScreen(navController: NavController) {
 
     val vm = MapScreenViewModel.getInstance()
-    if (vm.navController == null)
+    if (vm.navController.value == null)
         vm.setNavCtrl(navController)
 
     Scaffold(
@@ -23,6 +26,18 @@ fun MapScreen(navController: NavController) {
             NavBar(navController = navController)
         }
     ) { padding ->
-        Text("Map screen", modifier = Modifier.padding(padding))
+
+        PermitLocationTrackingDialog(
+            requestReason = R.string.locationPermissionReason,
+            modifier = Modifier.padding(padding)
+        )
+        DrawMapScreen(modifier = Modifier.padding(padding))
     }
+}
+
+@Composable
+fun DrawMapScreen(
+    modifier: Modifier
+) {
+    Text("Map screen", modifier = modifier)
 }

@@ -13,7 +13,7 @@ import com.example.photoquest.ui.components.bottomBar.NavBar
 fun LeaderboardScreen(navController: NavController) {
 
     val vm = LeaderboardScreenViewModel.getInstance()
-    if (vm.navController == null)
+    if (vm.navController.value == null)
         vm.setNavCtrl(navController)
 
     Scaffold(

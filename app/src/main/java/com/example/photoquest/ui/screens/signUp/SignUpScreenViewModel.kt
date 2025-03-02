@@ -12,17 +12,18 @@ import androidx.navigation.NavController
 import com.example.photoquest.R
 import com.example.photoquest.Screens
 import com.example.photoquest.models.data.User
-import com.example.photoquest.services.MakeShortToast
 import com.example.photoquest.services.UserDbAPI
 import com.example.photoquest.services.currentUserUid
+import com.example.photoquest.services.makeShortToast
 import com.example.photoquest.services.signUserIn
 import com.example.photoquest.services.signUserUp
 import com.example.photoquest.services.userSignedIn
+import com.example.photoquest.ui.screens.auxiliary.NavExtender
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 
-class SignUpScreenViewModel private constructor() : ViewModel() {
+class SignUpScreenViewModel private constructor() : ViewModel(), NavExtender {
 
     companion object {
 
@@ -43,6 +44,7 @@ class SignUpScreenViewModel private constructor() : ViewModel() {
         }
     }
 
+    override val navController: MutableState<NavController?> = mutableStateOf(null)
 
     val username = mutableStateOf("")
     val firstName = mutableStateOf("")
@@ -99,7 +101,7 @@ class SignUpScreenViewModel private constructor() : ViewModel() {
         }
     }
 
-    suspend fun onSignInClick(context: Context, navController: NavController) = coroutineScope {
+    suspend fun onSignInClick(context: Context) = coroutineScope {
 
         if (validatePassword(context = context)) {
 
@@ -122,7 +124,7 @@ class SignUpScreenViewModel private constructor() : ViewModel() {
                 signUserIn(email = email.value, password = password.value)
             } catch (ex: Exception) {
                 withContext(Dispatchers.Main) {
-                    MakeShortToast(
+                    makeShortToast(
                         context = context,
                         message = ex.message ?: "Hmm...Something suspicious happened!"
                     )
@@ -131,8 +133,8 @@ class SignUpScreenViewModel private constructor() : ViewModel() {
 
             if (userSignedIn()) {
                 withContext(Dispatchers.Main) {
-                    navController.popBackStack(Screens.LOG_IN.name, true)
-                    navController.navigate(Screens.PROFILE.name)
+                    navController.value?.popBackStack(Screens.LOG_IN.name, true)
+                    navController.value?.navigate(Screens.PROFILE.name)
                 }
             }
 

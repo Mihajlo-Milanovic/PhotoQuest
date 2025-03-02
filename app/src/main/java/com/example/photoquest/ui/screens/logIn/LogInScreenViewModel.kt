@@ -10,7 +10,8 @@ import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.photoquest.R
 import com.example.photoquest.Screens
-import com.example.photoquest.services.MakeShortToast
+import com.example.photoquest.services.makeShortToast
+import com.example.photoquest.ui.screens.auxiliary.NavExtender
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import kotlinx.coroutines.Dispatchers
@@ -19,7 +20,7 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 
-class LogInScreenViewModel private constructor() : ViewModel() {
+class LogInScreenViewModel private constructor() : ViewModel(), NavExtender {
 
     companion object {
 
@@ -39,6 +40,8 @@ class LogInScreenViewModel private constructor() : ViewModel() {
             INSTANCE = null
         }
     }
+
+    override val navController: MutableState<NavController?> = mutableStateOf(null)
 
     val email = mutableStateOf("")
     val password = mutableStateOf("")
@@ -72,17 +75,17 @@ class LogInScreenViewModel private constructor() : ViewModel() {
         }
     }
 
-    suspend fun validateUser(navController: NavController) = coroutineScope {
+    suspend fun validateUser() = coroutineScope {
 
         if (Firebase.auth.currentUser != null) {
             withContext(Dispatchers.Main) {
-                if (!navController.popBackStack())
-                    navController.navigate(Screens.PROFILE.name)
+                if (!navController.value?.popBackStack()!!)
+                    navController.value?.navigate(Screens.PROFILE.name)
             }
         } else validationDone.value = true
     }
 
-    suspend fun onLogInClick(context: Context, navController: NavController) {
+    suspend fun onLogInClick(context: Context) {
 
         validationDone.value = false
 
@@ -90,19 +93,19 @@ class LogInScreenViewModel private constructor() : ViewModel() {
             Firebase.auth.signInWithEmailAndPassword(email.value, password.value).await()
         } catch (ex: Exception) {
             withContext(Dispatchers.Main) {
-                MakeShortToast(
+                makeShortToast(
                     context = context,
                     message = ex.message ?: "Hmm...Something suspicious happened!"
                 )
             }
         }
 
-        validateUser(navController = navController)
+        validateUser()
     }
 
 
-    fun goToSignUpScreen(navController: NavController) {
-        if (!navController.popBackStack(Screens.SIGN_UP.name, false))
-            navController.navigate(Screens.SIGN_UP.name)
+    fun goToSignUpScreen() {
+        if (!navController.value?.popBackStack(Screens.SIGN_UP.name, false)!!)
+            navController.value?.navigate(Screens.SIGN_UP.name)
     }
 }

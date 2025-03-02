@@ -1,5 +1,6 @@
 package com.example.photoquest.ui.screens.profile
 
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
@@ -32,11 +33,13 @@ class ProfileScreenViewModel private constructor() : ViewModel(), NavExtender {
         }
 
         private fun clearData() {
-            INSTANCE = INSTANCE?.let { ProfileScreenViewModel() }
+            synchronized(this) {
+                INSTANCE = null
+            }
         }
     }
 
-    override var navController: NavController? = null
+    override val navController: MutableState<NavController?> = mutableStateOf(null)
 
     val displayedUser = mutableStateOf(User(pictureURL = "?"))
     var usersQuests = emptyList<Quest>()
@@ -71,21 +74,19 @@ class ProfileScreenViewModel private constructor() : ViewModel(), NavExtender {
                 signUserOut()
             }
 
-            navController?.popBackStack(Screens.PROFILE.name, true)
-            navController?.navigate(Screens.LOG_IN.name)
+            navController.value?.popBackStack(Screens.PROFILE.name, true)
+            navController.value?.navigate(Screens.LOG_IN.name)
 
             clearData()
         }
     }
 
     fun onMakeNewQuest() {
-        navController?.navigate(Screens.MAKE_QUEST.name)
+        navController.value?.navigate(Screens.MAKE_QUEST.name)
     }
 
-    val isFullScreen = mutableStateOf(false)
-
     fun zoomProfilePicture() {
-        navController?.navigate(Screens.PROFILE_PICTURE.name)
+        navController.value?.navigate(Screens.PROFILE_PICTURE.name)
     }
 
 }

@@ -1,5 +1,6 @@
 package com.example.photoquest.ui.screens.makeQuest
 
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
@@ -20,8 +21,8 @@ class MakeQuestScreenViewModel private constructor() : ViewModel(), NavExtender 
         }
     }
 
-    override var navController: NavController? = null
+    override val navController: MutableState<NavController?> = mutableStateOf(null)
 
-    val showEnableLocationTrackingDialog = mutableStateOf(true)
+    //val showEnableLocationTrackingDialog = mutableStateOf(true)
 
 }

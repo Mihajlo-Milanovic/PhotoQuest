@@ -1,48 +1,59 @@
 package com.example.photoquest.ui.screens.makeQuest
 
 import android.content.res.Configuration
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.photoquest.ui.permissions.PleaseEnableLocationAndCameraDialog
-import com.example.photoquest.ui.permissions.RequestLocationAndCameraPermissions
+import com.example.photoquest.R
+import com.example.photoquest.ui.components.bottomBar.NavBar
+import com.example.photoquest.ui.permissions.PermitImageAndCameraAccessDialog
+import com.example.photoquest.ui.permissions.PermitLocationTrackingDialog
 import com.example.photoquest.ui.theme.PhotoQuestTheme
 
 @Composable
 fun MakeQuestScreen(
-
     navController: NavController
 ) {
     val vm = MakeQuestScreenViewModel.getInstance()
+    if (vm.navController.value == null)
+        vm.setNavCtrl(navController)
     val context = LocalContext.current
 
-    Surface(
+    Scaffold(
         modifier = Modifier
             .fillMaxSize(),
-    ) {
-
-        if (!vm.showEnableLocationTrackingDialog.value) {
-            PleaseEnableLocationAndCameraDialog()
+        bottomBar = {
+            NavBar(navController = navController)
         }
+    ) { padding ->
 
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
+        PermitLocationTrackingDialog(
+            modifier = Modifier.padding(padding),
+            requestReason = R.string.toMakeQuestLocationReason
+        )
 
-            RequestLocationAndCameraPermissions(
-                context = context
-            )
-        }
+        PermitImageAndCameraAccessDialog(
+            modifier = Modifier.padding(padding),
+            requestReason = R.string.toMakeQuestCameraAndStorageReason
+        )
 
+        DrawMakeQuestScreen(
+            modifier = Modifier.padding(padding)
+        )
     }
+}
 
+@Composable
+fun DrawMakeQuestScreen(
+    modifier: Modifier
+) {
+    Text("Make quest screen", modifier = Modifier)
 }
 
 //@Preview(name = "LightTheme", showBackground = true)

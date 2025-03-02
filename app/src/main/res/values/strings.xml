@@ -7,7 +7,7 @@
     <string name="loggedInSuccessfully">Logged in successfully</string>
     <string name="mustBeAtLeast8">Password must be at least 8 characters long</string>
     <string name="photoQuest">Photo Quest</string>
-    <string name="dontHaveAcc">You don\'t have an account?</string>
+    <string name="doNotHaveAcc">You don\'t have an account?</string>
     <string name="register">Register</string>
     <string name="confirmPassword">Confirm password</string>
     <string name="username">Username</string>
@@ -20,6 +20,9 @@
     <string name="score">Score:</string>
     <string name="questsMade">Quests made:</string>
     <string name="makeNewQuest">Make new quest</string>
-    <string name="toMakeQuest">To create a quest you must enable location tracking so we can record the precise location from which the image was taken.</string>
     <string name="iUnderstand">I understand</string>
+    <string name="toMakeQuestLocationReason">To create a quest you must enable location tracking so we can record the precise location from which the image was taken.</string>
+    <string name="locationPermissionReason">This application relies on user location tracking.\n\nIn order for this application to function smoothly, it is necessary to grant permission to track the precise location of the device and turn on GPS.</string>
+    <string name="toMakeQuestCameraAndStorageReason">In order for the application to work with your images, you need to allow access to the camera and storage.</string>
+    <string name="appNeedsCameraPermission">The application needs access to the device\'s camera.</string>
 </resources>
