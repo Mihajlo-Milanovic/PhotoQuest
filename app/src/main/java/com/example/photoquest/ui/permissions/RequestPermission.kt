@@ -1,15 +1,17 @@
 package com.example.photoquest.ui.permissions
 
 import android.Manifest
-import android.content.Context
-import android.util.Log
+import android.Manifest.permission.CAMERA
+import android.Manifest.permission.READ_EXTERNAL_STORAGE
+import android.Manifest.permission.READ_MEDIA_IMAGES
+import android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -19,89 +21,90 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.photoquest.R
-import com.example.photoquest.ui.screens.makeQuest.MakeQuestScreenViewModel
 
 @Composable
-fun RequestPermission(
-    permission: String
+fun PermitLocationTrackingDialog(
+    modifier: Modifier,
+    requestReason: Int,
 ) {
 
-    val vm = PermissionsViewModel.getInstance()
+    val pvm = PermissionsViewModel.getInstance()
     val context = LocalContext.current
 
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        vm.updatePermission(permission, isGranted)
+    var dialogNeeded by remember {
+        mutableStateOf(
+            !pvm.isPermissionGranted(
+                permission = Manifest.permission.ACCESS_FINE_LOCATION,
+                context = context
+            )
+        )
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        if (vm.isPermissionGranted(permission, context)) {
-            Text("${permission.substringAfter("_")} permission granted")
-        } else {
-            Text("${permission.substringAfter("_")} permission not granted")
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = {
+    if (dialogNeeded) {
 
-                permissionLauncher.launch(permission)
-            }) {
-                Text("Request ${permission.substringAfter("_")} Permission")
-            }
-        }
-    }
-}
+        val permissionLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestMultiplePermissions()
+        ) {}
 
-@Composable
-fun PleaseEnableLocationAndCameraDialog() {
-
-    val makeQuestVM = MakeQuestScreenViewModel.getInstance()
-
-    Dialog(
-        properties = DialogProperties(
-            dismissOnBackPress = true,
-            dismissOnClickOutside = true,
-            usePlatformDefaultWidth = true,
-        ),
-        onDismissRequest = { /*TODO*/ }) {
-
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(
-                    width = 5.dp,
-                    color = MaterialTheme.colorScheme.secondary,
-                    shape = AbsoluteRoundedCornerShape(31.dp)
-                )
-                .clip(AbsoluteRoundedCornerShape(32.dp))
+        Dialog(
+            properties = DialogProperties(
+                dismissOnBackPress = true,
+                dismissOnClickOutside = true,
+                usePlatformDefaultWidth = true,
+            ),
+            onDismissRequest = {},
         ) {
-            Column(
-                modifier = Modifier
+
+            Surface(
+                modifier = modifier
                     .fillMaxWidth()
-                    .padding(32.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.End
+                    .border(
+                        width = 5.dp,
+                        color = MaterialTheme.colorScheme.secondary,
+                        shape = AbsoluteRoundedCornerShape(31.dp)
+                    )
+                    .clip(AbsoluteRoundedCornerShape(32.dp))
             ) {
 
-                Text(
-                    text = stringResource(R.string.toMakeQuest),
-                    modifier = Modifier
-                )
-                Spacer(modifier = Modifier.height(32.dp))
-                Button(onClick = { makeQuestVM.showEnableLocationTrackingDialog.value = false }) {
-                    Text(text = stringResource(R.string.iUnderstand))
+                Column(
+                    modifier = modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(requestReason),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .padding(16.dp)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(onClick = {
+                        permissionLauncher.launch(
+                            arrayOf(
+                                Manifest.permission.ACCESS_COARSE_LOCATION,
+                                Manifest.permission.ACCESS_FINE_LOCATION
+                            )
+                        )
+
+                        dialogNeeded = false
+                    }) {
+                        Text(text = stringResource(R.string.iUnderstand))
+                    }
                 }
             }
         }
@@ -109,32 +112,228 @@ fun PleaseEnableLocationAndCameraDialog() {
 }
 
 @Composable
-fun RequestLocationAndCameraPermissions(
-    context: Context
+fun PermitCameraUsageDialog(
+    modifier: Modifier,
+    requestReason: Int,
 ) {
 
-    val permissionsViewModel = PermissionsViewModel.getInstance()
+    val pvm = PermissionsViewModel.getInstance()
+    val context = LocalContext.current
 
-    /* TODO: Reconsider request for camera permission*/
+    var dialogNeeded by remember {
+        mutableStateOf(
+            !pvm.isPermissionGranted(
+                permission = Manifest.permission.CAMERA,
+                context = context
+            )
+        )
+    }
 
-    when (false) {
+    if (dialogNeeded) {
 
-        permissionsViewModel.isPermissionGranted(
-            permission = Manifest.permission_group.LOCATION,
-            context = context
-        ) -> RequestPermission(permission = Manifest.permission_group.LOCATION)
+        val permissionLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission()
+        ) {}
 
-        permissionsViewModel.isPermissionGranted(
-            permission = Manifest.permission.ACCESS_COARSE_LOCATION,
-            context = context
-        ) -> RequestPermission(permission = Manifest.permission.ACCESS_COARSE_LOCATION)
+        Dialog(
+            properties = DialogProperties(
+                dismissOnBackPress = true,
+                dismissOnClickOutside = true,
+                usePlatformDefaultWidth = true,
+            ),
+            onDismissRequest = {},
+        ) {
 
-        permissionsViewModel.isPermissionGranted(
-            permission = Manifest.permission.ACCESS_FINE_LOCATION,
-            context = context
-        ) -> RequestPermission(permission = Manifest.permission.ACCESS_FINE_LOCATION)
+            Surface(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .border(
+                        width = 5.dp,
+                        color = MaterialTheme.colorScheme.secondary,
+                        shape = AbsoluteRoundedCornerShape(31.dp)
+                    )
+                    .clip(AbsoluteRoundedCornerShape(32.dp))
+            ) {
 
-        else -> Log.i("PERMISSIONS", "All location tracking permissions granted.")
+                Column(
+                    modifier = modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(requestReason),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .padding(16.dp)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(onClick = {
+                        permissionLauncher.launch(Manifest.permission.CAMERA)
+
+                        dialogNeeded = false
+                    }) {
+                        Text(text = stringResource(R.string.iUnderstand))
+                    }
+                }
+            }
+        }
     }
 }
 
+
+@Composable
+fun PermitImageAccessDialog(
+    modifier: Modifier,
+    requestReason: Int,
+) {
+
+    val pvm = PermissionsViewModel.getInstance()
+    val context = LocalContext.current
+
+    val permissionArray = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+        arrayOf(READ_MEDIA_IMAGES, READ_MEDIA_VISUAL_USER_SELECTED)
+    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        arrayOf(READ_MEDIA_IMAGES)
+    } else {
+        arrayOf(READ_EXTERNAL_STORAGE)
+    }
+
+    var dialogNeeded by remember {
+        mutableStateOf(
+            !pvm.arePermissionsGranted(
+                array = permissionArray,
+                context = context
+            )
+        )
+    }
+
+    if (dialogNeeded) {
+
+        val permissionLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestMultiplePermissions()
+        ) {}
+
+        Dialog(
+            properties = DialogProperties(
+                dismissOnBackPress = true,
+                dismissOnClickOutside = true,
+                usePlatformDefaultWidth = true,
+            ),
+            onDismissRequest = {},
+        ) {
+
+            Surface(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .border(
+                        width = 5.dp,
+                        color = MaterialTheme.colorScheme.secondary,
+                        shape = AbsoluteRoundedCornerShape(31.dp)
+                    )
+                    .clip(AbsoluteRoundedCornerShape(32.dp))
+            ) {
+
+                Column(
+                    modifier = modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(requestReason),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .padding(16.dp)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(onClick = {
+                        permissionLauncher.launch(permissionArray)
+
+                        dialogNeeded = false
+                    }) {
+                        Text(text = stringResource(R.string.iUnderstand))
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun PermitImageAndCameraAccessDialog(
+    modifier: Modifier,
+    requestReason: Int,
+) {
+
+    val pvm = PermissionsViewModel.getInstance()
+    val context = LocalContext.current
+
+    val permissionArray = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+        arrayOf(READ_MEDIA_IMAGES, READ_MEDIA_VISUAL_USER_SELECTED, CAMERA)
+    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        arrayOf(READ_MEDIA_IMAGES, CAMERA)
+    } else {
+        arrayOf(READ_EXTERNAL_STORAGE, CAMERA)
+    }
+
+    var dialogNeeded by remember {
+        mutableStateOf(
+            !pvm.arePermissionsGranted(
+                array = permissionArray,
+                context = context
+            )
+        )
+    }
+
+    if (dialogNeeded) {
+
+        val permissionLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestMultiplePermissions()
+        ) {}
+
+        Dialog(
+            properties = DialogProperties(
+                dismissOnBackPress = true,
+                dismissOnClickOutside = true,
+                usePlatformDefaultWidth = true,
+            ),
+            onDismissRequest = {},
+        ) {
+
+            Surface(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .border(
+                        width = 5.dp,
+                        color = MaterialTheme.colorScheme.secondary,
+                        shape = AbsoluteRoundedCornerShape(31.dp)
+                    )
+                    .clip(AbsoluteRoundedCornerShape(32.dp))
+            ) {
+
+                Column(
+                    modifier = modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(requestReason),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .padding(16.dp)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(onClick = {
+                        permissionLauncher.launch(permissionArray)
+
+                        dialogNeeded = false
+                    }) {
+                        Text(text = stringResource(R.string.iUnderstand))
+                    }
+                }
+            }
+        }
+    }
+}

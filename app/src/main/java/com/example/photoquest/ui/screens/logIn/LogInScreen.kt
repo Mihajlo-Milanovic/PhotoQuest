@@ -33,8 +33,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.photoquest.R
-import com.example.photoquest.ui.theme.PhotoQuestTheme
 import com.example.photoquest.ui.components.DrawLogo
+import com.example.photoquest.ui.theme.PhotoQuestTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -44,12 +44,14 @@ fun LogInScreen(
     navController: NavController
 ) {
     val vm = LogInScreenViewModel.getInstance()
+    if (vm.navController.value == null)
+        vm.setNavCtrl(navController)
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        launch (Dispatchers.Default){
-            vm.validateUser(navController)
+        launch(Dispatchers.Default) {
+            vm.validateUser()
         }
     }
 
@@ -63,25 +65,29 @@ fun LogInScreen(
             verticalArrangement = Arrangement.Center
         ) {
 
-            item{
+            item {
 
                 DrawLogo()
 
                 Spacer(modifier = Modifier.height(64.dp))
             }
 
-            item{
-                if(vm.validationDone.value){
+            item {
+                if (vm.validationDone.value) {
 
                     LogInInputFields(vm = vm)
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    LogInButtons(vm = vm, context = context, navController = navController, coroutineScope = coroutineScope)
+                    LogInButtons(
+                        vm = vm,
+                        context = context,
+                        coroutineScope = coroutineScope
+                    )
 
-                }else {
+                } else {
 
-                    CircularProgressIndicator( color = MaterialTheme.colorScheme.primary)
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             }
         }
@@ -89,7 +95,7 @@ fun LogInScreen(
 }
 
 @Composable
-fun LogInInputFields(vm: LogInScreenViewModel){
+fun LogInInputFields(vm: LogInScreenViewModel) {
 
     OutlinedTextField(
         value = vm.email.value,
@@ -110,7 +116,8 @@ fun LogInInputFields(vm: LogInScreenViewModel){
         trailingIcon = {
 
             IconButton(onClick = { vm.onShowPasswordClick() }) {
-                Icon(imageVector = ImageVector.vectorResource(id = vm.passwordIcon.intValue),
+                Icon(
+                    imageVector = ImageVector.vectorResource(id = vm.passwordIcon.intValue),
                     contentDescription = null
                 )
             }
@@ -121,12 +128,16 @@ fun LogInInputFields(vm: LogInScreenViewModel){
 }
 
 @Composable
-fun LogInButtons(vm: LogInScreenViewModel, context: Context, navController: NavController, coroutineScope: CoroutineScope){
+fun LogInButtons(
+    vm: LogInScreenViewModel,
+    context: Context,
+    coroutineScope: CoroutineScope
+) {
 
     Button(
         onClick = {
-            coroutineScope.launch (Dispatchers.Default){
-                vm.onLogInClick(context = context, navController = navController)
+            coroutineScope.launch(Dispatchers.Default) {
+                vm.onLogInClick(context = context)
             }
         },
         modifier = Modifier
@@ -143,14 +154,14 @@ fun LogInButtons(vm: LogInScreenViewModel, context: Context, navController: NavC
 
     Text(
         text = AnnotatedString(
-            stringResource(id = R.string.dontHaveAcc),
+            stringResource(id = R.string.doNotHaveAcc),
         ),
         style = TextStyle(
             color = MaterialTheme.colorScheme.primary,
             fontSize = 18.sp
         ),
         modifier = Modifier.clickable {
-            vm.goToSignUpScreen(navController)
+            vm.goToSignUpScreen()
         }
     )
 }

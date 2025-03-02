@@ -55,7 +55,7 @@ fun ProfileScreen(
     //TODO: Implement profile screen loading and quests
 
     val vm = ProfileScreenViewModel.getInstance()
-    if (vm.navController == null)
+    if (vm.navController.value == null)
         vm.setNavCtrl(navController)
 
     Scaffold(
@@ -310,6 +310,7 @@ fun ProfilePictureFullSize(navController: NavController) {
         contentAlignment = Alignment.Center
     ) {
         Image(
+            //TODO: staviti normalnu sliku
             painter = painterResource(id = R.drawable.ic_launcher_foreground),
             modifier = Modifier
                 .fillMaxWidth(),

@@ -29,8 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.photoquest.R
-import com.example.photoquest.ui.theme.PhotoQuestTheme
 import com.example.photoquest.ui.components.DrawLogo
+import com.example.photoquest.ui.theme.PhotoQuestTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -42,6 +42,9 @@ fun SignUpScreen(
 ) {
 
     val vm = SignUpScreenViewModel.getInstance()
+    if (vm.navController.value == null)
+        vm.setNavCtrl(navController)
+
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
@@ -73,8 +76,7 @@ fun SignUpScreen(
                     SignUpScreenButton(
                         vm = vm,
                         context = context,
-                        coroutineScope = coroutineScope,
-                        navController = navController
+                        coroutineScope = coroutineScope
                     )
                 } else CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
@@ -156,13 +158,12 @@ fun SignUpScreenButton(
     vm: SignUpScreenViewModel,
     context: Context,
     coroutineScope: CoroutineScope,
-    navController: NavController
 ) {
     Button(
         onClick = {
             vm.signUpInProgress.value = true
             coroutineScope.launch(Dispatchers.Default) {
-                vm.onSignInClick(context = context, navController = navController)
+                vm.onSignInClick(context = context)
             }
         },
         modifier = Modifier.fillMaxWidth()

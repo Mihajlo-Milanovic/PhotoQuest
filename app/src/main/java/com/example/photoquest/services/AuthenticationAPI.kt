@@ -9,18 +9,18 @@ suspend fun signUserUp(email: String, password: String) {
     Firebase.auth.createUserWithEmailAndPassword(email, password).await()
 }
 
-suspend fun signUserIn(email: String, password: String){
+suspend fun signUserIn(email: String, password: String) {
     Firebase.auth.signInWithEmailAndPassword(email, password).await()
 }
 
-suspend fun signUserOut(){
+fun signUserOut() {
     Firebase.auth.signOut()
 }
 
-suspend fun currentUserUid(): String? {
+fun currentUserUid(): String? {
     return Firebase.auth.currentUser?.uid
 }
 
-suspend fun userSignedIn(): Boolean{
+fun userSignedIn(): Boolean {
     return Firebase.auth.currentUser != null
 }

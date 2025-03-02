@@ -17,25 +17,24 @@ class PermissionsViewModel private constructor() {
                 INSTANCE!!
             }
         }
-    }
 
-    private val permissions: MutableMap<String, Boolean> = mutableMapOf()
-
-    fun updatePermission(permission: String, granted: Boolean) {
-
-        permissions[permission] = granted
+        private fun clearData() {
+            synchronized(this) {
+                INSTANCE = null
+            }
+        }
     }
 
     fun isPermissionGranted(permission: String, context: Context): Boolean {
-
-        if (!permissions.containsKey(permission)) {
-            permissions[permission] = checkPermission(context = context, permission = permission)
-        }
-        return permissions[permission]!!
-    }
-
-    private fun checkPermission(context: Context, permission: String): Boolean {
         return ContextCompat
             .checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
+    }
+
+    fun arePermissionsGranted(array: Array<String>, context: Context): Boolean {
+        val arr = array.map {
+            ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+        }
+
+        return !arr.contains(false)
     }
 }
