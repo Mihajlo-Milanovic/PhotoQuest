@@ -28,7 +28,7 @@ import com.example.photoquest.ui.theme.PhotoQuestTheme
 fun NavBar(navController: NavController) {
 
     val vm = NavBarViewModel.getInstance()
-    if (vm.navController == null)
+    if (vm.navController.value == null)
         vm.setNavCtrl(navController)
 
     NavigationBar(

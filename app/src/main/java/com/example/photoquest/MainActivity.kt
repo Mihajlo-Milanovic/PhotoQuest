@@ -10,6 +10,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
+import com.example.photoquest.services.userSignedIn
+import com.example.photoquest.ui.components.bottomBar.NavBarViewModel
 import com.example.photoquest.ui.screens.leaderboard.LeaderboardScreen
 import com.example.photoquest.ui.screens.logIn.LogInScreen
 import com.example.photoquest.ui.screens.makeQuest.MakeQuestScreen
@@ -33,21 +35,46 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
 }
 
 @Composable
 fun PhotoQuestApp() {
 
     val navController = rememberNavController()
+    val navBarViewModel = NavBarViewModel.getInstance()
 
-    NavHost(navController, startDestination = Screens.LOG_IN.name) {
-        composable(Screens.LOG_IN.name) { LogInScreen(navController = navController) }
-        composable(Screens.SIGN_UP.name) { SignUpScreen(navController = navController) }
-        composable(Screens.PROFILE.name) { ProfileScreen(navController = navController) }
-        dialog(Screens.PROFILE_PICTURE.name) { ProfilePictureFullSize(navController = navController) }
-        composable(Screens.MAKE_QUEST.name) { MakeQuestScreen(navController = navController) }
-        composable(Screens.LEADERBOARD.name) { LeaderboardScreen(navController = navController) }
-        composable(Screens.MAP.name) { MapScreen(navController = navController) }
+    val startScreen = if (userSignedIn()) Screens.MAP else Screens.LOG_IN
+
+    NavHost(navController, startDestination = startScreen.name) {
+        composable(Screens.LOG_IN.name) {
+            navBarViewModel.setCurrentScreen(Screens.LOG_IN)
+            LogInScreen(navController = navController)
+        }
+        composable(Screens.SIGN_UP.name) {
+            navBarViewModel.setCurrentScreen(Screens.SIGN_UP)
+            SignUpScreen(navController = navController)
+        }
+        composable(Screens.PROFILE.name) {
+            navBarViewModel.setCurrentScreen(Screens.PROFILE)
+            ProfileScreen(navController = navController)
+        }
+        dialog(Screens.PROFILE_PICTURE.name) {
+//            navBarViewModel.setCurrentScreen(Screens.PROFILE_PICTURE)
+            ProfilePictureFullSize(navController = navController)
+        }
+        composable(Screens.MAKE_QUEST.name) {
+            navBarViewModel.setCurrentScreen(Screens.MAKE_QUEST)
+            MakeQuestScreen(navController = navController)
+        }
+        composable(Screens.LEADERBOARD.name) {
+            navBarViewModel.setCurrentScreen(Screens.LEADERBOARD)
+            LeaderboardScreen(navController = navController)
+        }
+        composable(Screens.MAP.name) {
+            navBarViewModel.setCurrentScreen(Screens.MAP)
+            MapScreen(navController = navController)
+        }
 
     }
 }
