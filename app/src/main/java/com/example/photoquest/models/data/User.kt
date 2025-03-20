@@ -7,5 +7,5 @@ data class User(
     val lastName: String = "",
     val score: Int = 0,
     val questsMade: Int = 0,
-    val pictureURL: String = "",
+    val pictureURL: String = "", //TODO: Razmotriti
 )

@@ -16,13 +16,12 @@ class UserDbAPI {
         try {
             Firebase.firestore.collection(users).document(id).set(user).await()
         } catch (ex: Exception) {
-            Log.e("MIKI", ex.message ?: "Error occurred while writing the user in the DB.")
+            Log.e("MIKI", ex.message ?: "Error occurred while writing the user to the DB.")
         }
     }
 
     suspend fun getUserWithUid(uid: String): User {
 
-//        val user: User? = Firebase.firestore.collection(collection).document(uid).get().await()?.toObject<User>()
         return Firebase.firestore.collection(users).document(uid).get().await()?.toObject<User>()!!
     }
 

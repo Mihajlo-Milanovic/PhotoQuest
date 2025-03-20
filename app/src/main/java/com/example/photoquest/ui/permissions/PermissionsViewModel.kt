@@ -30,6 +30,7 @@ class PermissionsViewModel private constructor() {
             .checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
     }
 
+
     fun arePermissionsGranted(array: Array<String>, context: Context): Boolean {
         val arr = array.map {
             ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED

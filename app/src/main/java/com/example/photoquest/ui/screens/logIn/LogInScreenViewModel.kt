@@ -10,7 +10,7 @@ import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.photoquest.R
 import com.example.photoquest.Screens
-import com.example.photoquest.services.makeShortToast
+import com.example.photoquest.services.Toaster.makeShortToast
 import com.example.photoquest.ui.screens.auxiliary.NavExtender
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
@@ -94,7 +94,6 @@ class LogInScreenViewModel private constructor() : ViewModel(), NavExtender {
         } catch (ex: Exception) {
             withContext(Dispatchers.Main) {
                 makeShortToast(
-                    context = context,
                     message = ex.message ?: "Hmm...Something suspicious happened!"
                 )
             }
