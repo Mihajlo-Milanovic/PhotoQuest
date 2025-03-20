@@ -12,12 +12,12 @@ import androidx.navigation.NavController
 import com.example.photoquest.R
 import com.example.photoquest.Screens
 import com.example.photoquest.models.data.User
+import com.example.photoquest.services.Toaster.makeShortToast
 import com.example.photoquest.services.UserDbAPI
 import com.example.photoquest.services.currentUserUid
-import com.example.photoquest.services.makeShortToast
 import com.example.photoquest.services.signUserIn
 import com.example.photoquest.services.signUserUp
-import com.example.photoquest.services.userSignedIn
+import com.example.photoquest.services.isUserSignedIn
 import com.example.photoquest.ui.screens.auxiliary.NavExtender
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -125,13 +125,12 @@ class SignUpScreenViewModel private constructor() : ViewModel(), NavExtender {
             } catch (ex: Exception) {
                 withContext(Dispatchers.Main) {
                     makeShortToast(
-                        context = context,
                         message = ex.message ?: "Hmm...Something suspicious happened!"
                     )
                 }
             }
 
-            if (userSignedIn()) {
+            if (isUserSignedIn()) {
                 withContext(Dispatchers.Main) {
                     navController.value?.popBackStack(Screens.LOG_IN.name, true)
                     navController.value?.navigate(Screens.PROFILE.name)

@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.google.gms.google.services)
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
 android {
@@ -67,6 +68,9 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
 
     implementation(libs.play.services.location)
+    implementation(libs.play.services.maps)
+    implementation(libs.android.maps.compose)
+    implementation(libs.firebase.storage)
 
     testImplementation(libs.junit)
 
@@ -77,4 +81,9 @@ dependencies {
 
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+}
+
+secrets {
+    propertiesFileName = "secrets.properties"
+    defaultPropertiesFileName = "local.defaults.properties"
 }

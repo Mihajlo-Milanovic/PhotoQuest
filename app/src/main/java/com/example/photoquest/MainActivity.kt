@@ -5,13 +5,20 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
-import com.example.photoquest.services.userSignedIn
+import com.example.photoquest.services.Toaster
+import com.example.photoquest.services.isUserSignedIn
 import com.example.photoquest.ui.components.bottomBar.NavBarViewModel
+import com.example.photoquest.ui.screens.auxiliary.HardwareViewModel
+import com.example.photoquest.ui.screens.auxiliary.LocationNotEnabledSplashScreen
+import com.example.photoquest.ui.screens.auxiliary.NoInternetSplashScreen
+import com.example.photoquest.ui.screens.auxiliary.isInternetAvailable
+import com.example.photoquest.ui.screens.auxiliary.isLocationEnabled
 import com.example.photoquest.ui.screens.leaderboard.LeaderboardScreen
 import com.example.photoquest.ui.screens.logIn.LogInScreen
 import com.example.photoquest.ui.screens.makeQuest.MakeQuestScreen
@@ -22,6 +29,7 @@ import com.example.photoquest.ui.screens.signUp.SignUpScreen
 import com.example.photoquest.ui.theme.PhotoQuestTheme
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -31,11 +39,38 @@ class MainActivity : ComponentActivity() {
 
             PhotoQuestTheme {
 
-                PhotoQuestApp()
+                Toaster.setAppContext(LocalContext.current)
             }
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        setContent {
+            PhotoQuestTheme {
+
+                val hvm = HardwareViewModel.getInstance(LocalContext.current)
+
+                val context = LocalContext.current
+
+                if (!hvm.isConnected) {
+                    NoInternetSplashScreen {
+                        hvm.isConnected = isInternetAvailable(context = context)
+                    }
+                }
+
+                if (!hvm.isLocationEnabled && isUserSignedIn()) {
+                    LocationNotEnabledSplashScreen {
+                        hvm.isLocationEnabled = isLocationEnabled(context = context)
+                    }
+                }
+
+                PhotoQuestApp()
+            }
+        }
+
+    }
 }
 
 @Composable
@@ -44,7 +79,7 @@ fun PhotoQuestApp() {
     val navController = rememberNavController()
     val navBarViewModel = NavBarViewModel.getInstance()
 
-    val startScreen = if (userSignedIn()) Screens.MAP else Screens.LOG_IN
+    val startScreen = if (isUserSignedIn()) Screens.MAP else Screens.LOG_IN
 
     NavHost(navController, startDestination = startScreen.name) {
         composable(Screens.LOG_IN.name) {
@@ -74,8 +109,8 @@ fun PhotoQuestApp() {
         composable(Screens.MAP.name) {
             navBarViewModel.setCurrentScreen(Screens.MAP)
             MapScreen(navController = navController)
-        }
 
+        }
     }
 }
 
@@ -86,7 +121,7 @@ enum class Screens {
     PROFILE_PICTURE,
     MAKE_QUEST,
     MAP,
-    LEADERBOARD
+    LEADERBOARD,
 }
 
 @Preview(showBackground = true, showSystemUi = true)

@@ -16,21 +16,22 @@ class QuestDbAPI {
 
         try {
             Firebase.firestore.collection(quests).add(quest).await().id
-//          Firebase.firestore.collection(quests).document(quest.id)
+            //TODO razmotriti dobavljanje Quest-ova
 
         } catch (ex: Exception) {
-            Log.e("MIKI", ex.message ?: "Error occurred while writing the user in the DB.")
+            Log.e("MIKI", ex.message ?: "An error occurred while writing the quest to the DB.")
         }
     }
 
     suspend fun getUsersQuests(uid: String): List<Quest> {
 
         val list = arrayListOf<Quest>()
-         Firebase.firestore.collection(quests).whereEqualTo(publisherId, uid).get().await()?.let { docs ->
+        Firebase.firestore.collection(quests)
+            .whereEqualTo(publisherId, uid).get().await()?.let { docs ->
 
-            for (doc in docs)
-                list += doc.toObject<Quest>()
-        }
+                for (doc in docs)
+                    list += doc.toObject<Quest>()
+            }
 
         return list
     }
