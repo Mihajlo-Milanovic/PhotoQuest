@@ -4,7 +4,6 @@ import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,8 +20,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,7 +36,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -78,106 +79,109 @@ fun ProfileScreen(
         },
         bottomBar = {
             NavBar(navController = navController)
-        }
-    ) { padding ->
+        },
+    ) { paddingValues ->
 
-        if (!vm.userLoaded.value) {
-            LaunchedEffect(Unit) {
-                Log.d("MIKI", "Loading the user")
-                vm.getUsersInfo()
-            }
+        LaunchedEffect(Unit) {
+            Log.d("MIKI", "Loading the user")
+            vm.getUsersInfo()
+            Log.d("MIKI", "Loading the users quests")
+            vm.getUsersQuests()
         }
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
+        Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top,
-            userScrollEnabled = true,
-
+            modifier = Modifier.padding(paddingValues)
+        ) {
+            LazyColumn(
+                modifier = Modifier,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Top,
             ) {
 
-            item {//Settings
+                item {//Settings
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        //.padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceAround,
+                    ) {
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    //.padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceAround,
-                ) {
-
-                    if (vm.showOptions.value) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(MaterialTheme.colorScheme.onSecondary)
-                                .padding(8.dp)
-                                .align(Alignment.Top),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Top,
-                        ) {
-                            Button(onClick = { vm.onSignOut() }) {
-                                Text(text = stringResource(id = R.string.signOut))
+                        if (vm.showOptions.value) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(MaterialTheme.colorScheme.onSecondary)
+                                    .padding(8.dp)
+                                    .align(Alignment.Top),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Top,
+                            ) {
+                                Button(onClick = { vm.onSignOut() }) {
+                                    Text(text = stringResource(id = R.string.signOut))
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            item {//Picture, username, score ...
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                ) {
+                item { //Picture, username, score ...
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
 
-                    ProfilePictureUsernameAndFullName(vm = vm)
+                        ProfilePictureUsernameAndFullName(vm = vm)
 
-                    Spacer(modifier = Modifier.width(32.dp))
+                        Spacer(modifier = Modifier.width(32.dp))
 
-                    ScoreAndQuestNumber(vm = vm)
+                        ScoreAndQuestNumber(vm = vm)
+                    }
                 }
             }
 
-            item { //Users quests
+            if (!vm.usersQuestsLoaded.value)
 
-                Box(
+                CircularProgressIndicator(
                     modifier = Modifier
-                        .fillMaxHeight(0.6f),
-                    contentAlignment = Alignment.Center
+                        .fillMaxSize(0.5f),
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            else
+            //Users quests
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxHeight(),
+                    //.padding(top = 0.dp)
+                    //.padding(paddingValues),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Top,
+                    userScrollEnabled = true,
                 ) {
+                    items(vm.usersQuests) { q ->
 
-                    if (!vm.usersQuestsLoaded.value)
-                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                    else
-                        Column(
-                            modifier = Modifier.fillMaxHeight(0.8f)
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(128.dp),
+                            elevation = CardDefaults.cardElevation(4.dp)
                         ) {
-
-                            for (q in 0..vm.usersQuests.size - 3 step 3) {
-
-                                Row {
-                                    for (i in 0..3) {
-                                        Box(
-                                            modifier = Modifier
-                                                .border(width = 1.dp, color = Color.Black)
-                                        ) {
-                                            Text(text = (i + q).toString())
-                                        }
-                                    }
-                                }
-
-                            }
+                            Text(text = (q.timestamp.toInstant()).toString())
                         }
+                        Spacer(modifier = Modifier.height(1.dp))
+                    }
                 }
-            }
+
         }
     }
+
 }
+
 
 @Composable
 fun ProfilePictureUsernameAndFullName(vm: ProfileScreenViewModel) {
@@ -319,7 +323,7 @@ fun ProfilePictureFullSize(navController: NavController) {
     }
 }
 
-@Preview(name = "LightTheme", showBackground = true)
+//@Preview(name = "LightTheme", showBackground = true)
 @Preview(
     name = "DarkTheme",
     uiMode = Configuration.UI_MODE_NIGHT_NO or Configuration.UI_MODE_TYPE_NORMAL,

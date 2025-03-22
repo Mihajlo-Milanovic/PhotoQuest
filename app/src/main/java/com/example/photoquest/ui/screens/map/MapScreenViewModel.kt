@@ -88,7 +88,6 @@ class MapScreenViewModel private constructor() : ViewModel(), NavExtender {
             return
         }
 
-
         fusedLocationClient!!.requestLocationUpdates(
             locationRequest,
             object : LocationCallback() {

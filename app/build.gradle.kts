@@ -7,12 +7,12 @@ plugins {
 
 android {
     namespace = "com.example.photoquest"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.photoquest"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -71,6 +71,7 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation(libs.android.maps.compose)
     implementation(libs.firebase.storage)
+    implementation(libs.coil.compose)
 
     testImplementation(libs.junit)
 

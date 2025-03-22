@@ -25,4 +25,9 @@
     <string name="locationPermissionReason">This application relies on user location tracking.\n\nIn order for this application to function smoothly, it is necessary to grant permission to track the precise location of the device and turn on GPS.</string>
     <string name="toMakeQuestCameraAndStorageReason">In order for the application to work with your images, you need to allow access to the camera and storage.</string>
     <string name="appNeedsCameraPermission">The application needs access to the device\'s camera.</string>
+    <string name="title">Title</string>
+    <string name="description">Description</string>
+    <string name="submit">Submit</string>
+    <string name="tryAgain">Try Again</string>
+    <string name="takePicture">Take Picture</string>
 </resources>

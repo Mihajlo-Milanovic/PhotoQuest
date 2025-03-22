@@ -2,6 +2,7 @@ package com.example.photoquest.models.data
 
 data class User(
     val id: String = "",
+//    val email: String= "", //TODO Razmotriti
     val username: String = "",
     val firstName: String = "",
     val lastName: String = "",

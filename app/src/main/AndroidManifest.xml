@@ -15,9 +15,13 @@
     <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />
+
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
-        tools:ignore="ScopedStorage" />
+        android:maxSdkVersion="28" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
 
     <application
         android:allowBackup="true"
@@ -52,10 +56,6 @@
             android:name="org.apache.http.legacy"
             android:required="false" />
         
-        <!--        <service-->
-        <!--            android:name="MyNavigationService"-->
-        <!--            android:foregroundServiceType="location">-->
-        <!--        </service>-->
 
     </application>
 

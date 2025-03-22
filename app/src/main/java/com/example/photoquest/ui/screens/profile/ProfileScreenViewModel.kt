@@ -1,5 +1,6 @@
 package com.example.photoquest.ui.screens.profile
 
+import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -7,9 +8,9 @@ import androidx.navigation.NavController
 import com.example.photoquest.Screens
 import com.example.photoquest.models.data.Quest
 import com.example.photoquest.models.data.User
-import com.example.photoquest.services.QuestDbAPI
 import com.example.photoquest.services.UserDbAPI
 import com.example.photoquest.services.currentUserUid
+import com.example.photoquest.services.getUsersQuests
 import com.example.photoquest.services.signUserOut
 import com.example.photoquest.ui.screens.auxiliary.NavExtender
 import kotlinx.coroutines.Dispatchers
@@ -42,12 +43,12 @@ class ProfileScreenViewModel private constructor() : ViewModel(), NavExtender {
     override val navController: MutableState<NavController?> = mutableStateOf(null)
 
     val displayedUser = mutableStateOf(User(pictureURL = "?"))
-    var usersQuests = emptyList<Quest>()
+    var usersQuests = mutableListOf<Quest>()
         private set
 
     val showOptions = mutableStateOf(false)
     val userLoaded = mutableStateOf(false)
-    val usersQuestsLoaded = mutableStateOf(true)
+    var usersQuestsLoaded = mutableStateOf(false)
 
 
     suspend fun getUsersInfo() = coroutineScope {
@@ -61,7 +62,11 @@ class ProfileScreenViewModel private constructor() : ViewModel(), NavExtender {
     suspend fun getUsersQuests() = coroutineScope {
 
         launch(Dispatchers.Default) {
-            usersQuests = currentUserUid()?.let { QuestDbAPI().getUsersQuests(it) }!!
+            currentUserUid()?.let {
+                usersQuests = getUsersQuests(it)
+            }
+
+            Log.d("MIKI", "obrati paznju:\n" + usersQuests.map { it.toString() + '\n' }.toString())
             usersQuestsLoaded.value = true
         }
     }
