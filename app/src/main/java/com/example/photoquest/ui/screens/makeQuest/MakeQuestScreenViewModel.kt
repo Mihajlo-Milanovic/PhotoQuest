@@ -7,9 +7,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
+import com.example.photoquest.Screens
 import com.example.photoquest.models.data.Quest
 import com.example.photoquest.services.createNewQuest
 import com.example.photoquest.services.currentUserUid
+import com.example.photoquest.ui.pictureFullSize.PictureFullSizeViewModel
 import com.example.photoquest.ui.screens.auxiliary.NavExtender
 import com.google.firebase.Timestamp
 
@@ -29,14 +31,14 @@ class MakeQuestScreenViewModel private constructor() : ViewModel(), NavExtender 
     }
 
     override val navController: MutableState<NavController?> = mutableStateOf(null)
-    val maxTitleLength = 22
 
-    var title by mutableStateOf<String>("")
+    var title by mutableStateOf("")
     var imageUri by mutableStateOf<Uri?>(null)
-    var description by mutableStateOf<String>("")
+    var description by mutableStateOf("")
     var timestamp by mutableStateOf<Timestamp?>(null)
 
     var pictureTaken by mutableStateOf(false)
+    var pictureReadyForDisplay by mutableStateOf(false)
 
     suspend fun makeQuest() {
 
@@ -51,6 +53,15 @@ class MakeQuestScreenViewModel private constructor() : ViewModel(), NavExtender 
                 timestamp = Timestamp.now()
             )
         )
+    }
+
+    fun zoomQuestPicture() {
+        PictureFullSizeViewModel.getInstance().let {
+            it.imageUri = imageUri
+            it.contentDescription = "Quest picture"
+        }
+
+        navController.value?.navigate(Screens.PICTURE_FULL_SIZE.name)
     }
 
 }

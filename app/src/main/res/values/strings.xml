@@ -30,4 +30,5 @@
     <string name="submit">Submit</string>
     <string name="tryAgain">Try Again</string>
     <string name="takePicture">Take Picture</string>
+    <string name="imageUnavailable">The image is unavailable</string>
 </resources>

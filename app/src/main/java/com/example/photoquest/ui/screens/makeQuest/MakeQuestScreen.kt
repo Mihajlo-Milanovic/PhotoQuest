@@ -1,21 +1,20 @@
 package com.example.photoquest.ui.screens.makeQuest
 
 import android.Manifest
-import android.content.ContentValues
-import android.content.Context
 import android.content.res.Configuration
-import android.net.Uri
-import android.provider.MediaStore
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -24,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,6 +34,7 @@ import com.example.photoquest.R
 import com.example.photoquest.ui.components.bottomBar.NavBar
 import com.example.photoquest.ui.permissions.PermitLocationTrackingDialog
 import com.example.photoquest.ui.theme.PhotoQuestTheme
+import com.example.photoquest.utilities.createImageUri
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -79,64 +80,70 @@ fun DrawMakeQuestScreen(
     //navController: NavController
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
-    Column(
+    LazyColumn(
         modifier = modifier
+            .padding(horizontal = 32.dp)
             .fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        OutlinedTextField(
-            modifier = Modifier,
-            value = vm.title,
-            onValueChange = {
-                vm.title = it
-            },
-            label = { Text(stringResource(R.string.title)) },
-            singleLine = true,
-        )
+        item {
+            OutlinedTextField(
+                modifier = Modifier,
+                value = vm.title,
+                onValueChange = {
+                    vm.title = it
+                },
+                label = { Text(stringResource(R.string.title)) },
+                singleLine = true,
+            )
+        }
 
         if (vm.title.trimEnd().isNotEmpty()) {
 
-            Spacer(modifier = Modifier.height(4.dp))
+            item {
+                Spacer(modifier = Modifier.height(4.dp))
 
-            vm.imageUri?.let {
-                AsyncImage(
-                    model = it,
-                    contentDescription = "Quest Picture",
-                    modifier = Modifier.size(300.dp)
+                QuestPicture(
+                    vm = vm,
+                    modifier = Modifier
                 )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                TakePictureAndSaveInGalleryButton(
+                    vm = vm,
+                    modifier = Modifier,
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
+            item {
+                OutlinedTextField(
+                    modifier = Modifier,
+                    value = vm.description,
+                    onValueChange = {
+                        vm.description = it
+                    },
+                    label = { Text(stringResource(R.string.description)) },
+                    singleLine = true,
+                )
 
-            TakePictureAndSaveInGalleryButton(
-                vm = vm,
-                modifier = Modifier,
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            OutlinedTextField(
-                modifier = Modifier,
-                value = vm.description,
-                onValueChange = {
-                    vm.description = it
-                },
-                label = { Text(stringResource(R.string.description)) },
-                singleLine = true,
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(4.dp))
+            }
 
             if (vm.pictureTaken) {
-
-                Button(
-                    onClick = {
-                        coroutineScope.launch(Dispatchers.Default) { vm.makeQuest() }
+                item {
+                    Button(
+                        onClick = {
+                            coroutineScope.launch(Dispatchers.Default) { vm.makeQuest() }
+                        }
+                    ) {
+                        Text(stringResource(R.string.submit))
                     }
-                ) {
-                    Text(stringResource(R.string.submit))
                 }
             }
         }
@@ -150,24 +157,41 @@ fun TakePictureAndSaveInGalleryButton(
 ) {
     val context = LocalContext.current
 
-    vm.imageUri = createImageUri(
-        context = context,
-        imageName = vm.title,
-    )
-
     val cameraLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
             if (success) {
                 vm.timestamp = Timestamp.now()
                 vm.pictureTaken = true
-                Toast.makeText(context, "Picture saved to gallery!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Picture saved to gallery!", Toast.LENGTH_SHORT)
+                    .show()
+                Log.d("MIKI", "Picture taken and saved")
+
+
+                try {
+                    vm.imageUri?.let {
+                        context.contentResolver.openInputStream(it)?.use {
+                            vm.pictureReadyForDisplay = true
+                            Log.d("MIKI", "Image ready")
+                        }
+                    }
+                } catch (e: Exception) {
+                    vm.pictureReadyForDisplay = false
+                    Log.e("MIKI", "Image not ready yet: ${e.message}")
+                }
             }
+
+
         }
 
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { granted ->
         if (granted) {
+            vm.imageUri = createImageUri(
+                context = context,
+                imageName = vm.title,
+            )
+            Log.w("MIKI", "New URI -> ${vm.imageUri}")
             vm.imageUri?.let { cameraLauncher.launch(it) }
         } else {
             Toast.makeText(context, "Camera permission required", Toast.LENGTH_SHORT).show()
@@ -177,24 +201,38 @@ fun TakePictureAndSaveInGalleryButton(
     Button(
         modifier = modifier,
         onClick = {
+            if (vm.pictureTaken) {
+                vm.imageUri = null
+                vm.pictureReadyForDisplay = false
+                //vm.pictureTaken = false
+            }
             cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
         }) {
         Text(if (vm.pictureTaken) stringResource(R.string.tryAgain) else stringResource(R.string.takePicture))
     }
 }
 
-
-fun createImageUri(context: Context, imageName: String): Uri? {
-    val appName = context.applicationInfo.loadLabel(context.packageManager).toString()
-    val contentValues = ContentValues().apply {
-        put(MediaStore.Images.Media.DISPLAY_NAME, "${imageName}.jpg")
-        put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-        put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/$appName")
+@Composable
+fun QuestPicture(
+    vm: MakeQuestScreenViewModel,
+    modifier: Modifier = Modifier
+) {
+    if (vm.pictureReadyForDisplay && vm.imageUri != null) {
+        AsyncImage(
+            model = vm.imageUri,
+            contentDescription = "Quest Picture",
+            contentScale = ContentScale.FillWidth,//TODO: Reconsider ContentCale
+            modifier = modifier
+                .fillMaxWidth()
+                .sizeIn(
+                    maxHeight = 256.dp,
+                    maxWidth = 256.dp
+                )
+                .clickable {
+                    vm.zoomQuestPicture()
+                }
+        )
     }
-    return context.contentResolver.insert(
-        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-        contentValues
-    )
 }
 
 //@Preview(name = "LightTheme", showBackground = true)

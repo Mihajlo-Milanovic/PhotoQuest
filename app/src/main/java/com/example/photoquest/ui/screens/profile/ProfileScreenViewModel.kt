@@ -47,8 +47,10 @@ class ProfileScreenViewModel private constructor() : ViewModel(), NavExtender {
         private set
 
     val showOptions = mutableStateOf(false)
-    val userLoaded = mutableStateOf(false)
+    private val userLoaded = mutableStateOf(false)
     var usersQuestsLoaded = mutableStateOf(false)
+
+    //var profilePictureUri = mutableStateOf()
 
 
     suspend fun getUsersInfo() = coroutineScope {
@@ -91,7 +93,8 @@ class ProfileScreenViewModel private constructor() : ViewModel(), NavExtender {
     }
 
     fun zoomProfilePicture() {
-        navController.value?.navigate(Screens.PROFILE_PICTURE.name)
+//        PictureFullSizeViewModel.getInstance().imageUri.value = TODO finish this
+        navController.value?.navigate(Screens.PICTURE_FULL_SIZE.name)
     }
 
 }

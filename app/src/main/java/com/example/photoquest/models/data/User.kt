@@ -2,11 +2,11 @@ package com.example.photoquest.models.data
 
 data class User(
     val id: String = "",
-//    val email: String= "", //TODO Razmotriti
+//    val email: String= "", //TODO Reconsider
     val username: String = "",
     val firstName: String = "",
     val lastName: String = "",
     val score: Int = 0,
     val questsMade: Int = 0,
-    val pictureURL: String = "", //TODO: Razmotriti
+    val pictureURL: String = "", //TODO: Reconsider
 )

@@ -14,6 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.photoquest.services.Toaster
 import com.example.photoquest.services.isUserSignedIn
 import com.example.photoquest.ui.components.bottomBar.NavBarViewModel
+import com.example.photoquest.ui.pictureFullSize.PictureFullSize
 import com.example.photoquest.ui.screens.auxiliary.HardwareViewModel
 import com.example.photoquest.ui.screens.auxiliary.LocationNotEnabledSplashScreen
 import com.example.photoquest.ui.screens.auxiliary.NoInternetSplashScreen
@@ -23,7 +24,6 @@ import com.example.photoquest.ui.screens.leaderboard.LeaderboardScreen
 import com.example.photoquest.ui.screens.logIn.LogInScreen
 import com.example.photoquest.ui.screens.makeQuest.MakeQuestScreen
 import com.example.photoquest.ui.screens.map.MapScreen
-import com.example.photoquest.ui.screens.profile.ProfilePictureFullSize
 import com.example.photoquest.ui.screens.profile.ProfileScreen
 import com.example.photoquest.ui.screens.signUp.SignUpScreen
 import com.example.photoquest.ui.theme.PhotoQuestTheme
@@ -94,9 +94,8 @@ fun PhotoQuestApp() {
             navBarViewModel.setCurrentScreen(Screens.PROFILE)
             ProfileScreen(navController = navController)
         }
-        dialog(Screens.PROFILE_PICTURE.name) {
-//            navBarViewModel.setCurrentScreen(Screens.PROFILE_PICTURE)
-            ProfilePictureFullSize(navController = navController)
+        dialog(Screens.PICTURE_FULL_SIZE.name) {
+            PictureFullSize(navController = navController)
         }
         composable(Screens.MAKE_QUEST.name) {
             navBarViewModel.setCurrentScreen(Screens.MAKE_QUEST)
@@ -118,7 +117,7 @@ enum class Screens {
     LOG_IN,
     SIGN_UP,
     PROFILE,
-    PROFILE_PICTURE,
+    PICTURE_FULL_SIZE,
     MAKE_QUEST,
     MAP,
     LEADERBOARD,

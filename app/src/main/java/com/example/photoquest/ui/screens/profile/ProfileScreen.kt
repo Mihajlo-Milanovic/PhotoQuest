@@ -304,25 +304,6 @@ fun ProfilePicture(vm: ProfileScreenViewModel, modifier: Modifier) {
     }
 }
 
-@Composable
-fun ProfilePictureFullSize(navController: NavController) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.0f))
-            .clickable { navController.popBackStack() },
-        contentAlignment = Alignment.Center
-    ) {
-        Image(
-            //TODO: staviti normalnu sliku
-            painter = painterResource(id = R.drawable.ic_launcher_foreground),
-            modifier = Modifier
-                .fillMaxWidth(),
-            contentDescription = null,
-        )
-    }
-}
-
 //@Preview(name = "LightTheme", showBackground = true)
 @Preview(
     name = "DarkTheme",
