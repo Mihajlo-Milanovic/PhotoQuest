@@ -8,6 +8,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,11 +17,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -31,10 +34,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.photoquest.R
+import com.example.photoquest.services.getUserLocation
 import com.example.photoquest.ui.components.bottomBar.NavBar
-import com.example.photoquest.ui.permissions.PermitLocationTrackingDialog
+import com.example.photoquest.ui.screens.auxiliary.isLocationEnabled
 import com.example.photoquest.ui.theme.PhotoQuestTheme
 import com.example.photoquest.utilities.createImageUri
+import com.google.android.gms.location.LocationServices
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -55,33 +60,32 @@ fun MakeQuestScreen(
         }
     ) { padding ->
 
-        PermitLocationTrackingDialog(
-            modifier = Modifier.padding(padding),
-            requestReason = R.string.toMakeQuestLocationReason
-        )
+        if (vm.showUploadScreen) {
 
-//        PermitImageAndCameraAccessDialog(
-//            modifier = Modifier.padding(padding),
-//            requestReason = R.string.toMakeQuestCameraAndStorageReason
-//        )
+            if (isLocationEnabled(LocalContext.current)) {
 
-        DrawMakeQuestScreen(
-            modifier = Modifier.padding(padding),
-            //navController = navController,
-            vm = vm
-        )
+                UploadScreen(
+                    modifier = Modifier.padding(padding),
+                    vm = vm
+                )
+            } else {
+                vm.goToNoLocationSplashScreen()
+            }
+
+        } else {
+            DrawMakeQuestScreen(
+                modifier = Modifier.padding(padding),
+                vm = vm
+            )
+        }
     }
 }
 
 @Composable
 fun DrawMakeQuestScreen(
     vm: MakeQuestScreenViewModel,
-    modifier: Modifier,
-    //navController: NavController
+    modifier: Modifier = Modifier,
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current
-
     LazyColumn(
         modifier = modifier
             .padding(horizontal = 32.dp)
@@ -135,16 +139,11 @@ fun DrawMakeQuestScreen(
                 Spacer(modifier = Modifier.height(4.dp))
             }
 
-            if (vm.pictureTaken) {
-                item {
-                    Button(
-                        onClick = {
-                            coroutineScope.launch(Dispatchers.Default) { vm.makeQuest() }
-                        }
-                    ) {
-                        Text(stringResource(R.string.submit))
-                    }
-                }
+            item {
+                MakeQuestButton(
+                    vm = vm,
+                    modifier = Modifier
+                )
             }
         }
     }
@@ -232,6 +231,71 @@ fun QuestPicture(
                     vm.zoomQuestPicture()
                 }
         )
+    }
+}
+
+@Composable
+fun UploadScreen(
+    vm: MakeQuestScreenViewModel,
+    modifier: Modifier = Modifier,
+) {
+    val context = LocalContext.current
+    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+
+    if (vm.location.value == null) {
+        Log.d("MIKI", "Reading users location.")
+        getUserLocation(
+            context = context,
+            fusedLocationClient = fusedLocationClient,
+            location = vm.location
+        )
+    }
+    if (vm.location.value != null)
+        LaunchedEffect(null) {
+            vm.coroutineScope.launch(Dispatchers.Default) {
+                Log.d("MIKI", "Making a quest...")
+                vm.makeQuest(context = context)
+            }
+        }
+
+    Column(
+        modifier = modifier
+            .padding(horizontal = 32.dp)
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            stringResource(R.string.makingAQuest),
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        LinearProgressIndicator(
+            progress = { vm.uploadState.toFloat() },
+            modifier = Modifier
+                .fillMaxWidth()
+        )
+        Text(
+            "${(vm.uploadState * 99).toInt()}%",
+            style = MaterialTheme.typography.bodyMedium
+        )
+    }
+}
+
+@Composable
+fun MakeQuestButton(
+    vm: MakeQuestScreenViewModel,
+    modifier: Modifier = Modifier
+) {
+    if (vm.pictureTaken && vm.imageUri != null) {
+        Button(
+            onClick = {
+                vm.showUploadScreen = true
+            },
+            modifier = modifier,
+        ) {
+            Text(stringResource(R.string.submit))
+        }
     }
 }
 

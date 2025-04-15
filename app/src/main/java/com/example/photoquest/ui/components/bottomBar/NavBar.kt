@@ -1,7 +1,8 @@
 package com.example.photoquest.ui.components.bottomBar
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import android.content.res.Configuration
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -9,9 +10,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,6 +44,7 @@ fun NavBar(navController: NavController) {
 
         Row(
             modifier = Modifier
+                .background(MaterialTheme.colorScheme.secondaryContainer)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceAround
@@ -77,7 +83,11 @@ fun NavBar(navController: NavController) {
 }
 
 @Composable
-fun NavButton(vm: NavBarViewModel, navigateTo: Screens, @DrawableRes iconId: Int) {
+fun NavButton(
+    vm: NavBarViewModel,
+    navigateTo: Screens,
+    @DrawableRes iconId: Int,
+    modifier: Modifier = Modifier) {
     IconButton(
         onClick = { vm.navigateToScreen(navigateTo) },
         modifier = Modifier
@@ -85,20 +95,27 @@ fun NavButton(vm: NavBarViewModel, navigateTo: Screens, @DrawableRes iconId: Int
         enabled = !vm.selected(navigateTo),
     ) {
         Icon(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize(),
             painter = painterResource(iconId),
-            contentDescription = null
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSecondaryContainer
         )
 
     }
 }
 
 //@Preview(name = "LightTheme", showBackground = true)
-@Preview(name = "DarkTheme", uiMode = UI_MODE_NIGHT_YES, showBackground = true)
+@Preview(name = "DarkTheme",
+    uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL, showBackground = true)
 @Composable
 fun NavBarPreview() {
     PhotoQuestTheme {
-        NavBar(navController = NavController(LocalContext.current))
+        Scaffold(
+            bottomBar = {
+                NavBar(navController = NavController(LocalContext.current))
+            }) { pv ->
+            Text(text = "Sample text", modifier = Modifier.padding(pv))
+        }
     }
 }

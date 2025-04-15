@@ -8,7 +8,7 @@ import kotlinx.coroutines.tasks.await
 
 
 suspend fun signUserUp(email: String, password: String) {
-    Firebase.auth.createUserWithEmailAndPassword(email, password).addOnFailureListener() { fail ->
+    Firebase.auth.createUserWithEmailAndPassword(email, password).addOnFailureListener { fail ->
 
         //TODO: test this!
 
@@ -19,7 +19,7 @@ suspend fun signUserUp(email: String, password: String) {
 }
 
 suspend fun signUserIn(email: String, password: String) {
-    Firebase.auth.signInWithEmailAndPassword(email, password).addOnFailureListener() { fail ->
+    Firebase.auth.signInWithEmailAndPassword(email, password).addOnFailureListener { fail ->
         fail.message?.let { Log.d("MIKI", it) }
         fail.cause?.localizedMessage?.let { Log.d("MIKI", it) }
         fail.localizedMessage?.let { Log.d("MIKI", it) }

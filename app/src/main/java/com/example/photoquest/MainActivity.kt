@@ -19,7 +19,6 @@ import com.example.photoquest.ui.screens.auxiliary.HardwareViewModel
 import com.example.photoquest.ui.screens.auxiliary.LocationNotEnabledSplashScreen
 import com.example.photoquest.ui.screens.auxiliary.NoInternetSplashScreen
 import com.example.photoquest.ui.screens.auxiliary.isInternetAvailable
-import com.example.photoquest.ui.screens.auxiliary.isLocationEnabled
 import com.example.photoquest.ui.screens.leaderboard.LeaderboardScreen
 import com.example.photoquest.ui.screens.logIn.LogInScreen
 import com.example.photoquest.ui.screens.makeQuest.MakeQuestScreen
@@ -57,12 +56,6 @@ class MainActivity : ComponentActivity() {
                 if (!hvm.isConnected) {
                     NoInternetSplashScreen {
                         hvm.isConnected = isInternetAvailable(context = context)
-                    }
-                }
-
-                if (!hvm.isLocationEnabled && isUserSignedIn()) {
-                    LocationNotEnabledSplashScreen {
-                        hvm.isLocationEnabled = isLocationEnabled(context = context)
                     }
                 }
 
@@ -108,7 +101,11 @@ fun PhotoQuestApp() {
         composable(Screens.MAP.name) {
             navBarViewModel.setCurrentScreen(Screens.MAP)
             MapScreen(navController = navController)
-
+        }
+        composable(Screens.NO_LOCATION_SPLASH.name) {
+            LocationNotEnabledSplashScreen {
+                navController.popBackStack()
+            }
         }
     }
 }
@@ -121,6 +118,7 @@ enum class Screens {
     MAKE_QUEST,
     MAP,
     LEADERBOARD,
+    NO_LOCATION_SPLASH
 }
 
 @Preview(showBackground = true, showSystemUi = true)

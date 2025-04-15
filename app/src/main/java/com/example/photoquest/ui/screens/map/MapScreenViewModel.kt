@@ -1,9 +1,9 @@
 package com.example.photoquest.ui.screens.map
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
 import android.os.Looper
+import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -69,8 +69,6 @@ class MapScreenViewModel private constructor() : ViewModel(), NavExtender {
         cameraPositionState.position = CameraPosition(latLng, zoom, tilt, bearing)
     }
 
-
-    @SuppressLint("MissingPermission")
     fun getUserLocation(
         context: Context,
         onLocationReceived: (Location) -> Unit
@@ -88,20 +86,25 @@ class MapScreenViewModel private constructor() : ViewModel(), NavExtender {
             return
         }
 
-        fusedLocationClient!!.requestLocationUpdates(
-            locationRequest,
-            object : LocationCallback() {
-                override fun onLocationResult(locationResult: LocationResult) {
-                    locationResult.lastLocation?.let {
-                        onLocationReceived(it)
-                        setCameraPositionState(LatLng(it.latitude, it.longitude))
-                    }
+        try {
 
-                    fusedLocationClient!!.removeLocationUpdates(this) // Stop updates after getting location
-                }
-            },
-            Looper.getMainLooper()
-        )
+            fusedLocationClient!!.requestLocationUpdates(
+                locationRequest,
+                object : LocationCallback() {
+                    override fun onLocationResult(locationResult: LocationResult) {
+                        locationResult.lastLocation?.let {
+                            onLocationReceived(it)
+                            setCameraPositionState(LatLng(it.latitude, it.longitude))
+                        }
+
+                        fusedLocationClient!!.removeLocationUpdates(this) // Stop updates after getting location
+                    }
+                },
+                Looper.getMainLooper()
+            )
+        } catch (ex: SecurityException) {
+            Log.e("MIKI", "Failed to get location permission <MAP SCREEN>.\n\n ${ex.message}")
+        }
 
     }
 }

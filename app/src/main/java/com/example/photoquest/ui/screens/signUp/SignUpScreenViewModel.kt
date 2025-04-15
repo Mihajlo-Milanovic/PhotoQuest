@@ -13,11 +13,11 @@ import com.example.photoquest.R
 import com.example.photoquest.Screens
 import com.example.photoquest.models.data.User
 import com.example.photoquest.services.Toaster.makeShortToast
-import com.example.photoquest.services.UserDbAPI
+import com.example.photoquest.services.createNewUser
 import com.example.photoquest.services.currentUserUid
+import com.example.photoquest.services.isUserSignedIn
 import com.example.photoquest.services.signUserIn
 import com.example.photoquest.services.signUserUp
-import com.example.photoquest.services.isUserSignedIn
 import com.example.photoquest.ui.screens.auxiliary.NavExtender
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -107,16 +107,14 @@ class SignUpScreenViewModel private constructor() : ViewModel(), NavExtender {
 
             try {
                 signUserUp(email = email.value, password = password.value)
-                val udb = UserDbAPI()
 
                 currentUserUid()?.let {
-                    udb.createNewUser(
+                    createNewUser(
                         id = it,
                         user = User(
                             username = username.value,
                             lastName = lastName.value,
                             firstName = firstName.value,
-                            pictureURL = ""
                         )
                     )
                 }

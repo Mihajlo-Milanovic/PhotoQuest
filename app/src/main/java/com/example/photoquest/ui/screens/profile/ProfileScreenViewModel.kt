@@ -1,6 +1,5 @@
 package com.example.photoquest.ui.screens.profile
 
-import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -8,10 +7,11 @@ import androidx.navigation.NavController
 import com.example.photoquest.Screens
 import com.example.photoquest.models.data.Quest
 import com.example.photoquest.models.data.User
-import com.example.photoquest.services.UserDbAPI
 import com.example.photoquest.services.currentUserUid
+import com.example.photoquest.services.getUserWithUid
 import com.example.photoquest.services.getUsersQuests
 import com.example.photoquest.services.signUserOut
+import com.example.photoquest.ui.pictureFullSize.PictureFullSizeViewModel
 import com.example.photoquest.ui.screens.auxiliary.NavExtender
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -42,7 +42,7 @@ class ProfileScreenViewModel private constructor() : ViewModel(), NavExtender {
 
     override val navController: MutableState<NavController?> = mutableStateOf(null)
 
-    val displayedUser = mutableStateOf(User(pictureURL = "?"))
+    val displayedUser = mutableStateOf(User())
     var usersQuests = mutableListOf<Quest>()
         private set
 
@@ -50,14 +50,23 @@ class ProfileScreenViewModel private constructor() : ViewModel(), NavExtender {
     private val userLoaded = mutableStateOf(false)
     var usersQuestsLoaded = mutableStateOf(false)
 
-    //var profilePictureUri = mutableStateOf()
+    //TODO: var profilePictureUri = mutableStateOf()
 
 
     suspend fun getUsersInfo() = coroutineScope {
 
         launch(Dispatchers.Default) {
-            displayedUser.value = currentUserUid()?.let { UserDbAPI().getUserWithUid(it) }!!
-            userLoaded.value = true
+            currentUserUid()?.let {
+
+                val user = getUserWithUid(it)
+
+                if (user != null) {
+                    displayedUser.value = user
+                    userLoaded.value = true
+                } else
+                    userLoaded.value = false
+            }
+
         }
     }
 
@@ -68,11 +77,9 @@ class ProfileScreenViewModel private constructor() : ViewModel(), NavExtender {
                 usersQuests = getUsersQuests(it)
             }
 
-            Log.d("MIKI", "obrati paznju:\n" + usersQuests.map { it.toString() + '\n' }.toString())
             usersQuestsLoaded.value = true
         }
     }
-
 
     fun onSignOut() {
         runBlocking {
@@ -97,4 +104,14 @@ class ProfileScreenViewModel private constructor() : ViewModel(), NavExtender {
         navController.value?.navigate(Screens.PICTURE_FULL_SIZE.name)
     }
 
+    fun questImageOnLongClick(quest: Quest) {
+        PictureFullSizeViewModel
+            .getInstance()
+            .let {
+                it.imageUri = quest.pictureDownloadURL
+                it.contentDescription = quest.description
+            }
+
+        navController.value?.navigate(Screens.PICTURE_FULL_SIZE.name)
+    }
 }

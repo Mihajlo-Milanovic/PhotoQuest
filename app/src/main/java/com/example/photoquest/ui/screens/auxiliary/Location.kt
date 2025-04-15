@@ -3,7 +3,9 @@ package com.example.photoquest.ui.screens.auxiliary
 import android.content.Context
 import android.location.LocationManager
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +19,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -29,20 +32,24 @@ import kotlinx.coroutines.delay
 fun LocationNotEnabledSplashScreen(onRetry: () -> Unit) {
 
     val context = LocalContext.current
-    val isLocationEnabled by remember { mutableStateOf(isLocationEnabled(context)) }
+    var isLocationEnabled by remember { mutableStateOf(isLocationEnabled(context)) }
 
-
-    LaunchedEffect(Unit) {
+    LaunchedEffect(isLocationEnabled) {
         while (!isLocationEnabled) {
-            delay(3000) // Check every 3 seconds
-//            isConnected = isInternetAvailable(context)
-            if (isLocationEnabled(context))
-                onRetry()
+            delay(10000) // Check every 10 seconds
+            isLocationEnabled = isLocationEnabled(context)
         }
+        onRetry()
     }
-    Scaffold { padding ->
+    Scaffold(
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable {
+                onRetry()
+            },
+    )
+    { padding ->
 
-        // if (!isConnected) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -53,12 +60,21 @@ fun LocationNotEnabledSplashScreen(onRetry: () -> Unit) {
             Image(
                 painter = painterResource(id = R.drawable.ic_no_gps_foreground),
                 contentDescription = "Location not enabled",
-                modifier = Modifier.size(200.dp)
+                modifier = Modifier
+                    .size(200.dp)
             )
             Spacer(modifier = Modifier.height(16.dp))
+
             Text("Location Not Enabled")
         }
-        //}
+
+        Box(
+            Modifier
+                .fillMaxSize()
+                .clickable {
+                    onRetry()
+                }
+        )
     }
 }
 

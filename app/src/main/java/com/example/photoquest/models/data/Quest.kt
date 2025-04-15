@@ -1,13 +1,16 @@
 package com.example.photoquest.models.data
 
+import android.net.Uri
 import com.google.firebase.Timestamp
 
 data class Quest(
     val publisherId: String = "",
     val title: String = "",
+    val pictureUri: Uri? = null,
+    var pictureDownloadURL: Uri = Uri.EMPTY,
     val description: String = "",
-    val pictureURL: String = "",
-    val lat: Float = 0f,
-    val lng: Float = 0f,
-    val timestamp: Timestamp = Timestamp.now()
+    val lat: Double = 0.0,
+    val lng: Double = 0.0,
+    val timestamp: Timestamp = Timestamp.now(),
+    var numberOfLikes: Int = 0
 )
