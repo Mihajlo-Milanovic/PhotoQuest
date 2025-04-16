@@ -1,9 +1,11 @@
-package com.example.photoquest.ui.screens.logIn
+package com.example.photoquest.ui.screens.auth.logIn
 
 import android.content.Context
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.lifecycle.ViewModel
@@ -41,7 +43,7 @@ class LogInScreenViewModel private constructor() : ViewModel(), NavExtender {
         }
     }
 
-    override val navController: MutableState<NavController?> = mutableStateOf(null)
+    override var navController by mutableStateOf<NavController?>(null)
 
     val email = mutableStateOf("")
     val password = mutableStateOf("")
@@ -79,8 +81,8 @@ class LogInScreenViewModel private constructor() : ViewModel(), NavExtender {
 
         if (Firebase.auth.currentUser != null) {
             withContext(Dispatchers.Main) {
-                if (!navController.value?.popBackStack()!!)
-                    navController.value?.navigate(Screens.PROFILE.name)
+                if (!navController?.popBackStack()!!)
+                    navController?.navigate(Screens.PROFILE.name)
             }
         } else validationDone.value = true
     }
@@ -104,7 +106,7 @@ class LogInScreenViewModel private constructor() : ViewModel(), NavExtender {
 
 
     fun goToSignUpScreen() {
-        if (!navController.value?.popBackStack(Screens.SIGN_UP.name, false)!!)
-            navController.value?.navigate(Screens.SIGN_UP.name)
+        if (!navController?.popBackStack(Screens.SIGN_UP.name, false)!!)
+            navController?.navigate(Screens.SIGN_UP.name)
     }
 }

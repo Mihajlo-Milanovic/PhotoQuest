@@ -5,16 +5,23 @@ import android.util.Log
 import com.example.photoquest.models.data.Quest
 import com.example.photoquest.models.data.User
 import com.example.photoquest.ui.screens.makeQuest.MakeQuestScreenViewModel
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.Firebase
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.toObject
 import com.google.firebase.storage.component1
 import com.google.firebase.storage.component2
 import com.google.firebase.storage.storage
 import kotlinx.coroutines.tasks.await
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.pow
+import kotlin.math.sin
+import kotlin.math.sqrt
 
-
+private const val earthRadius = 6371.0 // Radius of Earth in km
 private const val users = "users"
 private const val quests = "quests"
 private const val publisherId = "publisherId"
@@ -101,20 +108,10 @@ suspend fun getUsersQuests(uid: String): MutableList<Quest> {
     val list = mutableListOf<Quest>()
     try {
         Firebase.firestore.collection(users).document(uid).collection(quests)
-            .get().await()?.let { docs ->
+            .get()
+            .await()?.let { docs ->
                 for (doc in docs) {
-                    val quest = Quest(
-                        publisherId = doc.getString("publisherId") ?: "",
-                        title = doc.getString("title") ?: "",
-                        description = doc.getString("description") ?: "",
-                        lat = doc.getDouble("lat") ?: 0.0,
-                        lng = doc.getDouble("lng") ?: 0.0,
-                        timestamp = doc.getTimestamp("timestamp") ?: Timestamp.now(),
-                        pictureUri = doc.getString("pictureUri")?.let { Uri.parse(it) },
-                        pictureDownloadURL = doc.getString("pictureDownloadURL")
-                            ?.let { Uri.parse(it) } ?: Uri.EMPTY
-                    )
-                    list += quest
+                    list += getQuestFromDocument(doc)
                 }
             }
         Log.d("MIKI", "Loaded quests: \n${list.map { " -> ${it.title}\n" }}")
@@ -122,4 +119,76 @@ suspend fun getUsersQuests(uid: String): MutableList<Quest> {
         Log.e("MIKI", "An error occurred while fetching users quests.\n\n ${ex.message}")
     }
     return list
+}
+
+suspend fun getQuestsInRadius(center: LatLng, radiusInKm: Double): MutableList<Quest> {
+
+    val lat = center.latitude
+    val lng = center.longitude
+
+
+    val deltaLat = Math.toDegrees(radiusInKm / earthRadius)
+    val deltaLng = Math.toDegrees(radiusInKm / (earthRadius * cos(Math.toRadians(lat))))
+
+    val latMin = lat - deltaLat
+    val latMax = lat + deltaLat
+    val lngMin = lng - deltaLng
+    val lngMax = lng + deltaLng
+
+    val nearbyQuests = mutableListOf<Quest>()
+
+    try {
+        val snapshot = Firebase.firestore.collectionGroup(quests)
+            .get()
+            .await()
+
+        Log.d("MIKI", "Found ${snapshot.documents.size} quests in a square nearby!")
+
+        for (doc in snapshot.documents) {
+            val quest = getQuestFromDocument(doc)
+
+            if (quest.lat in latMin..latMax && quest.lng in lngMin..lngMax) {
+                if (haversine(lat, lng, quest.lat, quest.lng) <= radiusInKm) {
+
+                    Log.d("MIKI", "Found [ ${quest.title} ] in a circle nearby!")
+                    nearbyQuests.add(quest)
+                }
+            }
+        }
+
+    } catch (e: Exception) {
+        Log.e("MIKI", "Error fetching quests:\n\n ${e.message}")
+    }
+
+    return nearbyQuests
+}
+
+private fun haversine(lat1: Double, lng1: Double, lat2: Double, lng2: Double): Double {
+
+    val dLat = Math.toRadians(lat2 - lat1)
+    val dLon = Math.toRadians(lng2 - lng1)
+
+    val a = sin(dLat / 2).pow(2) +
+            cos(Math.toRadians(lat1)) *
+            cos(Math.toRadians(lat2)) *
+            sin(dLon / 2).pow(2)
+
+    val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+    return earthRadius * c
+}
+
+private fun getQuestFromDocument(doc: DocumentSnapshot): Quest {
+    
+    return Quest(
+        publisherId = doc.getString("publisherId") ?: "",
+        title = doc.getString("title") ?: "",
+        description = doc.getString("description") ?: "",
+        lat = doc.getDouble("lat") ?: 0.0,
+        lng = doc.getDouble("lng") ?: 0.0,
+        timestamp = doc.getTimestamp("timestamp") ?: Timestamp.now(),
+        pictureUri = doc.getString("pictureUri")?.let { Uri.parse(it) },
+        pictureDownloadURL = doc.getString("pictureDownloadURL")
+            ?.let { Uri.parse(it) } ?: Uri.EMPTY
+    )
 }

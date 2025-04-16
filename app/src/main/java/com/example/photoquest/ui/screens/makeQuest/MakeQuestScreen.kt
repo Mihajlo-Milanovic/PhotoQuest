@@ -34,8 +34,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.photoquest.R
-import com.example.photoquest.services.getUserLocation
+import com.example.photoquest.services.getUserCurrentLocation
 import com.example.photoquest.ui.components.bottomBar.NavBar
+import com.example.photoquest.ui.screens.auxiliary.goToNoLocationSplashScreen
 import com.example.photoquest.ui.screens.auxiliary.isLocationEnabled
 import com.example.photoquest.ui.theme.PhotoQuestTheme
 import com.example.photoquest.utilities.createImageUri
@@ -49,7 +50,7 @@ fun MakeQuestScreen(
     navController: NavController
 ) {
     val vm = MakeQuestScreenViewModel.getInstance()
-    if (vm.navController.value == null)
+    if (vm.navController == null)
         vm.setNavCtrl(navController)
 
     Scaffold(
@@ -69,7 +70,7 @@ fun MakeQuestScreen(
                     vm = vm
                 )
             } else {
-                vm.goToNoLocationSplashScreen()
+                goToNoLocationSplashScreen(navController)
             }
 
         } else {
@@ -244,7 +245,7 @@ fun UploadScreen(
 
     if (vm.location.value == null) {
         Log.d("MIKI", "Reading users location.")
-        getUserLocation(
+        getUserCurrentLocation(
             context = context,
             fusedLocationClient = fusedLocationClient,
             location = vm.location

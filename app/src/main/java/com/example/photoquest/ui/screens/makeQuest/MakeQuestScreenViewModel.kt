@@ -6,7 +6,6 @@ import android.net.Uri
 import android.os.Looper
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -38,7 +37,7 @@ class MakeQuestScreenViewModel private constructor() : ViewModel(), NavExtender 
         }
     }
 
-    override val navController: MutableState<NavController?> = mutableStateOf(null)
+    override var navController by mutableStateOf<NavController?>(null)
 
     var title by mutableStateOf("")
     var imageUri by mutableStateOf<Uri?>(Uri.EMPTY)
@@ -96,11 +95,7 @@ class MakeQuestScreenViewModel private constructor() : ViewModel(), NavExtender 
             it.contentDescription = "Quest picture"
         }
 
-        navController.value?.navigate(Screens.PICTURE_FULL_SIZE.name)
-    }
-
-    fun goToNoLocationSplashScreen() {
-        navController.value!!.navigate(Screens.NO_LOCATION_SPLASH.name)
+        navController?.navigate(Screens.PICTURE_FULL_SIZE.name)
     }
 
     fun reset() {

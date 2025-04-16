@@ -1,7 +1,8 @@
 package com.example.photoquest.ui.components.bottomBar
 
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.photoquest.Screens
@@ -20,7 +21,7 @@ class NavBarViewModel private constructor() : ViewModel(), NavExtender {
         }
     }
 
-    override val navController: MutableState<NavController?> = mutableStateOf(null)
+    override var navController by mutableStateOf<NavController?>(null)
 
     private val currentScreen = mutableStateOf(Screens.PROFILE)
 
@@ -29,8 +30,8 @@ class NavBarViewModel private constructor() : ViewModel(), NavExtender {
     }
 
     fun navigateToScreen(screen: Screens) {
-        if (!navController.value?.popBackStack(screen.name, false)!!) {
-            navController.value?.navigate(screen.name)
+        if (!navController?.popBackStack(screen.name, false)!!) {
+            navController?.navigate(screen.name)
         }
 //        currentScreen.value = screen
     }

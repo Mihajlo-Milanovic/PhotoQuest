@@ -67,7 +67,7 @@ fun ProfileScreen(
     //TODO: Implement profile screen loading and quests
 
     val vm = ProfileScreenViewModel.getInstance()
-    if (vm.navController.value == null)
+    if (vm.navController == null)
         vm.setNavCtrl(navController)
 
     Scaffold(

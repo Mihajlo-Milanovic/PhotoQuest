@@ -1,6 +1,7 @@
-package com.example.photoquest.ui.screens.signUp
+package com.example.photoquest.ui.screens.auth.logIn
 
 import android.content.Context
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +18,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,6 +26,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,18 +39,21 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-
 @Composable
-fun SignUpScreen(
+fun LogInScreen(
     navController: NavController
 ) {
-
-    val vm = SignUpScreenViewModel.getInstance()
-    if (vm.navController.value == null)
+    val vm = LogInScreenViewModel.getInstance()
+    if (vm.navController == null)
         vm.setNavCtrl(navController)
-
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        launch(Dispatchers.Default) {
+            vm.validateUser()
+        }
+    }
 
     Surface {
 
@@ -59,62 +66,36 @@ fun SignUpScreen(
         ) {
 
             item {
-                DrawLogo()
-            }
 
-            item {
+                DrawLogo()
+
                 Spacer(modifier = Modifier.height(64.dp))
             }
 
             item {
-                if (!vm.signUpInProgress.value) {
+                if (vm.validationDone.value) {
 
-                    SignUpInputFields(vm = vm)
+                    LogInInputFields(vm = vm)
 
-                    Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                    SignUpScreenButton(
+                    LogInButtons(
                         vm = vm,
                         context = context,
                         coroutineScope = coroutineScope
                     )
-                } else CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+
+                } else {
+
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                }
             }
         }
     }
 }
 
 @Composable
-fun SignUpInputFields(vm: SignUpScreenViewModel) {
-
-    OutlinedTextField(
-        value = vm.username.value,
-        onValueChange = {
-            vm.onUsernameChange(it)
-        },
-        label = { Text(stringResource(id = R.string.username)) },
-        modifier = Modifier.fillMaxWidth()
-    )
-
-    OutlinedTextField(
-        value = vm.firstName.value,
-        onValueChange = {
-            vm.onFirstNameChange(it)
-        },
-        label = { Text(stringResource(id = R.string.firstName)) },
-        modifier = Modifier.fillMaxWidth()
-    )
-
-    OutlinedTextField(
-        value = vm.lastName.value,
-        onValueChange = {
-            vm.onLastNameChange(it)
-        },
-        label = { Text(stringResource(id = R.string.lastName)) },
-        modifier = Modifier.fillMaxWidth()
-    )
-
-    Spacer(modifier = Modifier.height(16.dp))
+fun LogInInputFields(vm: LogInScreenViewModel) {
 
     OutlinedTextField(
         value = vm.email.value,
@@ -133,6 +114,7 @@ fun SignUpInputFields(vm: SignUpScreenViewModel) {
         label = { Text(stringResource(id = R.string.password)) },
         visualTransformation = vm.passwordTransformation.value,
         trailingIcon = {
+
             IconButton(onClick = { vm.onShowPasswordClick() }) {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = vm.passwordIcon.intValue),
@@ -143,43 +125,51 @@ fun SignUpInputFields(vm: SignUpScreenViewModel) {
         modifier = Modifier.fillMaxWidth()
     )
 
-
-    OutlinedTextField(
-        value = vm.repPassword.value,
-        onValueChange = { vm.onRepPasswordChange(it) },
-        label = { Text(stringResource(id = R.string.confirmPassword)) },
-        visualTransformation = vm.passwordTransformation.value,
-        modifier = Modifier.fillMaxWidth()
-    )
 }
 
 @Composable
-fun SignUpScreenButton(
-    vm: SignUpScreenViewModel,
+fun LogInButtons(
+    vm: LogInScreenViewModel,
     context: Context,
-    coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope
 ) {
+
     Button(
         onClick = {
-            vm.signUpInProgress.value = true
             coroutineScope.launch(Dispatchers.Default) {
-                vm.onSignInClick(context = context)
+                vm.onLogInClick(context = context)
             }
         },
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+
     ) {
         Text(
-            text = stringResource(id = R.string.signUp),
+            text = stringResource(id = R.string.logIn),
             fontSize = 20.sp
         )
     }
+
+    Spacer(modifier = Modifier.height(32.dp))
+
+    Text(
+        text = AnnotatedString(
+            stringResource(id = R.string.doNotHaveAcc),
+        ),
+        style = TextStyle(
+            color = MaterialTheme.colorScheme.primary,
+            fontSize = 18.sp
+        ),
+        modifier = Modifier.clickable {
+            vm.goToSignUpScreen()
+        }
+    )
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = false)
 @Composable
-fun SignUpScreenPreview() {
-
+fun LoginScreenPreview() {
     PhotoQuestTheme {
-        SignUpScreen(navController = NavController(LocalContext.current))
+        LogInScreen(navController = NavController(context = LocalContext.current))
     }
 }

@@ -1,4 +1,4 @@
-package com.example.photoquest.ui.screens.leaderboard
+package com.example.photoquest.ui.screens.viewQuest
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -7,19 +7,20 @@ import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.photoquest.ui.screens.auxiliary.NavExtender
 
-class LeaderboardScreenViewModel : ViewModel(), NavExtender {
+class ViewQuestScreenViewModel private constructor() : ViewModel(), NavExtender {
 
     companion object {
+        private var INSTANCE: ViewQuestScreenViewModel? = null
 
-        private var INSTANCE: LeaderboardScreenViewModel? = null
-
-        fun getInstance(): LeaderboardScreenViewModel {
+        fun getInstance(): ViewQuestScreenViewModel {
             return INSTANCE ?: synchronized(this) {
-                INSTANCE = LeaderboardScreenViewModel()
+                INSTANCE = ViewQuestScreenViewModel()
                 INSTANCE!!
             }
         }
     }
 
     override var navController by mutableStateOf<NavController?>(null)
+
+
 }

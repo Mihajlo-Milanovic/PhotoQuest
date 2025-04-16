@@ -33,7 +33,7 @@ import com.example.photoquest.ui.theme.PhotoQuestTheme
 fun NavBar(navController: NavController) {
 
     val vm = NavBarViewModel.getInstance()
-    if (vm.navController.value == null)
+    if (vm.navController == null)
         vm.setNavCtrl(navController)
 
     NavigationBar(
@@ -87,7 +87,8 @@ fun NavButton(
     vm: NavBarViewModel,
     navigateTo: Screens,
     @DrawableRes iconId: Int,
-    modifier: Modifier = Modifier) {
+    modifier: Modifier = Modifier
+) {
     IconButton(
         onClick = { vm.navigateToScreen(navigateTo) },
         modifier = Modifier
@@ -106,8 +107,11 @@ fun NavButton(
 }
 
 //@Preview(name = "LightTheme", showBackground = true)
-@Preview(name = "DarkTheme",
-    uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL, showBackground = true)
+@Preview(
+    name = "DarkTheme",
+    uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL,
+    showBackground = true
+)
 @Composable
 fun NavBarPreview() {
     PhotoQuestTheme {

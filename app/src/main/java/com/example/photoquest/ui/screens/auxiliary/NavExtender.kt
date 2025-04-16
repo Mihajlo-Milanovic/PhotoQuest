@@ -1,13 +1,13 @@
 package com.example.photoquest.ui.screens.auxiliary
 
-import androidx.compose.runtime.MutableState
 import androidx.navigation.NavController
 
 interface NavExtender {
 
-    val navController: MutableState<NavController?>
+    //    val navController: MutableState<NavController?>
+    var navController: NavController?
 
     fun setNavCtrl(navController: NavController) {
-        this.navController.value = navController
+        this.navController = navController
     }
 }

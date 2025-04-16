@@ -1,10 +1,12 @@
-package com.example.photoquest.ui.screens.signUp
+package com.example.photoquest.ui.screens.auth.signUp
 
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.lifecycle.ViewModel
@@ -44,7 +46,7 @@ class SignUpScreenViewModel private constructor() : ViewModel(), NavExtender {
         }
     }
 
-    override val navController: MutableState<NavController?> = mutableStateOf(null)
+    override var navController by mutableStateOf<NavController?>(null)
 
     val username = mutableStateOf("")
     val firstName = mutableStateOf("")
@@ -130,8 +132,8 @@ class SignUpScreenViewModel private constructor() : ViewModel(), NavExtender {
 
             if (isUserSignedIn()) {
                 withContext(Dispatchers.Main) {
-                    navController.value?.popBackStack(Screens.LOG_IN.name, true)
-                    navController.value?.navigate(Screens.PROFILE.name)
+                    navController?.popBackStack(Screens.LOG_IN.name, true)
+                    navController?.navigate(Screens.PROFILE.name)
                 }
             }
 

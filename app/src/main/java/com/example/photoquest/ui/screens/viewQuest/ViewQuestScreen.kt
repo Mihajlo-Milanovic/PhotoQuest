@@ -1,8 +1,7 @@
-package com.example.photoquest.ui.screens.map
+package com.example.photoquest.ui.screens.viewQuest
 
 import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -12,23 +11,18 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
-import com.example.photoquest.R
 import com.example.photoquest.services.getUserLocationUpdates
 import com.example.photoquest.ui.components.bottomBar.NavBar
-import com.example.photoquest.ui.permissions.PermitLocationTrackingDialog
+import com.example.photoquest.ui.screens.map.MapScreenViewModel
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.MapProperties
-import com.google.maps.android.compose.MapType
-import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.MarkerState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-
 @Composable
-fun MapScreen(navController: NavController) {
+fun ViewQuestScreen(
+    navController: NavController
+) {
 
     val context = LocalContext.current
     val vm = remember { MapScreenViewModel.getInstance() }
@@ -77,28 +71,6 @@ fun MapScreen(navController: NavController) {
         },
     ) { padding ->
 
-        PermitLocationTrackingDialog(
-            requestReason = R.string.locationPermissionReason,
-            modifier = Modifier.padding(padding)
-        )
-
-        GoogleMap(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-            cameraPositionState = vm.cameraPositionState,
-            properties = MapProperties(
-                isMyLocationEnabled = vm.location != null,
-                mapType = MapType.HYBRID
-            )
-        ) {
-            vm.nearbyQuests.forEach {
-                Marker(
-                    state = MarkerState(position = LatLng(it.lat, it.lng)),
-                    title = it.title,
-                )
-            }
-        }
 
     }
 }

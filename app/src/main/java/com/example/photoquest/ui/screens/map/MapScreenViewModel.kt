@@ -1,24 +1,20 @@
 package com.example.photoquest.ui.screens.map
 
 import android.content.Context
-import android.location.Location
-import android.os.Looper
-import android.util.Log
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
-import com.example.photoquest.ui.permissions.PermissionsViewModel
+import com.example.photoquest.models.data.Quest
+import com.example.photoquest.services.getQuestsInRadius
 import com.example.photoquest.ui.screens.auxiliary.NavExtender
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
+import kotlinx.coroutines.delay
 
 class MapScreenViewModel private constructor() : ViewModel(), NavExtender {
 
@@ -33,31 +29,34 @@ class MapScreenViewModel private constructor() : ViewModel(), NavExtender {
         }
     }
 
-    val pvm = PermissionsViewModel.getInstance()
-    override val navController: MutableState<NavController?> = mutableStateOf(null)
+    override var navController by mutableStateOf<NavController?>(null)
 
     var fusedLocationClient: FusedLocationProviderClient? = null
         private set
 
-    var location = mutableStateOf<LatLng?>(null)
+    var freeResources: () -> Unit = {}
+
+    var inFocus by mutableStateOf(false)
+    var location by mutableStateOf<LatLng?>(null)
         private set
+
+    var nearbyQuests = mutableListOf<Quest>()
 
     val cameraPositionState = CameraPositionState(
         position = CameraPosition(
-            location.value ?: LatLng(44.8125, 20.4612),
+            location ?: LatLng(44.8125, 20.4612),
             12f,
             0f,
             0f
         )
     )
 
-
     fun setFusedLocationClient(context: Context) {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
     }
 
     fun setLocation(lat: Double, lng: Double) {
-        location.value = LatLng(lat, lng)
+        location = LatLng(lat, lng)
     }
 
     fun setCameraPositionState(
@@ -69,42 +68,13 @@ class MapScreenViewModel private constructor() : ViewModel(), NavExtender {
         cameraPositionState.position = CameraPosition(latLng, zoom, tilt, bearing)
     }
 
-    fun getUserLocation(
-        context: Context,
-        onLocationReceived: (Location) -> Unit
-    ) {
-        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000).build()
-
-        if (!pvm.arePermissionsGranted(
-                context = context,
-                array = arrayOf(
-                    android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                    android.Manifest.permission.ACCESS_FINE_LOCATION
-                )
-            )
-        ) {
-            return
+    suspend fun checkForNearbyQuests() {
+        while (inFocus) {
+            location?.let {
+                nearbyQuests = getQuestsInRadius(center = it, radiusInKm = 0.001)
+            }
+            delay(15_000)
         }
-
-        try {
-
-            fusedLocationClient!!.requestLocationUpdates(
-                locationRequest,
-                object : LocationCallback() {
-                    override fun onLocationResult(locationResult: LocationResult) {
-                        locationResult.lastLocation?.let {
-                            onLocationReceived(it)
-                            setCameraPositionState(LatLng(it.latitude, it.longitude))
-                        }
-
-                        fusedLocationClient!!.removeLocationUpdates(this) // Stop updates after getting location
-                    }
-                },
-                Looper.getMainLooper()
-            )
-        } catch (ex: SecurityException) {
-            Log.e("MIKI", "Failed to get location permission <MAP SCREEN>.\n\n ${ex.message}")
-        }
-
     }
+
 }

@@ -1,7 +1,8 @@
 package com.example.photoquest.ui.screens.profile
 
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.photoquest.Screens
@@ -40,7 +41,7 @@ class ProfileScreenViewModel private constructor() : ViewModel(), NavExtender {
         }
     }
 
-    override val navController: MutableState<NavController?> = mutableStateOf(null)
+    override var navController by mutableStateOf<NavController?>(null)
 
     val displayedUser = mutableStateOf(User())
     var usersQuests = mutableListOf<Quest>()
@@ -88,20 +89,20 @@ class ProfileScreenViewModel private constructor() : ViewModel(), NavExtender {
                 signUserOut()
             }
 
-            navController.value?.popBackStack(Screens.PROFILE.name, true)
-            navController.value?.navigate(Screens.LOG_IN.name)
+            navController?.popBackStack(Screens.PROFILE.name, true)
+            navController?.navigate(Screens.LOG_IN.name)
 
             clearData()
         }
     }
 
     fun onMakeNewQuest() {
-        navController.value?.navigate(Screens.MAKE_QUEST.name)
+        navController?.navigate(Screens.MAKE_QUEST.name)
     }
 
     fun zoomProfilePicture() {
 //        PictureFullSizeViewModel.getInstance().imageUri.value = TODO finish this
-        navController.value?.navigate(Screens.PICTURE_FULL_SIZE.name)
+        navController?.navigate(Screens.PICTURE_FULL_SIZE.name)
     }
 
     fun questImageOnLongClick(quest: Quest) {
@@ -112,6 +113,6 @@ class ProfileScreenViewModel private constructor() : ViewModel(), NavExtender {
                 it.contentDescription = quest.description
             }
 
-        navController.value?.navigate(Screens.PICTURE_FULL_SIZE.name)
+        navController?.navigate(Screens.PICTURE_FULL_SIZE.name)
     }
 }
