@@ -14,6 +14,7 @@ import com.example.photoquest.services.getUsersQuests
 import com.example.photoquest.services.signUserOut
 import com.example.photoquest.ui.pictureFullSize.PictureFullSizeViewModel
 import com.example.photoquest.ui.screens.auxiliary.NavExtender
+import com.example.photoquest.ui.screens.viewQuest.ViewQuestScreenViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -105,7 +106,7 @@ class ProfileScreenViewModel private constructor() : ViewModel(), NavExtender {
         navController?.navigate(Screens.PICTURE_FULL_SIZE.name)
     }
 
-    fun questImageOnLongClick(quest: Quest) {
+    fun questImageOnClick(quest: Quest) {
         PictureFullSizeViewModel
             .getInstance()
             .let {
@@ -113,6 +114,26 @@ class ProfileScreenViewModel private constructor() : ViewModel(), NavExtender {
                 it.contentDescription = quest.description
             }
 
-        navController?.navigate(Screens.PICTURE_FULL_SIZE.name)
+        navController!!.navigate(Screens.PICTURE_FULL_SIZE.name) {
+            popUpTo(Screens.PICTURE_FULL_SIZE.name) {
+                inclusive = false
+            }
+            launchSingleTop = true
+        }
+    }
+
+    fun questOnClick(quest: Quest) {
+        ViewQuestScreenViewModel
+            .getInstance()
+            .let {
+                it.quest = quest
+            }
+
+        navController!!.navigate(Screens.VIEW_QUEST.name) {
+            popUpTo(Screens.VIEW_QUEST.name) {
+                inclusive = false
+            }
+            launchSingleTop = true
+        }
     }
 }

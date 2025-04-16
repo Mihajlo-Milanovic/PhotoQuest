@@ -332,13 +332,16 @@ fun QuestPreviewCard(
         modifier = modifier
             .background(MaterialTheme.colorScheme.surfaceContainer)
             .padding(horizontal = 16.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable { vm.questOnClick(quest) },
         //elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Row(
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier
+                .padding(16.dp)
+                .clickable { vm.questOnClick(quest) },
         ) {
 
             AsyncImage(
@@ -347,7 +350,7 @@ fun QuestPreviewCard(
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .fillMaxHeight()
-                    .clickable { vm.questImageOnLongClick(quest) }
+                    .clickable { vm.questImageOnClick(quest) }
                     .border(
                         width = 1.dp,
                         color = MaterialTheme.colorScheme.secondaryContainer,
@@ -363,7 +366,10 @@ fun QuestPreviewCard(
 
             Spacer(Modifier.width(16.dp))
 
-            Column {
+            Column(
+                modifier = Modifier
+                    .clickable { vm.questOnClick(quest) },
+            ) {
                 Text(text = (quest.title))
 
                 Spacer(modifier = Modifier.height(8.dp))

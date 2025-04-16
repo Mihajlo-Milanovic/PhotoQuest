@@ -11,7 +11,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
-import com.example.photoquest.services.Toaster
 import com.example.photoquest.services.isUserSignedIn
 import com.example.photoquest.ui.components.bottomBar.NavBarViewModel
 import com.example.photoquest.ui.pictureFullSize.PictureFullSize
@@ -25,6 +24,7 @@ import com.example.photoquest.ui.screens.leaderboard.LeaderboardScreen
 import com.example.photoquest.ui.screens.makeQuest.MakeQuestScreen
 import com.example.photoquest.ui.screens.map.MapScreen
 import com.example.photoquest.ui.screens.profile.ProfileScreen
+import com.example.photoquest.ui.screens.viewQuest.ViewQuestScreen
 import com.example.photoquest.ui.theme.PhotoQuestTheme
 
 class MainActivity : ComponentActivity() {
@@ -36,10 +36,6 @@ class MainActivity : ComponentActivity() {
 
         setContent {
 
-            PhotoQuestTheme {
-
-                Toaster.setAppContext(LocalContext.current)
-            }
         }
     }
 
@@ -83,29 +79,39 @@ fun PhotoQuestApp() {
             navBarViewModel.setCurrentScreen(Screens.SIGN_UP)
             SignUpScreen(navController = navController)
         }
+
+
         composable(Screens.PROFILE.name) {
             navBarViewModel.setCurrentScreen(Screens.PROFILE)
             ProfileScreen(navController = navController)
-        }
-        dialog(Screens.PICTURE_FULL_SIZE.name) {
-            PictureFullSize(navController = navController)
         }
         composable(Screens.MAKE_QUEST.name) {
             navBarViewModel.setCurrentScreen(Screens.MAKE_QUEST)
             MakeQuestScreen(navController = navController)
         }
+        composable(Screens.MAP.name) {
+            navBarViewModel.setCurrentScreen(Screens.MAP)
+            MapScreen(navController = navController)
+        }
         composable(Screens.LEADERBOARD.name) {
             navBarViewModel.setCurrentScreen(Screens.LEADERBOARD)
             LeaderboardScreen(navController = navController)
         }
-        composable(Screens.MAP.name) {
-            navBarViewModel.setCurrentScreen(Screens.MAP)
-            MapScreen(navController = navController)
+
+
+        composable(Screens.VIEW_QUEST.name) {
+            navBarViewModel.setCurrentScreen(Screens.VIEW_QUEST)
+            ViewQuestScreen(navController = navController)
         }
         composable(Screens.NO_LOCATION_SPLASH.name) {
             LocationNotEnabledSplashScreen {
                 navController.popBackStack()
             }
+        }
+
+
+        dialog(Screens.PICTURE_FULL_SIZE.name) {
+            PictureFullSize(navController = navController)
         }
     }
 }
