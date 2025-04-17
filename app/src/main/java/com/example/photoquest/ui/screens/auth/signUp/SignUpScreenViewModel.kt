@@ -14,7 +14,6 @@ import androidx.navigation.NavController
 import com.example.photoquest.R
 import com.example.photoquest.Screens
 import com.example.photoquest.models.data.User
-import com.example.photoquest.services.Toaster.makeShortToast
 import com.example.photoquest.services.createNewUser
 import com.example.photoquest.services.currentUserUid
 import com.example.photoquest.services.isUserSignedIn
@@ -124,16 +123,22 @@ class SignUpScreenViewModel private constructor() : ViewModel(), NavExtender {
                 signUserIn(email = email.value, password = password.value)
             } catch (ex: Exception) {
                 withContext(Dispatchers.Main) {
-                    makeShortToast(
-                        message = ex.message ?: "Hmm...Something suspicious happened!"
-                    )
+                    Toast.makeText(
+                        context,
+                        ex.message ?: "Hmm...Something suspicious happened!",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
 
             if (isUserSignedIn()) {
                 withContext(Dispatchers.Main) {
-                    navController?.popBackStack(Screens.LOG_IN.name, true)
-                    navController?.navigate(Screens.PROFILE.name)
+                    navController!!.navigate(Screens.PROFILE.name) {
+                        popUpTo(Screens.PROFILE.name) {
+                            inclusive = false
+                        }
+                        launchSingleTop = true
+                    }
                 }
             }
 

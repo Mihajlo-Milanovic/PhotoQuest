@@ -30,10 +30,12 @@ class NavBarViewModel private constructor() : ViewModel(), NavExtender {
     }
 
     fun navigateToScreen(screen: Screens) {
-        if (!navController?.popBackStack(screen.name, false)!!) {
-            navController?.navigate(screen.name)
+        navController!!.navigate(screen.name) {
+            popUpTo(screen.name) {
+                inclusive = false
+            }
+            launchSingleTop = true
         }
-//        currentScreen.value = screen
     }
 
     fun selected(screen: Screens): Boolean {

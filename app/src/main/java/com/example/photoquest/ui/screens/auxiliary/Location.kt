@@ -25,9 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.example.photoquest.R
-import com.example.photoquest.Screens
 import kotlinx.coroutines.delay
 
 @Composable
@@ -84,8 +82,4 @@ fun isLocationEnabled(context: Context): Boolean {
     val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
             locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-}
-
-fun goToNoLocationSplashScreen(navController: NavController) {
-    navController.navigate(Screens.NO_LOCATION_SPLASH.name)
 }

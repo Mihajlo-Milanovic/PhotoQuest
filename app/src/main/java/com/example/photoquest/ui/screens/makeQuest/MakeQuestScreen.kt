@@ -24,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -36,7 +37,6 @@ import coil.compose.AsyncImage
 import com.example.photoquest.R
 import com.example.photoquest.services.getUserCurrentLocation
 import com.example.photoquest.ui.components.bottomBar.NavBar
-import com.example.photoquest.ui.screens.auxiliary.goToNoLocationSplashScreen
 import com.example.photoquest.ui.screens.auxiliary.isLocationEnabled
 import com.example.photoquest.ui.theme.PhotoQuestTheme
 import com.example.photoquest.utilities.createImageUri
@@ -49,7 +49,7 @@ import kotlinx.coroutines.launch
 fun MakeQuestScreen(
     navController: NavController
 ) {
-    val vm = MakeQuestScreenViewModel.getInstance()
+    val vm = remember { MakeQuestScreenViewModel.getInstance() }
     if (vm.navController == null)
         vm.setNavCtrl(navController)
 
@@ -70,7 +70,7 @@ fun MakeQuestScreen(
                     vm = vm
                 )
             } else {
-                goToNoLocationSplashScreen(navController)
+                vm.goToNoLocationSplashScreen()
             }
 
         } else {

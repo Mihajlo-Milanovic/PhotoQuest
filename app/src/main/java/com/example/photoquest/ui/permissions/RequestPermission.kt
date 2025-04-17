@@ -1,10 +1,10 @@
 package com.example.photoquest.ui.permissions
 
 import android.Manifest
-import android.Manifest.permission.CAMERA
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.READ_MEDIA_IMAGES
 import android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
+import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -34,6 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.content.ContextCompat
 import com.example.photoquest.R
 
 @Composable
@@ -41,16 +42,14 @@ fun PermitLocationTrackingDialog(
     modifier: Modifier,
     requestReason: Int,
 ) {
-
-    val pvm = PermissionsViewModel.getInstance()
     val context = LocalContext.current
 
     var dialogNeeded by remember {
         mutableStateOf(
-            !pvm.isPermissionGranted(
-                permission = Manifest.permission.ACCESS_FINE_LOCATION,
-                context = context
-            )
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
         )
     }
 
@@ -101,7 +100,12 @@ fun PermitLocationTrackingDialog(
                             )
                         )
 
-                        dialogNeeded = false
+                        if (ContextCompat.checkSelfPermission(
+                                context,
+                                Manifest.permission.ACCESS_FINE_LOCATION
+                            ) == PackageManager.PERMISSION_GRANTED
+                        )
+                            dialogNeeded = false
                     }) {
                         Text(text = stringResource(R.string.iUnderstand))
                     }
@@ -117,15 +121,14 @@ fun PermitCameraUsageDialog(
     requestReason: Int,
 ) {
 
-    val pvm = PermissionsViewModel.getInstance()
     val context = LocalContext.current
 
     var dialogNeeded by remember {
         mutableStateOf(
-            !pvm.isPermissionGranted(
-                permission = Manifest.permission.CAMERA,
-                context = context
-            )
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.CAMERA
+            ) != PackageManager.PERMISSION_GRANTED
         )
     }
 
@@ -171,7 +174,13 @@ fun PermitCameraUsageDialog(
                     Button(onClick = {
                         permissionLauncher.launch(Manifest.permission.CAMERA)
 
-                        dialogNeeded = false
+
+                        if (ContextCompat.checkSelfPermission(
+                                context,
+                                Manifest.permission.CAMERA
+                            ) == PackageManager.PERMISSION_GRANTED
+                        )
+                            dialogNeeded = false
                     }) {
                         Text(text = stringResource(R.string.iUnderstand))
                     }
@@ -188,7 +197,6 @@ fun PermitImageAccessDialog(
     requestReason: Int,
 ) {
 
-    val pvm = PermissionsViewModel.getInstance()
     val context = LocalContext.current
 
     val permissionArray = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
@@ -201,88 +209,14 @@ fun PermitImageAccessDialog(
 
     var dialogNeeded by remember {
         mutableStateOf(
-            !pvm.arePermissionsGranted(
-                array = permissionArray,
-                context = context
-            )
-        )
-    }
-
-    if (dialogNeeded) {
-
-        val permissionLauncher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.RequestMultiplePermissions()
-        ) {}
-
-        Dialog(
-            properties = DialogProperties(
-                dismissOnBackPress = true,
-                dismissOnClickOutside = true,
-                usePlatformDefaultWidth = true,
-            ),
-            onDismissRequest = {},
-        ) {
-
-            Surface(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .border(
-                        width = 5.dp,
-                        color = MaterialTheme.colorScheme.secondary,
-                        shape = AbsoluteRoundedCornerShape(31.dp)
-                    )
-                    .clip(AbsoluteRoundedCornerShape(32.dp))
-            ) {
-
-                Column(
-                    modifier = modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = stringResource(requestReason),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .padding(16.dp)
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Button(onClick = {
-                        permissionLauncher.launch(permissionArray)
-
-                        dialogNeeded = false
-                    }) {
-                        Text(text = stringResource(R.string.iUnderstand))
-                    }
-                }
+            permissionArray.map {
+                ContextCompat.checkSelfPermission(
+                    context,
+                    it
+                ) != PackageManager.PERMISSION_GRANTED
+            }.reduce { acc: Boolean, it ->
+                acc && it
             }
-        }
-    }
-}
-
-@Composable
-fun PermitImageAndCameraAccessDialog(
-    modifier: Modifier,
-    requestReason: Int,
-) {
-
-    val pvm = PermissionsViewModel.getInstance()
-    val context = LocalContext.current
-
-    val permissionArray = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-        arrayOf(READ_MEDIA_IMAGES, READ_MEDIA_VISUAL_USER_SELECTED, CAMERA)
-    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        arrayOf(READ_MEDIA_IMAGES, CAMERA)
-    } else {
-        arrayOf(READ_EXTERNAL_STORAGE, CAMERA)
-    }
-
-    var dialogNeeded by remember {
-        mutableStateOf(
-            !pvm.arePermissionsGranted(
-                array = permissionArray,
-                context = context
-            )
         )
     }
 
@@ -328,7 +262,15 @@ fun PermitImageAndCameraAccessDialog(
                     Button(onClick = {
                         permissionLauncher.launch(permissionArray)
 
-                        dialogNeeded = false
+                        if (permissionArray.map {
+                                ContextCompat.checkSelfPermission(
+                                    context,
+                                    it
+                                ) == PackageManager.PERMISSION_GRANTED
+                            }.reduce { acc: Boolean, it ->
+                                acc && it
+                            })
+                            dialogNeeded = false
                     }) {
                         Text(text = stringResource(R.string.iUnderstand))
                     }

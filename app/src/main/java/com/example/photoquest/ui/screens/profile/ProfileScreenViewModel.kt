@@ -98,7 +98,12 @@ class ProfileScreenViewModel private constructor() : ViewModel(), NavExtender {
     }
 
     fun onMakeNewQuest() {
-        navController?.navigate(Screens.MAKE_QUEST.name)
+        navController!!.navigate(Screens.MAKE_QUEST.name) {
+            popUpTo(Screens.MAKE_QUEST.name) {
+                inclusive = false
+            }
+            launchSingleTop = true
+        }
     }
 
     fun zoomProfilePicture() {

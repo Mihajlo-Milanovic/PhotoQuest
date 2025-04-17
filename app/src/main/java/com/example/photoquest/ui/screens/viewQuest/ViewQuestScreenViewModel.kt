@@ -28,6 +28,10 @@ class ViewQuestScreenViewModel private constructor() : ViewModel(), NavExtender 
     var quest by mutableStateOf(Quest())
     var fullDescription by mutableStateOf(false)
 
+    fun onDescriptionClick() {
+        fullDescription = !fullDescription
+    }
+
     fun questImageOnClick() {
         PictureFullSizeViewModel
             .getInstance()
@@ -44,7 +48,5 @@ class ViewQuestScreenViewModel private constructor() : ViewModel(), NavExtender 
         }
     }
 
-    fun onDescriptionClick() {
-        fullDescription = !fullDescription
-    }
+
 }

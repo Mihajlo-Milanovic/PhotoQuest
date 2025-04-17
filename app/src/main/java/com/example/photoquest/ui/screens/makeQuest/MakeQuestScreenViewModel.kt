@@ -98,6 +98,16 @@ class MakeQuestScreenViewModel private constructor() : ViewModel(), NavExtender 
         navController?.navigate(Screens.PICTURE_FULL_SIZE.name)
     }
 
+    fun goToNoLocationSplashScreen() {
+        navController!!.navigate(Screens.NO_LOCATION_SPLASH.name) {
+            popUpTo(Screens.NO_LOCATION_SPLASH.name) {
+                inclusive = false
+            }
+            launchSingleTop = true
+        }
+    }
+
+
     fun reset() {
         title = ""
         imageUri = Uri.EMPTY

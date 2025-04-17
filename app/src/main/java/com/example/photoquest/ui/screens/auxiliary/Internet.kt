@@ -26,6 +26,9 @@ import androidx.compose.ui.unit.dp
 import com.example.photoquest.R
 import kotlinx.coroutines.delay
 
+
+//TODO: revisit these
+
 @Composable
 fun NoInternetSplashScreen(onRetry: () -> Unit) {
     val context = LocalContext.current
@@ -73,5 +76,5 @@ fun isInternetAvailable(context: Context): Boolean {
             (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
                     networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
                     networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET))
-    
+
 }

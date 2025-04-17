@@ -1,6 +1,7 @@
 package com.example.photoquest.ui.screens.auth.logIn
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -12,7 +13,6 @@ import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.photoquest.R
 import com.example.photoquest.Screens
-import com.example.photoquest.services.Toaster.makeShortToast
 import com.example.photoquest.ui.screens.auxiliary.NavExtender
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
@@ -81,8 +81,12 @@ class LogInScreenViewModel private constructor() : ViewModel(), NavExtender {
 
         if (Firebase.auth.currentUser != null) {
             withContext(Dispatchers.Main) {
-                if (!navController?.popBackStack()!!)
-                    navController?.navigate(Screens.PROFILE.name)
+                navController!!.navigate(Screens.PROFILE.name) {
+                    popUpTo(Screens.PROFILE.name) {
+                        inclusive = false
+                    }
+                    launchSingleTop = true
+                }
             }
         } else validationDone.value = true
     }
@@ -95,9 +99,11 @@ class LogInScreenViewModel private constructor() : ViewModel(), NavExtender {
             Firebase.auth.signInWithEmailAndPassword(email.value, password.value).await()
         } catch (ex: Exception) {
             withContext(Dispatchers.Main) {
-                makeShortToast(
-                    message = ex.message ?: "Hmm...Something suspicious happened!"
-                )
+                Toast.makeText(
+                    context,
+                    ex.message ?: "Hmm...Something suspicious happened!",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -106,7 +112,11 @@ class LogInScreenViewModel private constructor() : ViewModel(), NavExtender {
 
 
     fun goToSignUpScreen() {
-        if (!navController?.popBackStack(Screens.SIGN_UP.name, false)!!)
-            navController?.navigate(Screens.SIGN_UP.name)
+        navController!!.navigate(Screens.SIGN_UP.name) {
+            popUpTo(Screens.SIGN_UP.name) {
+                inclusive = false
+            }
+            launchSingleTop = true
+        }
     }
 }
