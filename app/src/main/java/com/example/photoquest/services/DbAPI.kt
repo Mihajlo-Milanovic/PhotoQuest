@@ -179,7 +179,7 @@ private fun haversine(lat1: Double, lng1: Double, lat2: Double, lng2: Double): D
 }
 
 private fun getQuestFromDocument(doc: DocumentSnapshot): Quest {
-    
+
     return Quest(
         publisherId = doc.getString("publisherId") ?: "",
         title = doc.getString("title") ?: "",

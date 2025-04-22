@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,7 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -64,7 +62,7 @@ fun ProfileScreen(
     navController: NavController
 ) {
 
-    //TODO: Implement profile screen loading and quests
+    //TODO: Implement profile picture upload and view
 
     val vm = ProfileScreenViewModel.getInstance()
     if (vm.navController == null)
@@ -74,19 +72,7 @@ fun ProfileScreen(
         modifier = Modifier
             .fillMaxSize(),
         topBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.onSecondary),
-                horizontalArrangement = Arrangement.End
-            ) {
-                ProfileScreenOptionsToggle(
-                    vm = vm,
-                    modifier = Modifier
-                        .align(Alignment.CenterVertically)
-                        .windowInsetsPadding(insets = WindowInsets(top = 16.dp))
-                )
-            }
+            ProfileScreenTopBar(vm = vm)
         },
         bottomBar = {
             NavBar(navController = navController)
@@ -111,32 +97,6 @@ fun ProfileScreen(
                 verticalArrangement = Arrangement.Top,
             ) {
 
-                item {//Settings
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        //.padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceAround,
-                    ) {
-
-                        if (vm.showOptions.value) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(MaterialTheme.colorScheme.onSecondary)
-                                    .padding(8.dp)
-                                    .align(Alignment.Top),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Top,
-                            ) {
-                                Button(onClick = { vm.onSignOut() }) {
-                                    Text(text = stringResource(id = R.string.signOut))
-                                }
-                            }
-                        }
-                    }
-                }
 
                 item { //Picture, username, score ...
                     Row(
@@ -154,26 +114,19 @@ fun ProfileScreen(
                         ScoreAndQuestNumber(vm = vm)
                     }
                 }
-            }
 
-            if (!vm.usersQuestsLoaded.value)
 
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .fillMaxSize(0.5f),
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-            else
-            //Users quests
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxHeight(),
-                    //.padding(top = 0.dp)
-                    //.padding(paddingValues),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Top,
-                    userScrollEnabled = true,
-                ) {
+                if (!vm.usersQuestsLoaded.value) {
+                    item {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .fillMaxSize(0.5f),
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+                } else {
+
+                    //Users quests
                     items(vm.usersQuests) { q ->
 
                         QuestPreviewCard(
@@ -184,10 +137,9 @@ fun ProfileScreen(
                         Spacer(modifier = Modifier.height(1.dp))
                     }
                 }
-
+            }
         }
     }
-
 }
 
 
@@ -278,18 +230,25 @@ fun ScoreAndQuestNumber(vm: ProfileScreenViewModel) {
 }
 
 @Composable
-fun ProfileScreenOptionsToggle(
-    vm: ProfileScreenViewModel,
-    modifier: Modifier = Modifier
+fun ProfileScreenTopBar(
+    vm: ProfileScreenViewModel
 ) {
-
-    IconButton(
-        modifier = modifier,
-        onClick = { vm.showOptions.value = !vm.showOptions.value }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.onSecondary),
+        horizontalArrangement = Arrangement.End
     ) {
-        Icon(painter = painterResource(id = R.drawable.grey_settings), contentDescription = null)
+        IconButton(
+            modifier = Modifier,
+            onClick = { vm.goToSettings() }
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.grey_settings),
+                contentDescription = null
+            )
+        }
     }
-
 }
 
 @Composable

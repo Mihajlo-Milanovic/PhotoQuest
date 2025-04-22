@@ -32,4 +32,5 @@
     <string name="takePicture">Take Picture</string>
     <string name="imageUnavailable">The image is unavailable</string>
     <string name="makingAQuest">Making a quest...</string>
+    <string name="searchForQuestsAutomatically">Search for quests automatically</string>
 </resources>

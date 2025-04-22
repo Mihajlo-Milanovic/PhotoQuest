@@ -11,14 +11,12 @@ import com.example.photoquest.models.data.User
 import com.example.photoquest.services.currentUserUid
 import com.example.photoquest.services.getUserWithUid
 import com.example.photoquest.services.getUsersQuests
-import com.example.photoquest.services.signUserOut
 import com.example.photoquest.ui.pictureFullSize.PictureFullSizeViewModel
 import com.example.photoquest.ui.screens.auxiliary.NavExtender
 import com.example.photoquest.ui.screens.viewQuest.ViewQuestScreenViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class ProfileScreenViewModel private constructor() : ViewModel(), NavExtender {
 
@@ -32,12 +30,6 @@ class ProfileScreenViewModel private constructor() : ViewModel(), NavExtender {
 
                 INSTANCE = ProfileScreenViewModel()
                 INSTANCE!!
-            }
-        }
-
-        private fun clearData() {
-            synchronized(this) {
-                INSTANCE = null
             }
         }
     }
@@ -83,20 +75,7 @@ class ProfileScreenViewModel private constructor() : ViewModel(), NavExtender {
         }
     }
 
-    fun onSignOut() {
-        runBlocking {
-
-            launch(Dispatchers.Default) {
-                signUserOut()
-            }
-
-            navController?.popBackStack(Screens.PROFILE.name, true)
-            navController?.navigate(Screens.LOG_IN.name)
-
-            clearData()
-        }
-    }
-
+    //TODO: Maybe not needed???
     fun onMakeNewQuest() {
         navController!!.navigate(Screens.MAKE_QUEST.name) {
             popUpTo(Screens.MAKE_QUEST.name) {
@@ -136,6 +115,15 @@ class ProfileScreenViewModel private constructor() : ViewModel(), NavExtender {
 
         navController!!.navigate(Screens.VIEW_QUEST.name) {
             popUpTo(Screens.VIEW_QUEST.name) {
+                inclusive = false
+            }
+            launchSingleTop = true
+        }
+    }
+
+    fun goToSettings() {
+        navController!!.navigate(Screens.SETTINGS.name) {
+            popUpTo(Screens.SETTINGS.name) {
                 inclusive = false
             }
             launchSingleTop = true

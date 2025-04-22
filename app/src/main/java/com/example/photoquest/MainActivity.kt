@@ -24,6 +24,7 @@ import com.example.photoquest.ui.screens.leaderboard.LeaderboardScreen
 import com.example.photoquest.ui.screens.makeQuest.MakeQuestScreen
 import com.example.photoquest.ui.screens.map.MapScreen
 import com.example.photoquest.ui.screens.profile.ProfileScreen
+import com.example.photoquest.ui.screens.settings.SettingsScreen
 import com.example.photoquest.ui.screens.viewQuest.ViewQuestScreen
 import com.example.photoquest.ui.theme.PhotoQuestTheme
 
@@ -97,6 +98,10 @@ fun PhotoQuestApp() {
             navBarViewModel.setCurrentScreen(Screens.LEADERBOARD)
             LeaderboardScreen(navController = navController)
         }
+        composable(Screens.SETTINGS.name) {
+            navBarViewModel.setCurrentScreen(Screens.SETTINGS)
+            SettingsScreen(navController = navController)
+        }
 
 
         composable(Screens.VIEW_QUEST.name) {
@@ -104,6 +109,7 @@ fun PhotoQuestApp() {
             ViewQuestScreen(navController = navController)
         }
         composable(Screens.NO_LOCATION_SPLASH.name) {
+            navBarViewModel.setCurrentScreen(Screens.NO_LOCATION_SPLASH)
             LocationNotEnabledSplashScreen {
                 navController.popBackStack()
             }
@@ -111,6 +117,7 @@ fun PhotoQuestApp() {
 
 
         dialog(Screens.PICTURE_FULL_SIZE.name) {
+//            navBarViewModel.setCurrentScreen(Screens.PICTURE_FULL_SIZE)
             PictureFullSize(navController = navController)
         }
     }
@@ -124,6 +131,7 @@ enum class Screens {
     MAKE_QUEST,
     MAP,
     LEADERBOARD,
+    SETTINGS,
 
     VIEW_QUEST,
     NO_LOCATION_SPLASH,
