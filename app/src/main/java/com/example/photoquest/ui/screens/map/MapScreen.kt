@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.FloatingActionButton
@@ -30,7 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
@@ -41,11 +41,12 @@ import com.example.photoquest.services.getUserLocationUpdates
 import com.example.photoquest.ui.components.bottomBar.NavBar
 import com.example.photoquest.ui.permissions.PermitLocationTrackingDialog
 import com.google.android.gms.location.Priority
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.Circle
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
+import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
@@ -61,17 +62,7 @@ fun MapScreen(navController: NavController) {
     val vm = remember { MapScreenViewModel.getInstance() }
     val questCoroutineScope = rememberCoroutineScope()
     val locationCoroutineScope = rememberCoroutineScope()
-    val camPosition = rememberCameraPositionState(
-//        "userLocation",
-//        init = {
-//            CameraPosition(
-//                vm.location ?: LatLng(44.8125, 20.4612),
-//                12f,
-//                0f,
-//                0f
-//            )
-//        }
-    )
+    val camPosition = rememberCameraPositionState()
 
     DisposableEffect(vm) {
         if (vm.fusedLocationClient == null) {
@@ -102,23 +93,13 @@ fun MapScreen(navController: NavController) {
         }
     }
 
-    LaunchedEffect(vm.location, vm.closeUpView /*vm.camZoom*/) {
-        vm.location?.let {
-            if (vm.closeUpView)
-                camPosition.animate(
-                    update = CameraUpdateFactory.newLatLngZoom(
-                        it,
-                        vm.camZoom
-                    )
-                )
-            else
-                camPosition.animate(
-                    update = CameraUpdateFactory.newLatLngBounds(
-                        vm.getBoundsForRadius(it, vm.settingsViewModel.questSearchRadius),
-                        8
-                    )
-                )
-        }
+    LaunchedEffect(vm.closeUpView, vm.location) {
+        vm.setCameraPositionToUserLocation(camPosition)
+    }
+
+    LaunchedEffect(camPosition.position.zoom) {
+        if (vm.closeUpView)
+            vm.camZoom = camPosition.position.zoom
     }
 
 
@@ -142,10 +123,28 @@ fun MapScreen(navController: NavController) {
             cameraPositionState = camPosition,
             properties = MapProperties(
                 isMyLocationEnabled = vm.location != null,
-                mapType = MapType.HYBRID
+                mapType = MapType.HYBRID,
+//                mapStyleOptions = if (isSystemInDarkTheme()) MapStyleOptions.loadRawResourceStyle(
+//                    context,
+//                    R.raw.map_style_dark
+//                ) else null,
             ),
+            uiSettings = MapUiSettings(
+                myLocationButtonEnabled = false
+            )
 
-            ) {
+        ) {
+
+            vm.location?.let {
+                Circle(
+                    center = it,
+                    radius = vm.settingsViewModel.questSearchRadius * 1_000,
+                    strokeColor = MaterialTheme.colorScheme.tertiary,
+                    fillColor = Color.Transparent,
+                    strokeWidth = 2f
+                )
+            }
+
             vm.nearbyQuests.forEach {
                 Marker(
                     state = MarkerState(position = LatLng(it.lat, it.lng)),
@@ -154,47 +153,60 @@ fun MapScreen(navController: NavController) {
             }
         }
 
-
-
         Column(
-            verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top),
+            horizontalAlignment = Alignment.End,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(pv)
-                .padding(start = 8.dp)
+                .padding(start = 8.dp, end = 8.dp)
                 .padding(top = 12.dp, bottom = 32.dp)
                 .alpha(0.8f)
         ) {
+            if (camPosition.position.target != vm.location) {
+                FloatingActionButton(
+                    onClick = {
+                        locationCoroutineScope.launch {
+                            vm.setCameraPositionToUserLocation(camPosition)
+                        }
+                    },
+                    shape = RoundedCornerShape(8.dp),
+                    contentColor = MaterialTheme.colorScheme.onSurface,
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    modifier = Modifier
+                        .size(32.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.baseline_my_location_24),
+                        contentDescription = "My location",
+                        modifier = Modifier
+                            .size(32.dp)
+                            .animateContentSize()
+                    )
+                }
+            }
 
             FloatingActionButton(
                 onClick = {
-                    if (vm.closeUpView)
-                        vm.camZoom = camPosition.position.zoom
-
                     vm.closeUpView = !vm.closeUpView
                 },
-                shape = RectangleShape,
-                contentColor = Color.DarkGray,
-                containerColor = MaterialTheme.colorScheme.onSurface,
+                shape = RoundedCornerShape(8.dp),
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                containerColor = MaterialTheme.colorScheme.surface,
                 modifier = Modifier
-                    .size(37.dp)
+                    .size(32.dp)
             ) {
                 if (vm.closeUpView)
                     Icon(
                         painter = painterResource(R.drawable.baseline_zoom_out_map_24),
                         contentDescription = "Zoom out map",
                         modifier = Modifier
-                            .size(if (!vm.searchInProgress) Dp.Unspecified else 0.dp)
-                            .animateContentSize()
                     )
                 else
                     Icon(
                         painter = painterResource(R.drawable.baseline_zoom_in_map_24),
                         contentDescription = "Zoom in map",
                         modifier = Modifier
-                            .size(if (!vm.searchInProgress) Dp.Unspecified else 0.dp)
-                            .animateContentSize()
                     )
             }
 
@@ -222,10 +234,12 @@ fun MapScreen(navController: NavController) {
                             vm.searchInProgress = false
                         }
                     },
-                    contentColor = Color.DarkGray,
-                    containerColor = MaterialTheme.colorScheme.onSurface,
+                    shape = RoundedCornerShape(8.dp),
+                    contentColor = MaterialTheme.colorScheme.onSurface,
+                    containerColor = MaterialTheme.colorScheme.surface,
                     modifier = Modifier
                         .scale(if (vm.searchInProgress) pulseScale else 1f)
+                        .size(32.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Search,
@@ -253,22 +267,18 @@ fun MapScreen(navController: NavController) {
 //            bottomBar = {
 //                NavBar(navController = NavController(LocalContext.current))
 //            }) { pv ->
-//            FloatingActionButton(
-//                onClick = {
-//                },
-//                contentColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-//                containerColor = MaterialTheme.colorScheme.onSurface,
+//            GoogleMap(
 //                modifier = Modifier
-//                    .size(32.dp)
-//            ) {
-//                Icon(
-//                    painter = painterResource(R.drawable.baseline_zoom_in_map_24),
-//                    contentDescription = "Zoom in map",
-//                    modifier = Modifier
-//                        //.size(if (!vm.searchInProgress) Dp.Unspecified else 0.dp)
-//                        .animateContentSize()
+//                    .fillMaxSize()
+//                    .padding(pv),
+//                properties = MapProperties(
+//                    isMyLocationEnabled = false,
+//                    mapType = MapType.HYBRID
+//                ),
+//                uiSettings = MapUiSettings(
+//                    mapToolbarEnabled = true
 //                )
-//            }
+//            )
 //        }
 //    }
 //}

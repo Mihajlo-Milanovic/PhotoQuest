@@ -14,10 +14,14 @@ import com.example.photoquest.ui.screens.auxiliary.NavExtender
 import com.example.photoquest.ui.screens.settings.SettingsScreenViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import com.google.maps.android.compose.CameraPositionState
 import kotlinx.coroutines.delay
 import kotlin.math.cos
+
+const val EARTH_RADIUS_KM = 6378.137
 
 class MapScreenViewModel private constructor() : ViewModel(), NavExtender {
 
@@ -59,12 +63,11 @@ class MapScreenViewModel private constructor() : ViewModel(), NavExtender {
         location = LatLng(lat, lng)
     }
 
-    fun getBoundsForRadius(center: LatLng, radiusKm: Double): LatLngBounds {
-        val earthRadius = 6371.0
+    private fun getBoundsForRadius(center: LatLng, radiusKm: Double): LatLngBounds {
 
-        val latDelta = Math.toDegrees(radiusKm / earthRadius)
+        val latDelta = Math.toDegrees(radiusKm / EARTH_RADIUS_KM)
         val lngDelta =
-            Math.toDegrees(radiusKm / earthRadius / cos(Math.toRadians(center.latitude)))
+            Math.toDegrees(radiusKm / EARTH_RADIUS_KM / cos(Math.toRadians(center.latitude)))
 
         val southwest = LatLng(center.latitude - latDelta, center.longitude - lngDelta)
         val northeast = LatLng(center.latitude + latDelta, center.longitude + lngDelta)
@@ -96,6 +99,26 @@ class MapScreenViewModel private constructor() : ViewModel(), NavExtender {
             Toast.makeText(context, "Your location is unknown", Toast.LENGTH_SHORT).show()
         }
         searchInProgress = false
+    }
+
+    suspend fun setCameraPositionToUserLocation(cameraPosition: CameraPositionState) {
+
+        location?.let {
+            if (closeUpView)
+                cameraPosition.animate(
+                    update = CameraUpdateFactory.newLatLngZoom(
+                        it,
+                        camZoom
+                    )
+                )
+            else
+                cameraPosition.animate(
+                    update = CameraUpdateFactory.newLatLngBounds(
+                        getBoundsForRadius(it, settingsViewModel.questSearchRadius),
+                        8
+                    )
+                )
+        }
     }
 
 }
