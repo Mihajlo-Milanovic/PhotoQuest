@@ -1,6 +1,7 @@
 package com.example.photoquest.ui.screens.map
 
 import android.content.Context
+import android.os.Looper
 import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -8,10 +9,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
+import com.example.photoquest.Screens
 import com.example.photoquest.models.data.Quest
 import com.example.photoquest.services.getQuestsInRadius
 import com.example.photoquest.ui.screens.auxiliary.NavExtender
 import com.example.photoquest.ui.screens.settings.SettingsScreenViewModel
+import com.example.photoquest.ui.screens.viewQuest.ViewQuestScreenViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -63,6 +66,17 @@ class MapScreenViewModel private constructor() : ViewModel(), NavExtender {
         location = LatLng(lat, lng)
     }
 
+    fun viewQuest(quest: Quest) {
+        ViewQuestScreenViewModel.getInstance().quest = quest
+
+        navController!!.navigate(Screens.VIEW_QUEST.name) {
+            popUpTo(Screens.VIEW_QUEST.name) {
+                inclusive = false
+            }
+            launchSingleTop = true
+        }
+    }
+
     private fun getBoundsForRadius(center: LatLng, radiusKm: Double): LatLngBounds {
 
         val latDelta = Math.toDegrees(radiusKm / EARTH_RADIUS_KM)
@@ -89,14 +103,16 @@ class MapScreenViewModel private constructor() : ViewModel(), NavExtender {
 
     suspend fun checkForNearbyQuestsOnClick(context: Context) {
 
-        val currentLocation = location
-        if (currentLocation != null) {
-            nearbyQuests = getQuestsInRadius(
-                center = currentLocation,
-                radiusInKm = settingsViewModel.questSearchRadius
-            )
-        } else {
-            Toast.makeText(context, "Your location is unknown", Toast.LENGTH_SHORT).show()
+        location.let {
+            if (it != null) {
+                nearbyQuests = getQuestsInRadius(
+                    center = it,
+                    radiusInKm = settingsViewModel.questSearchRadius
+                )
+            } else {
+                Looper.prepare()
+                Toast.makeText(context, "Your location is unknown", Toast.LENGTH_SHORT).show()
+            }
         }
         searchInProgress = false
     }

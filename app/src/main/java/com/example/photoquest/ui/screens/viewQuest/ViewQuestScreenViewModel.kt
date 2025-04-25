@@ -26,10 +26,10 @@ class ViewQuestScreenViewModel private constructor() : ViewModel(), NavExtender 
     override var navController by mutableStateOf<NavController?>(null)
 
     var quest by mutableStateOf(Quest())
-    var fullDescription by mutableStateOf(false)
+    var showFullDescription by mutableStateOf(false)
 
     fun onDescriptionClick() {
-        fullDescription = !fullDescription
+        showFullDescription = !showFullDescription
     }
 
     fun questImageOnClick() {

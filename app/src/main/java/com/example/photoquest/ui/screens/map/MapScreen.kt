@@ -93,7 +93,7 @@ fun MapScreen(navController: NavController) {
         }
     }
 
-    LaunchedEffect(vm.closeUpView, vm.location) {
+    LaunchedEffect(vm.closeUpView) {
         vm.setCameraPositionToUserLocation(camPosition)
     }
 
@@ -145,10 +145,15 @@ fun MapScreen(navController: NavController) {
                 )
             }
 
-            vm.nearbyQuests.forEach {
+            vm.nearbyQuests.forEach { quest ->
+
                 Marker(
-                    state = MarkerState(position = LatLng(it.lat, it.lng)),
-                    title = it.title,
+                    state = MarkerState(position = LatLng(quest.lat, quest.lng)),
+                    title = quest.title,
+                    onClick = {
+                        vm.viewQuest(quest)
+                        true
+                    }
                 )
             }
         }

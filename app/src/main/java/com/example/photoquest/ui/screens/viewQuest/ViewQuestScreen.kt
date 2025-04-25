@@ -72,7 +72,7 @@ fun ViewQuestScreen(
         ) {
             item {
                 AsyncImage(
-                    model = vm.quest.pictureUri ?: vm.quest.pictureDownloadURL,
+                    model = vm.quest.pictureDownloadURL,
                     contentDescription = vm.quest.description,
                     contentScale = ContentScale.Fit,
                     modifier = Modifier
@@ -145,11 +145,11 @@ fun TitleAndDescription(
                         .padding(16.dp)
                         .fillMaxSize()
                         .sizeIn(
-                            maxHeight = if (vm.fullDescription) Dp.Unspecified
+                            maxHeight = if (vm.showFullDescription) Dp.Unspecified
                             else 200.dp
                         )
                 )
-                if (!vm.fullDescription)
+                if (!vm.showFullDescription)
                     Text(
                         text = "Click to see more",
                         style = TextStyle(
