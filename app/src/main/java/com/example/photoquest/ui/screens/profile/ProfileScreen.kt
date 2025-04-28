@@ -23,11 +23,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -46,6 +43,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -71,9 +69,6 @@ fun ProfileScreen(
     Scaffold(
         modifier = Modifier
             .fillMaxSize(),
-        topBar = {
-            ProfileScreenTopBar(vm = vm)
-        },
         bottomBar = {
             NavBar(navController = navController)
         },
@@ -184,70 +179,22 @@ fun ScoreAndQuestNumber(vm: ProfileScreenViewModel) {
     Column(
         modifier = Modifier.fillMaxHeight(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Bottom,
+        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
     ) {
 
         Text(
-            text = stringResource(id = R.string.score),
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally),
-            fontWeight = FontWeight.SemiBold,
-        )
-
-        Text(
-            text = vm.displayedUser.value.score.toString(),
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally),
-            fontWeight = FontWeight.SemiBold,
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = stringResource(id = R.string.questsMade),
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally),
-            fontWeight = FontWeight.SemiBold,
-        )
-
-        Text(
-            text = vm.displayedUser.value.questsMade.toString(),
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally),
-            fontWeight = FontWeight.SemiBold,
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Button(
-            onClick = { vm.onMakeNewQuest() },
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-        ) {
-            Text(text = stringResource(id = R.string.makeNewQuest))
-        }
-    }
-}
-
-@Composable
-fun ProfileScreenTopBar(
-    vm: ProfileScreenViewModel
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.onSecondary),
-        horizontalArrangement = Arrangement.End
-    ) {
-        IconButton(
+            text = "${stringResource(id = R.string.score)}\n${vm.displayedUser.value.score}",
             modifier = Modifier,
-            onClick = { vm.goToSettings() }
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.grey_settings),
-                contentDescription = null
-            )
-        }
+            fontWeight = FontWeight.SemiBold,
+            textAlign = TextAlign.Center
+        )
+
+        Text(
+            text = "${stringResource(id = R.string.questsMade)}\n${vm.displayedUser.value.questsMade}",
+            modifier = Modifier,
+            fontWeight = FontWeight.SemiBold,
+            textAlign = TextAlign.Center
+        )
     }
 }
 

@@ -2,6 +2,7 @@ package com.example.photoquest.ui.screens.viewQuest
 
 import android.content.res.Configuration
 import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -12,10 +13,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -24,10 +29,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
@@ -38,10 +45,24 @@ import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.photoquest.R
+import com.example.photoquest.extensions.square
 import com.example.photoquest.models.data.Quest
+import com.example.photoquest.services.getBoundsForRadius
+import com.example.photoquest.services.getDistanceFromLatLng
 import com.example.photoquest.ui.components.bottomBar.NavBar
 import com.example.photoquest.ui.theme.PhotoQuestTheme
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.Timestamp
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapType
+import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.compose.rememberUpdatedMarkerState
 
 @Composable
 fun ViewQuestScreen(
@@ -54,6 +75,8 @@ fun ViewQuestScreen(
     LaunchedEffect(vm) {
         if (vm.navController == null)
             vm.setNavCtrl(navController)
+
+        vm.searchForAddress(context = context)
     }
 
     Scaffold(
@@ -65,8 +88,8 @@ fun ViewQuestScreen(
     ) { pv ->
 
         LazyColumn(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .padding(pv)
         ) {
@@ -74,7 +97,7 @@ fun ViewQuestScreen(
                 AsyncImage(
                     model = vm.quest.pictureDownloadURL,
                     contentDescription = vm.quest.description,
-                    contentScale = ContentScale.Fit,
+                    contentScale = ContentScale.FillHeight,
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { vm.questImageOnClick() }
@@ -95,7 +118,12 @@ fun ViewQuestScreen(
                 TitleAndDescription(vm = vm)
             }
 
-
+            item {
+                LocationPreview(vm = vm)
+            }
+            item {
+                LocationInfo(vm = vm)
+            }
         }
     }
 }
@@ -164,6 +192,159 @@ fun TitleAndDescription(
                             )
                             .padding(16.dp)
                             .fillMaxWidth()
+                    )
+            }
+        }
+    }
+}
+
+@Composable
+fun LocationInfo(
+    vm: ViewQuestScreenViewModel,
+    modifier: Modifier = Modifier
+) {
+
+    Card(
+        modifier = modifier
+            .padding(8.dp)
+            .fillMaxWidth(),
+        colors = CardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.secondary,
+            disabledContentColor = Color.Red,
+            disabledContainerColor = Color.Red
+        )
+
+    ) {
+
+        Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = if (vm.fullAddress.isNotEmpty()) ("Address:\n ${vm.fullAddress}")
+                else "Address is unavailable"
+                // + "Lat: ${vm.quest.lat.roundTo(6)},\nLong: ${vm.quest.lng.roundTo(6)}"
+
+            )
+        }
+    }
+}
+
+@Composable
+fun LocationPreview(
+    vm: ViewQuestScreenViewModel,
+    modifier: Modifier = Modifier
+) {
+    val camPosition = rememberCameraPositionState()
+    val markerState = rememberUpdatedMarkerState(LatLng(vm.quest.lat, vm.quest.lng))
+
+    LaunchedEffect(vm.mapScreenViewModel.location) {
+        vm.mapScreenViewModel.location.let {
+            if (it != null && !vm.closeUpView)
+                camPosition.animate(
+                    update = CameraUpdateFactory.newLatLngBounds(
+                        getBoundsForRadius(
+                            LatLng(vm.quest.lat, vm.quest.lng),
+                            getDistanceFromLatLng(
+                                vm.quest.lat,
+                                vm.quest.lng,
+                                it.latitude,
+                                it.longitude
+                            ).let { distance ->
+                                Log.d("MIKI", "Distance is -> $distance km")
+                                if (distance > 0.1) distance else 0.1
+                            }
+                        ), 8
+                    )
+                )
+            else
+                camPosition.animate(
+                    update = CameraUpdateFactory.newCameraPosition(
+                        CameraPosition(
+                            LatLng(vm.quest.lat, vm.quest.lng),
+                            18.5f,
+                            0f,
+                            0f
+                        )
+                    )
+                )
+        }
+    }
+
+    Card(
+        modifier = Modifier
+            .padding(8.dp)
+            .square(),
+        colors = CardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.secondary,
+            disabledContentColor = Color.Red,
+            disabledContainerColor = Color.Red
+        )
+
+    ) {
+        GoogleMap(
+            modifier = modifier
+                .fillMaxSize(),
+            cameraPositionState = camPosition,
+            properties = MapProperties(
+                isMyLocationEnabled = vm.mapScreenViewModel.location != null,
+                mapType = MapType.HYBRID,
+            ),
+            uiSettings = MapUiSettings(
+                compassEnabled = true,
+                indoorLevelPickerEnabled = false,
+                mapToolbarEnabled = true,
+                myLocationButtonEnabled = false,
+                rotationGesturesEnabled = true,
+                scrollGesturesEnabled = false,
+                scrollGesturesEnabledDuringRotateOrZoom = false,
+                tiltGesturesEnabled = false,
+                zoomControlsEnabled = false,
+                zoomGesturesEnabled = false,
+            )
+
+        ) {
+
+            Marker(
+                state = markerState,
+                title = vm.fullAddress
+            )
+
+        }
+
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top),
+            horizontalAlignment = Alignment.End,
+            modifier = Modifier
+                .fillMaxSize()
+                //.padding(start = 8.dp, end = 8.dp)
+                //.padding(top = 12.dp, bottom = 32.dp)
+                .alpha(0.8f)
+        ) {
+            FloatingActionButton(
+                onClick = {
+                    vm.closeUpView = !vm.closeUpView
+                },
+                shape = RoundedCornerShape(8.dp),
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                containerColor = MaterialTheme.colorScheme.surface,
+                modifier = Modifier
+                    .size(32.dp)
+            ) {
+                if (vm.closeUpView)
+                    Icon(
+                        painter = painterResource(R.drawable.baseline_zoom_out_map_24),
+                        contentDescription = "Zoom out map",
+                        modifier = Modifier
+                    )
+                else
+                    Icon(
+                        painter = painterResource(R.drawable.baseline_zoom_in_map_24),
+                        contentDescription = "Zoom in map",
+                        modifier = Modifier
                     )
             }
         }

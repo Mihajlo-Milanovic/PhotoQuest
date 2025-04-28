@@ -1,4 +1,4 @@
-package com.example.photoquest.ui.pictureFullSize
+package com.example.photoquest.ui.screens.pictureFullSize
 
 import android.net.Uri
 import androidx.compose.runtime.getValue

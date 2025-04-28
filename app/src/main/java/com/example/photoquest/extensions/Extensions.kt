@@ -1,5 +1,15 @@
 package com.example.photoquest.extensions
 
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import com.google.firebase.Timestamp
 import java.util.Calendar
 
@@ -16,4 +26,20 @@ fun Timestamp.moveByXMonths(x: Int): Timestamp {
     calendar.time = this.toDate()
     calendar.add(Calendar.MONTH, x)
     return Timestamp(calendar.time)
+}
+
+
+/**
+ * Sets height to the same value as width
+ *
+ * Width is set to fill available space
+ */
+fun Modifier.square(): Modifier = composed {
+    var size by remember { mutableIntStateOf(0) }
+    val density = LocalDensity.current
+
+    this
+        .fillMaxWidth()
+        .onSizeChanged { size = it.width }
+        .height(with(density) { size.toDp() })
 }

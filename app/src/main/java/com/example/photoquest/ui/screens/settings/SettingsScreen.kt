@@ -55,6 +55,7 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier
                 .padding(pv)
+                .padding(horizontal = 16.dp)
         ) {
 
             item {
@@ -134,7 +135,28 @@ fun SettingsScreen(
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceAround,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.Start),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    Switch(
+                        checked = vm.showSearchArea,
+                        onCheckedChange = {
+                            vm.showSearchArea = !vm.showSearchArea
+                        }
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Text(text = stringResource(R.string.showSearchArea))
+                }
+            }
+
+            item {
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.Start),
                     modifier = Modifier
                         .fillMaxWidth()
                 ) {

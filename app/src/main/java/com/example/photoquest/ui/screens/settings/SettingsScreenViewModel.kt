@@ -29,6 +29,8 @@ class SettingsScreenViewModel private constructor() : ViewModel(), NavExtender {
     override var navController by mutableStateOf<NavController?>(null)
 
     var questSearchRadius by mutableDoubleStateOf(10.0)
+    var showSearchArea by mutableStateOf(true)
+
     var automaticallySearchForQuest by mutableStateOf(false)
 
     fun onSignOut() {

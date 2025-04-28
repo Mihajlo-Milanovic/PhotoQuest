@@ -57,6 +57,13 @@ fun NavBar(navController: NavController) {
                 navigateTo = Screens.LEADERBOARD,
             )
 
+            //Settings Button
+            NavButton(
+                vm = vm,
+                iconId = R.drawable.grey_settings,
+                navigateTo = Screens.SETTINGS,
+            )
+
             //Map
             NavButton(
                 vm = vm,

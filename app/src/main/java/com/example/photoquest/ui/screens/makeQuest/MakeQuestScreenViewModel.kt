@@ -16,8 +16,8 @@ import com.example.photoquest.Screens
 import com.example.photoquest.models.data.Quest
 import com.example.photoquest.services.createNewQuest
 import com.example.photoquest.services.currentUserUid
-import com.example.photoquest.ui.pictureFullSize.PictureFullSizeViewModel
 import com.example.photoquest.ui.screens.auxiliary.NavExtender
+import com.example.photoquest.ui.screens.pictureFullSize.PictureFullSizeViewModel
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.CoroutineScope
 import kotlin.coroutines.EmptyCoroutineContext

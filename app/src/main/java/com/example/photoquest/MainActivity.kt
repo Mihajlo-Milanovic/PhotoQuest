@@ -13,7 +13,6 @@ import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import com.example.photoquest.services.isUserSignedIn
 import com.example.photoquest.ui.components.bottomBar.NavBarViewModel
-import com.example.photoquest.ui.pictureFullSize.PictureFullSize
 import com.example.photoquest.ui.screens.auth.logIn.LogInScreen
 import com.example.photoquest.ui.screens.auth.signUp.SignUpScreen
 import com.example.photoquest.ui.screens.auxiliary.HardwareViewModel
@@ -23,6 +22,7 @@ import com.example.photoquest.ui.screens.auxiliary.isInternetAvailable
 import com.example.photoquest.ui.screens.leaderboard.LeaderboardScreen
 import com.example.photoquest.ui.screens.makeQuest.MakeQuestScreen
 import com.example.photoquest.ui.screens.map.MapScreen
+import com.example.photoquest.ui.screens.pictureFullSize.PictureFullSize
 import com.example.photoquest.ui.screens.profile.ProfileScreen
 import com.example.photoquest.ui.screens.settings.SettingsScreen
 import com.example.photoquest.ui.screens.viewQuest.ViewQuestScreen

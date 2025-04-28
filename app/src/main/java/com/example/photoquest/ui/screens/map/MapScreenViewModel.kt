@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.photoquest.Screens
 import com.example.photoquest.models.data.Quest
+import com.example.photoquest.services.getBoundsForRadius
 import com.example.photoquest.services.getQuestsInRadius
 import com.example.photoquest.ui.screens.auxiliary.NavExtender
 import com.example.photoquest.ui.screens.settings.SettingsScreenViewModel
@@ -19,10 +20,8 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.CameraPositionState
 import kotlinx.coroutines.delay
-import kotlin.math.cos
 
 const val EARTH_RADIUS_KM = 6378.137
 
@@ -75,18 +74,6 @@ class MapScreenViewModel private constructor() : ViewModel(), NavExtender {
             }
             launchSingleTop = true
         }
-    }
-
-    private fun getBoundsForRadius(center: LatLng, radiusKm: Double): LatLngBounds {
-
-        val latDelta = Math.toDegrees(radiusKm / EARTH_RADIUS_KM)
-        val lngDelta =
-            Math.toDegrees(radiusKm / EARTH_RADIUS_KM / cos(Math.toRadians(center.latitude)))
-
-        val southwest = LatLng(center.latitude - latDelta, center.longitude - lngDelta)
-        val northeast = LatLng(center.latitude + latDelta, center.longitude + lngDelta)
-
-        return LatLngBounds(southwest, northeast)
     }
 
     suspend fun checkForNearbyQuests(delayMillis: Long) {

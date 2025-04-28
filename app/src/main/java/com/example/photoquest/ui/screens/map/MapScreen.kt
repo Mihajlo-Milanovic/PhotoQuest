@@ -135,20 +135,22 @@ fun MapScreen(navController: NavController) {
 
         ) {
 
-            vm.location?.let {
-                Circle(
-                    center = it,
-                    radius = vm.settingsViewModel.questSearchRadius * 1_000,
-                    strokeColor = MaterialTheme.colorScheme.tertiary,
-                    fillColor = Color.Transparent,
-                    strokeWidth = 2f
-                )
-            }
+            if (vm.settingsViewModel.showSearchArea)
+                vm.location?.let {
+                    Circle(
+                        center = it,
+                        radius = vm.settingsViewModel.questSearchRadius * 1_000,
+                        strokeColor = MaterialTheme.colorScheme.tertiary,
+                        fillColor = Color.Transparent,
+                        strokeWidth = 2f
+                    )
+                }
 
             vm.nearbyQuests.forEach { quest ->
 
+                val markerState = remember { MarkerState(position = LatLng(quest.lat, quest.lng)) }
                 Marker(
-                    state = MarkerState(position = LatLng(quest.lat, quest.lng)),
+                    state = markerState,
                     title = quest.title,
                     onClick = {
                         vm.viewQuest(quest)

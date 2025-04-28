@@ -33,4 +33,5 @@
     <string name="imageUnavailable">The image is unavailable</string>
     <string name="makingAQuest">Making a quest...</string>
     <string name="searchForQuestsAutomatically">Search for quests automatically</string>
+    <string name="showSearchArea">Show search area</string>
 </resources>

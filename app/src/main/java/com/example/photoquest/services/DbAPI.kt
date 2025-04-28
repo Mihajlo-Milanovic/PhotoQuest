@@ -15,11 +15,7 @@ import com.google.firebase.storage.component1
 import com.google.firebase.storage.component2
 import com.google.firebase.storage.storage
 import kotlinx.coroutines.tasks.await
-import kotlin.math.atan2
 import kotlin.math.cos
-import kotlin.math.pow
-import kotlin.math.sin
-import kotlin.math.sqrt
 
 private const val earthRadius = 6371.0 // Radius of Earth in km
 private const val users = "users"
@@ -142,13 +138,11 @@ suspend fun getQuestsInRadius(center: LatLng, radiusInKm: Double): MutableList<Q
             .get()
             .await()
 
-        Log.d("MIKI", "Found ${snapshot.documents.size} quests in a square nearby!")
-
         for (doc in snapshot.documents) {
             val quest = getQuestFromDocument(doc)
 
             if (quest.lat in latMin..latMax && quest.lng in lngMin..lngMax) {
-                if (haversine(lat, lng, quest.lat, quest.lng) <= radiusInKm) {
+                if (getDistanceFromLatLng(lat, lng, quest.lat, quest.lng) <= radiusInKm) {
 
                     Log.d("MIKI", "Found [ ${quest.title} ] in a circle nearby!")
                     nearbyQuests.add(quest)
@@ -161,21 +155,6 @@ suspend fun getQuestsInRadius(center: LatLng, radiusInKm: Double): MutableList<Q
     }
 
     return nearbyQuests
-}
-
-private fun haversine(lat1: Double, lng1: Double, lat2: Double, lng2: Double): Double {
-
-    val dLat = Math.toRadians(lat2 - lat1)
-    val dLon = Math.toRadians(lng2 - lng1)
-
-    val a = sin(dLat / 2).pow(2) +
-            cos(Math.toRadians(lat1)) *
-            cos(Math.toRadians(lat2)) *
-            sin(dLon / 2).pow(2)
-
-    val c = 2 * atan2(sqrt(a), sqrt(1 - a))
-
-    return earthRadius * c
 }
 
 private fun getQuestFromDocument(doc: DocumentSnapshot): Quest {
