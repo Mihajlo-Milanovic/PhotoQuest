@@ -92,6 +92,8 @@ suspend fun createNewQuest(quest: Quest): Boolean {
 
         }
 
+        //TODO: Update 'questsMade' filed for the user
+
         return true
     } catch (ex: Exception) {
         Log.e("MIKI", "An error occurred while creating a new quest.\n\n ${ex.message}")

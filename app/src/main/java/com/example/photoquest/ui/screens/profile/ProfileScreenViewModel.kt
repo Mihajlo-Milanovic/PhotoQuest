@@ -97,11 +97,9 @@ class ProfileScreenViewModel private constructor() : ViewModel(), NavExtender {
     }
 
     fun questOnClick(quest: Quest) {
-        ViewQuestScreenViewModel
-            .getInstance()
-            .let {
-                it.quest = quest
-            }
+
+        ViewQuestScreenViewModel.getInstance().setDisplayedQuest(quest)
+
 
         navController!!.navigate(Screens.VIEW_QUEST.name) {
             popUpTo(Screens.VIEW_QUEST.name) {

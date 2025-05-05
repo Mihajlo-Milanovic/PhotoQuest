@@ -1,13 +1,14 @@
 package com.example.photoquest.services
 
+import android.content.Context
 import android.util.Log
-import com.example.photoquest.services.Toaster.makeShortToast
+import android.widget.Toast
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import kotlinx.coroutines.tasks.await
 
 
-suspend fun signUserUp(email: String, password: String) {
+suspend fun signUserUp(email: String, password: String, context: Context) {
     Firebase.auth.createUserWithEmailAndPassword(email, password).addOnFailureListener { fail ->
 
         //TODO: test this!
@@ -15,15 +16,16 @@ suspend fun signUserUp(email: String, password: String) {
         fail.message?.let { Log.d("MIKI", it) }
         fail.cause?.localizedMessage?.let { Log.d("MIKI", it) }
         fail.localizedMessage?.let { Log.d("MIKI", it) }
+        Toast.makeText(context, "Something went wrong...", Toast.LENGTH_SHORT).show()
     }.await()
 }
 
-suspend fun signUserIn(email: String, password: String) {
+suspend fun signUserIn(email: String, password: String, context: Context) {
     Firebase.auth.signInWithEmailAndPassword(email, password).addOnFailureListener { fail ->
         fail.message?.let { Log.d("MIKI", it) }
         fail.cause?.localizedMessage?.let { Log.d("MIKI", it) }
         fail.localizedMessage?.let { Log.d("MIKI", it) }
-        makeShortToast(message = "Wrong email or password!")
+        Toast.makeText(context, "Wrong email or password!", Toast.LENGTH_SHORT).show()
     }.await()
 }
 

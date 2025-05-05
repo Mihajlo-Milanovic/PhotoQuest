@@ -19,10 +19,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,7 +35,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -75,8 +76,6 @@ fun ViewQuestScreen(
     LaunchedEffect(vm) {
         if (vm.navController == null)
             vm.setNavCtrl(navController)
-
-        vm.searchForAddress(context = context)
     }
 
     Scaffold(
@@ -97,9 +96,10 @@ fun ViewQuestScreen(
                 AsyncImage(
                     model = vm.quest.pictureDownloadURL,
                     contentDescription = vm.quest.description,
-                    contentScale = ContentScale.FillHeight,
+                    contentScale = ContentScale.Fit,
                     modifier = Modifier
                         .fillMaxWidth()
+                        .square()
                         .clickable { vm.questImageOnClick() }
                         .border(
                             width = 1.dp,
@@ -107,9 +107,6 @@ fun ViewQuestScreen(
 //                        shape = RoundedCornerShape(size = 8.dp)
                         )
 //                    .clip(RoundedCornerShape(size = 8.dp))
-                        .sizeIn(
-                            maxHeight = LocalView.current.width.dp
-                        )
                         .background(MaterialTheme.colorScheme.secondaryContainer),
                 )
             }
@@ -121,8 +118,10 @@ fun ViewQuestScreen(
             item {
                 LocationPreview(vm = vm)
             }
+
+
             item {
-                LocationInfo(vm = vm)
+                UserInfo(vm = vm)
             }
         }
     }
@@ -177,57 +176,23 @@ fun TitleAndDescription(
                             else 200.dp
                         )
                 )
-                if (!vm.showFullDescription)
-                    Text(
-                        text = "Click to see more",
-                        style = TextStyle(
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                            fontSize = TextUnit(10f, TextUnitType.Sp),
-                            fontFamily = FontFamily.Monospace
-                        ),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .background(
-                                color = MaterialTheme.colorScheme.onSecondary,
-                            )
-                            .padding(16.dp)
-                            .fillMaxWidth()
-                    )
+
+                Text(
+                    text = if (!vm.showFullDescription) "Show more" else "Show less",
+                    style = TextStyle(
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        fontSize = TextUnit(10f, TextUnitType.Sp),
+                        fontFamily = FontFamily.Monospace
+                    ),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .background(
+                            color = MaterialTheme.colorScheme.onSecondary,
+                        )
+                        .padding(4.dp)
+                        .fillMaxWidth()
+                )
             }
-        }
-    }
-}
-
-@Composable
-fun LocationInfo(
-    vm: ViewQuestScreenViewModel,
-    modifier: Modifier = Modifier
-) {
-
-    Card(
-        modifier = modifier
-            .padding(8.dp)
-            .fillMaxWidth(),
-        colors = CardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-            contentColor = MaterialTheme.colorScheme.secondary,
-            disabledContentColor = Color.Red,
-            disabledContainerColor = Color.Red
-        )
-
-    ) {
-
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = if (vm.fullAddress.isNotEmpty()) ("Address:\n ${vm.fullAddress}")
-                else "Address is unavailable"
-                // + "Lat: ${vm.quest.lat.roundTo(6)},\nLong: ${vm.quest.lng.roundTo(6)}"
-
-            )
         }
     }
 }
@@ -237,60 +202,61 @@ fun LocationPreview(
     vm: ViewQuestScreenViewModel,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     val camPosition = rememberCameraPositionState()
     val markerState = rememberUpdatedMarkerState(LatLng(vm.quest.lat, vm.quest.lng))
 
-    LaunchedEffect(vm.mapScreenViewModel.location) {
-        vm.mapScreenViewModel.location.let {
-            if (it != null && !vm.closeUpView)
-                camPosition.animate(
-                    update = CameraUpdateFactory.newLatLngBounds(
-                        getBoundsForRadius(
-                            LatLng(vm.quest.lat, vm.quest.lng),
-                            getDistanceFromLatLng(
-                                vm.quest.lat,
-                                vm.quest.lng,
-                                it.latitude,
-                                it.longitude
-                            ).let { distance ->
-                                Log.d("MIKI", "Distance is -> $distance km")
-                                if (distance > 0.1) distance else 0.1
-                            }
-                        ), 8
+    LaunchedEffect(vm.quest) {
+        vm.searchForAddress(context)
+    }
+
+    LaunchedEffect(vm.closeUpView, vm.mapScreenViewModel.location) {
+
+        if (vm.closeUpView) {
+            camPosition.animate(
+                update = CameraUpdateFactory.newCameraPosition(
+                    CameraPosition(
+                        LatLng(vm.quest.lat, vm.quest.lng),
+                        18.5f,
+                        0f,
+                        0f
                     )
                 )
-            else
-                camPosition.animate(
-                    update = CameraUpdateFactory.newCameraPosition(
-                        CameraPosition(
-                            LatLng(vm.quest.lat, vm.quest.lng),
-                            18.5f,
-                            0f,
-                            0f
-                        )
-                    )
+            )
+        } else vm.mapScreenViewModel.location?.let {
+            camPosition.animate(
+                update = CameraUpdateFactory.newLatLngBounds(
+                    getBoundsForRadius(
+                        LatLng(vm.quest.lat, vm.quest.lng),
+                        getDistanceFromLatLng(
+                            vm.quest.lat,
+                            vm.quest.lng,
+                            it.latitude,
+                            it.longitude
+                        ).let { distance ->
+                            Log.d("MIKI", "Distance is -> $distance km")
+                            if (distance > 0.1) distance else 0.1
+                        }
+                    ), 16
                 )
+            )
         }
     }
 
-    Card(
+    Surface(
+        shape = CardDefaults.shape,
         modifier = Modifier
             .padding(8.dp)
             .square(),
-        colors = CardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-            contentColor = MaterialTheme.colorScheme.secondary,
-            disabledContentColor = Color.Red,
-            disabledContainerColor = Color.Red
-        )
-
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        contentColor = MaterialTheme.colorScheme.secondary,
     ) {
         GoogleMap(
             modifier = modifier
                 .fillMaxSize(),
             cameraPositionState = camPosition,
             properties = MapProperties(
-                isMyLocationEnabled = vm.mapScreenViewModel.location != null,
+                isMyLocationEnabled = !vm.closeUpView,
                 mapType = MapType.HYBRID,
             ),
             uiSettings = MapUiSettings(
@@ -298,7 +264,7 @@ fun LocationPreview(
                 indoorLevelPickerEnabled = false,
                 mapToolbarEnabled = true,
                 myLocationButtonEnabled = false,
-                rotationGesturesEnabled = true,
+                rotationGesturesEnabled = false,
                 scrollGesturesEnabled = false,
                 scrollGesturesEnabledDuringRotateOrZoom = false,
                 tiltGesturesEnabled = false,
@@ -320,8 +286,8 @@ fun LocationPreview(
             horizontalAlignment = Alignment.End,
             modifier = Modifier
                 .fillMaxSize()
-                //.padding(start = 8.dp, end = 8.dp)
-                //.padding(top = 12.dp, bottom = 32.dp)
+                .padding(start = 16.dp, end = 16.dp)
+                .padding(top = 16.dp, bottom = 16.dp)
                 .alpha(0.8f)
         ) {
             FloatingActionButton(
@@ -351,6 +317,43 @@ fun LocationPreview(
     }
 }
 
+@Composable
+fun UserInfo(
+    vm: ViewQuestScreenViewModel,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .padding(8.dp)
+            .fillMaxWidth()
+            .clickable { vm.viewPublishersProfile() },
+        colors = CardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.secondary,
+            disabledContentColor = Color.Red,
+            disabledContainerColor = Color.Red
+        )
+
+    ) {
+
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .clickable { vm.viewPublishersProfile() },
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            
+
+            Text(
+                text = "Publisher: ${vm.publisher?.username ?: "Unknown"}",
+                modifier = Modifier
+                    .clickable { vm.viewPublishersProfile() }
+            )
+        }
+    }
+}
+
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL)
 @Composable
@@ -358,18 +361,19 @@ fun ViewQuestPreView() {
 
     PhotoQuestTheme {
 
-        ViewQuestScreenViewModel.getInstance().quest = Quest(
-            publisherId = "nNF46slnIlc4HeFE3bKbjDCOcxo1",
-            title = "Here is the title",
-            description = "Here is the description.\n\n\n\n\n\n\n\n\n\nAnd here is some looooooooooooooong dessssssccccrrriiipppttttiiiiooonnn!",
-            lat = 43.959861,
-            lng = 21.1741831,
-            numberOfLikes = 0,
-            pictureDownloadURL = Uri.parse("https://firebasestorage.googleapis.com/v0/b/photoquest-aa732.firebasestorage.app/o/questPhotos%2Fw7EIPH7Y2N8rl3PWCfqU%2FSelo.jpg?alt=media&token=bfcef57c-dd5d-4293-8cb4-d3f2c48e4580"),
-            pictureUri = Uri.parse("content://media/external/images/media/1000005009"),
-            timestamp = Timestamp.now(),
+        ViewQuestScreenViewModel.getInstance().setDisplayedQuest(
+            Quest(
+                publisherId = "nNF46slnIlc4HeFE3bKbjDCOcxo1",
+                title = "Here is the title",
+                description = "Here is the description.\n\n\n\n\n\n\n\n\n\nAnd here is some looooooooooooooong dessssssccccrrriiipppttttiiiiooonnn!",
+                lat = 43.959861,
+                lng = 21.1741831,
+                numberOfLikes = 0,
+                pictureDownloadURL = Uri.parse("https://firebasestorage.googleapis.com/v0/b/photoquest-aa732.firebasestorage.app/o/questPhotos%2Fw7EIPH7Y2N8rl3PWCfqU%2FSelo.jpg?alt=media&token=bfcef57c-dd5d-4293-8cb4-d3f2c48e4580"),
+                pictureUri = Uri.parse("content://media/external/images/media/1000005009"),
+                timestamp = Timestamp.now(),
+            )
         )
-
         ViewQuestScreen(navController = NavController(LocalContext.current))
     }
 }

@@ -107,7 +107,7 @@ class SignUpScreenViewModel private constructor() : ViewModel(), NavExtender {
         if (validatePassword(context = context)) {
 
             try {
-                signUserUp(email = email.value, password = password.value)
+                signUserUp(email = email.value, password = password.value, context = context)
 
                 currentUserUid()?.let {
                     createNewUser(
@@ -120,7 +120,7 @@ class SignUpScreenViewModel private constructor() : ViewModel(), NavExtender {
                     )
                 }
 
-                signUserIn(email = email.value, password = password.value)
+                signUserIn(email = email.value, password = password.value, context = context)
             } catch (ex: Exception) {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(

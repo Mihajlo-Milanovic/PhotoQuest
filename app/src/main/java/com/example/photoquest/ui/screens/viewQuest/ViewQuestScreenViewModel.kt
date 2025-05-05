@@ -8,10 +8,15 @@ import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.photoquest.Screens
 import com.example.photoquest.models.data.Quest
+import com.example.photoquest.models.data.User
+import com.example.photoquest.services.getUserWithUid
 import com.example.photoquest.services.reverseGeocode
 import com.example.photoquest.ui.screens.auxiliary.NavExtender
 import com.example.photoquest.ui.screens.map.MapScreenViewModel
 import com.example.photoquest.ui.screens.pictureFullSize.PictureFullSizeViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class ViewQuestScreenViewModel private constructor() : ViewModel(), NavExtender {
 
@@ -31,20 +36,20 @@ class ViewQuestScreenViewModel private constructor() : ViewModel(), NavExtender 
     val mapScreenViewModel = MapScreenViewModel.getInstance()
 
     var quest by mutableStateOf(Quest())
+        private set
     var showFullDescription by mutableStateOf(false)
 
-    var fullAddress by mutableStateOf("")
+    var fullAddress by mutableStateOf<String?>(null)
     private var searchedForAddress by mutableStateOf(true)
 
     var closeUpView by mutableStateOf(false)
 
+    var publisher by mutableStateOf<User?>(null)
+
 
     fun searchForAddress(context: Context) {
-        if (!searchedForAddress) {
-            reverseGeocode(quest.lat, quest.lng, context = context)?.getAddressLine(0)?.let {
-                fullAddress = it
-            }
-            searchedForAddress = true
+        reverseGeocode(quest.lat, quest.lng, context = context)?.let { address ->
+            fullAddress = address.getAddressLine(0)
         }
     }
 
@@ -68,5 +73,33 @@ class ViewQuestScreenViewModel private constructor() : ViewModel(), NavExtender 
         }
     }
 
+    fun viewPublishersProfile() {
 
+        //TODO: add this
+        throw NotImplementedError()
+    }
+
+    fun setDisplayedQuest(quest: Quest) {
+        reset()
+        this.quest = quest
+
+        runBlocking {
+
+            launch(Dispatchers.Default) {
+                publisher = getUserWithUid(quest.publisherId)
+            }
+        }
+
+
+    }
+
+    private fun reset() {
+
+        showFullDescription = false
+
+        fullAddress = null
+        searchedForAddress = true
+
+        closeUpView = false
+    }
 }
