@@ -17,14 +17,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -52,6 +54,8 @@ import com.example.photoquest.R
 import com.example.photoquest.extensions.roundTo
 import com.example.photoquest.models.data.Quest
 import com.example.photoquest.services.reverseGeocode
+import com.example.photoquest.ui.components.SwipeToRevealContentCard
+import com.example.photoquest.ui.components.YesNoDialog
 import com.example.photoquest.ui.components.bottomBar.NavBar
 import com.example.photoquest.ui.theme.PhotoQuestTheme
 
@@ -62,9 +66,24 @@ fun ProfileScreen(
 
     //TODO: Implement profile picture upload and view
 
-    val vm = ProfileScreenViewModel.getInstance()
-    if (vm.navController == null)
-        vm.setNavCtrl(navController)
+    val context = LocalContext.current
+    val vm = remember { ProfileScreenViewModel.getInstance() }
+
+    LaunchedEffect(vm) {
+        if (vm.navController == null)
+            vm.setNavCtrl(navController)
+    }
+
+    if (vm.showDeleteDialog && vm.questForDeletion != null)
+        YesNoDialog(
+            text = R.string.sureAboutDeleting,
+            onYes = {
+                vm.deleteQuest()
+            },
+            onNo = {}
+        ) {
+            vm.showDeleteDialog = false
+        }
 
     Scaffold(
         modifier = Modifier
@@ -74,67 +93,93 @@ fun ProfileScreen(
         },
     ) { paddingValues ->
 
-        LaunchedEffect(Unit) {
+        LaunchedEffect(vm.userUID) {
             Log.d("MIKI", "Loading the user")
             vm.getUsersInfo()
+        }
+
+        LaunchedEffect(Unit) {
             Log.d("MIKI", "Loading the users quests")
             vm.getUsersQuests()
         }
 
-        Column(
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top,
-            modifier = Modifier.padding(paddingValues)
         ) {
-            LazyColumn(
-                modifier = Modifier,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Top,
-            ) {
 
 
-                item { //Picture, username, score ...
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center,
-                    ) {
+            item { //Picture, username, score ...
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(
+                        32.dp,
+                        Alignment.CenterHorizontally
+                    ),
+                ) {
 
-                        ProfilePictureUsernameAndFullName(vm = vm)
+                    ProfilePictureUsernameAndFullName(vm = vm)
 
-                        Spacer(modifier = Modifier.width(32.dp))
-
-                        ScoreAndQuestNumber(vm = vm)
-                    }
+                    ScoreAndQuestNumber(vm = vm)
                 }
+            }
 
+            if (!vm.usersQuestsLoaded) {
+                item {
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .fillMaxSize(0.5f),
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+            } else {
 
-                if (!vm.usersQuestsLoaded.value) {
-                    item {
-                        CircularProgressIndicator(
-                            modifier = Modifier
-                                .fillMaxSize(0.5f),
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                    }
-                } else {
+                //Users quests
+                items(vm.usersQuests) { q ->
 
-                    //Users quests
-                    items(vm.usersQuests) { q ->
+                    SwipeToRevealContentCard(
+                        rightContentExists = true,
+                        rightContent = { mod ->
+                            Box(
+                                modifier = mod
+                                    .fillMaxSize()
+                                    .background(MaterialTheme.colorScheme.tertiary),
+                                contentAlignment = Alignment.CenterEnd,
+                            ) {
+                                IconButton(onClick = {
 
-                        QuestPreviewCard(
+                                    vm.showDeleteDialog = true
+                                    vm.questForDeletion = q
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = "Delete",
+                                        tint = MaterialTheme.colorScheme.onTertiary
+                                    )
+                                }
+                            }
+                        },
+                        onCardClick = { vm.questOnClick(q) }
+                    ) {
+                        QuestPreview(
                             quest = q,
                             vm = vm,
                         )
-
-                        Spacer(modifier = Modifier.height(1.dp))
                     }
+
+                    //  }
                 }
             }
+
         }
     }
+
 }
 
 
@@ -156,7 +201,7 @@ fun ProfilePictureUsernameAndFullName(vm: ProfileScreenViewModel) {
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = vm.displayedUser.value.username,
+            text = vm.displayedUser.username,
             modifier = Modifier
                 .align(Alignment.CenterHorizontally),
             fontWeight = FontWeight.Bold,
@@ -166,7 +211,7 @@ fun ProfilePictureUsernameAndFullName(vm: ProfileScreenViewModel) {
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = vm.displayedUser.value.firstName + " " + vm.displayedUser.value.lastName,
+            text = vm.displayedUser.firstName + " " + vm.displayedUser.lastName,
             modifier = Modifier.align(Alignment.CenterHorizontally),
         )
     }
@@ -183,14 +228,14 @@ fun ScoreAndQuestNumber(vm: ProfileScreenViewModel) {
     ) {
 
         Text(
-            text = "${stringResource(id = R.string.score)}\n${vm.displayedUser.value.score}",
+            text = "${stringResource(id = R.string.score)}\n${vm.displayedUser.score}",
             modifier = Modifier,
             fontWeight = FontWeight.SemiBold,
             textAlign = TextAlign.Center
         )
 
         Text(
-            text = "${stringResource(id = R.string.questsMade)}\n${vm.displayedUser.value.questsMade}",
+            text = "${stringResource(id = R.string.questsMade)}\n${vm.displayedUser.questsMade}",
             modifier = Modifier,
             fontWeight = FontWeight.SemiBold,
             textAlign = TextAlign.Center
@@ -219,7 +264,7 @@ fun ProfilePicture(vm: ProfileScreenViewModel, modifier: Modifier) {
 }
 
 @Composable
-fun QuestPreviewCard(
+fun QuestPreview(
     quest: Quest,
     vm: ProfileScreenViewModel,
     modifier: Modifier = Modifier,
@@ -234,61 +279,53 @@ fun QuestPreviewCard(
         fullAddress = address?.getAddressLine(0)
         searchedForAddress = true
     }
-    Card(
+
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.Start),
+        verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .background(MaterialTheme.colorScheme.surfaceContainer)
-            .padding(horizontal = 16.dp)
-            .fillMaxWidth()
+            .padding(16.dp)
             .clickable { vm.questOnClick(quest) },
-        //elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Row(
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically,
+
+        AsyncImage(
+            model = quest.pictureDownloadURL,
+            contentDescription = quest.description,
+            contentScale = ContentScale.Fit,
             modifier = Modifier
-                .padding(16.dp)
+                .fillMaxHeight()
+                .clickable { vm.questImageOnClick(quest) }
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    shape = RoundedCornerShape(size = 8.dp)
+                )
+                .clip(RoundedCornerShape(size = 8.dp))
+                .size(
+                    height = 128.dp,
+                    width = 128.dp
+                )
+                .background(MaterialTheme.colorScheme.secondaryContainer),
+        )
+
+        Spacer(Modifier.width(16.dp))
+
+        Column(
+            modifier = Modifier
                 .clickable { vm.questOnClick(quest) },
         ) {
+            Text(text = (quest.title))
 
-            AsyncImage(
-                model = quest.pictureDownloadURL,
-                contentDescription = quest.description,
-                contentScale = ContentScale.Fit,
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .clickable { vm.questImageOnClick(quest) }
-                    .border(
-                        width = 1.dp,
-                        color = MaterialTheme.colorScheme.secondaryContainer,
-                        shape = RoundedCornerShape(size = 8.dp)
-                    )
-                    .clip(RoundedCornerShape(size = 8.dp))
-                    .size(
-                        height = 128.dp,
-                        width = 128.dp
-                    )
-                    .background(MaterialTheme.colorScheme.secondaryContainer),
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                "Address:\n" +
+                        if (fullAddress != null) ("$fullAddress")
+                        else "Lat: ${quest.lat.roundTo(6)},\nLong: ${quest.lng.roundTo(6)}"
+
             )
-
-            Spacer(Modifier.width(16.dp))
-
-            Column(
-                modifier = Modifier
-                    .clickable { vm.questOnClick(quest) },
-            ) {
-                Text(text = (quest.title))
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    "Address:\n" +
-                            if (fullAddress != null) ("$fullAddress")
-                            else "Lat: ${quest.lat.roundTo(6)},\nLong: ${quest.lng.roundTo(6)}"
-
-                )
-            }
-
         }
+
     }
 }
 
@@ -301,60 +338,6 @@ fun QuestPreviewCard(
 @Composable
 fun ProfileScreenPreview() {
     PhotoQuestTheme {
-        Scaffold { pv ->
-            Column {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .padding(pv)
-                        .border(
-                            width = 1.dp,
-                            color = MaterialTheme.colorScheme.tertiaryContainer,
-                            shape = RoundedCornerShape(size = 8.dp)
-                        )
-                        .sizeIn(
-                            maxHeight = 256.dp,
-                            maxWidth = 256.dp
-                        ),
-
-                    ) {
-                    Text("Hello World!")
-                }
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .padding(pv)
-                        .border(
-                            width = 1.dp,
-                            color = MaterialTheme.colorScheme.secondaryContainer,
-                            shape = RoundedCornerShape(size = 8.dp)
-                        )
-                        .sizeIn(
-                            maxHeight = 256.dp,
-                            maxWidth = 256.dp
-                        ),
-
-                    ) {
-                    Text("Hello World!")
-                }
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .padding(pv)
-                        .border(
-                            width = 1.dp,
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                            shape = RoundedCornerShape(size = 8.dp)
-                        )
-                        .sizeIn(
-                            maxHeight = 256.dp,
-                            maxWidth = 256.dp
-                        ),
-
-                    ) {
-                    Text("Hello World!")
-                }
-            }
-        }
+        ProfileScreen(NavController(LocalContext.current))
     }
 }

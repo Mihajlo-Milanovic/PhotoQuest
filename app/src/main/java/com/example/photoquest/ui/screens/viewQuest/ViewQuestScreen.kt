@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -47,7 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.photoquest.R
-import com.example.photoquest.extensions.square
+import com.example.photoquest.extensions.fillMaxWidthSquare
 import com.example.photoquest.models.data.Quest
 import com.example.photoquest.services.getBoundsForRadius
 import com.example.photoquest.services.getDistanceFromLatLng
@@ -64,6 +65,8 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberUpdatedMarkerState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun ViewQuestScreen(
@@ -98,8 +101,7 @@ fun ViewQuestScreen(
                     contentDescription = vm.quest.description,
                     contentScale = ContentScale.Fit,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .square()
+                        .fillMaxWidthSquare()
                         .clickable { vm.questImageOnClick() }
                         .border(
                             width = 1.dp,
@@ -247,7 +249,7 @@ fun LocationPreview(
         shape = CardDefaults.shape,
         modifier = Modifier
             .padding(8.dp)
-            .square(),
+            .fillMaxWidthSquare(),
         color = MaterialTheme.colorScheme.secondaryContainer,
         contentColor = MaterialTheme.colorScheme.secondary,
     ) {
@@ -322,6 +324,16 @@ fun UserInfo(
     vm: ViewQuestScreenViewModel,
     modifier: Modifier = Modifier
 ) {
+
+    val publisherCoroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(vm.quest) {
+        publisherCoroutineScope.launch(Dispatchers.Default) {
+            vm.getPublishersInfo()
+        }
+    }
+
+
     Card(
         modifier = modifier
             .padding(8.dp)
@@ -343,10 +355,10 @@ fun UserInfo(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            
+
 
             Text(
-                text = "Publisher: ${vm.publisher?.username ?: "Unknown"}",
+                text = "Publisher:\n\t ${vm.publisher?.username ?: "Unknown"}",
                 modifier = Modifier
                     .clickable { vm.viewPublishersProfile() }
             )

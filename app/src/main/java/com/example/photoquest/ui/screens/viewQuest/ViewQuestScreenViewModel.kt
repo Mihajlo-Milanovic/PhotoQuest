@@ -14,6 +14,7 @@ import com.example.photoquest.services.reverseGeocode
 import com.example.photoquest.ui.screens.auxiliary.NavExtender
 import com.example.photoquest.ui.screens.map.MapScreenViewModel
 import com.example.photoquest.ui.screens.pictureFullSize.PictureFullSizeViewModel
+import com.example.photoquest.ui.screens.profile.ProfileScreenViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -73,10 +74,21 @@ class ViewQuestScreenViewModel private constructor() : ViewModel(), NavExtender 
         }
     }
 
+    suspend fun getPublishersInfo() {
+
+        publisher = getUserWithUid(quest.publisherId)
+    }
+
     fun viewPublishersProfile() {
 
-        //TODO: add this
-        throw NotImplementedError()
+        ProfileScreenViewModel.getInstance().userUID = quest.publisherId
+
+        navController!!.navigate(Screens.PROFILE.name) {
+            popUpTo(Screens.PROFILE.name) {
+                inclusive = false
+            }
+            launchSingleTop = true
+        }
     }
 
     fun setDisplayedQuest(quest: Quest) {

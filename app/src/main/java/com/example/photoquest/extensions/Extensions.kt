@@ -1,7 +1,9 @@
 package com.example.photoquest.extensions
 
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -34,7 +36,7 @@ fun Timestamp.moveByXMonths(x: Int): Timestamp {
  *
  * Width is set to fill available space
  */
-fun Modifier.square(): Modifier = composed {
+fun Modifier.fillMaxWidthSquare(): Modifier = composed {
     var size by remember { mutableIntStateOf(0) }
     val density = LocalDensity.current
 
@@ -42,4 +44,19 @@ fun Modifier.square(): Modifier = composed {
         .fillMaxWidth()
         .onSizeChanged { size = it.width }
         .height(with(density) { size.toDp() })
+}
+
+/**
+ * Sets width to the same value as height
+ *
+ * Height is set to fill available space
+ */
+fun Modifier.fillMaxHeightSquare(): Modifier = composed {
+    var size by remember { mutableIntStateOf(0) }
+    val density = LocalDensity.current
+
+    this
+        .fillMaxHeight()
+        .onSizeChanged { size = it.height }
+        .width(with(density) { size.toDp() })
 }

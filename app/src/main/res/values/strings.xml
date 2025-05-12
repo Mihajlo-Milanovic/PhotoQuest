@@ -34,4 +34,7 @@
     <string name="makingAQuest">Making a quest...</string>
     <string name="searchForQuestsAutomatically">Search for quests automatically</string>
     <string name="showSearchArea">Show search area</string>
+    <string name="sureAboutDeleting">Are you sure you want to delete this?</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
 </resources>

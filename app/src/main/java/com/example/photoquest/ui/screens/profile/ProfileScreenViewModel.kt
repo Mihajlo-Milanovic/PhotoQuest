@@ -1,14 +1,15 @@
 package com.example.photoquest.ui.screens.profile
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.photoquest.Screens
 import com.example.photoquest.models.data.Quest
 import com.example.photoquest.models.data.User
-import com.example.photoquest.services.currentUserUid
 import com.example.photoquest.services.getUserWithUid
 import com.example.photoquest.services.getUsersQuests
 import com.example.photoquest.ui.screens.auxiliary.NavExtender
@@ -36,13 +37,16 @@ class ProfileScreenViewModel private constructor() : ViewModel(), NavExtender {
 
     override var navController by mutableStateOf<NavController?>(null)
 
-    val displayedUser = mutableStateOf(User())
-    var usersQuests = mutableListOf<Quest>()
-        private set
+    var userUID by mutableStateOf<String?>(null)
 
-    val showOptions = mutableStateOf(false)
-    private val userLoaded = mutableStateOf(false)
-    var usersQuestsLoaded = mutableStateOf(false)
+    var displayedUser by mutableStateOf(User())
+    var usersQuests = mutableStateListOf<Quest>()
+
+    private var userLoaded by mutableStateOf(false)
+    var usersQuestsLoaded by mutableStateOf(false)
+
+    var showDeleteDialog by mutableStateOf(false)
+    var questForDeletion: Quest? = null
 
     //TODO: var profilePictureUri = mutableStateOf()
 
@@ -50,28 +54,27 @@ class ProfileScreenViewModel private constructor() : ViewModel(), NavExtender {
     suspend fun getUsersInfo() = coroutineScope {
 
         launch(Dispatchers.Default) {
-            currentUserUid()?.let {
 
+            userUID?.let {
                 val user = getUserWithUid(it)
 
                 if (user != null) {
-                    displayedUser.value = user
-                    userLoaded.value = true
+                    displayedUser = user
+                    userLoaded = true
                 } else
-                    userLoaded.value = false
+                    userLoaded = false
             }
-
         }
     }
 
     suspend fun getUsersQuests() = coroutineScope {
 
         launch(Dispatchers.Default) {
-            currentUserUid()?.let {
-                usersQuests = getUsersQuests(it)
+            userUID?.let {
+                usersQuests = getUsersQuests(it).toMutableStateList()
             }
 
-            usersQuestsLoaded.value = true
+            usersQuestsLoaded = true
         }
     }
 
@@ -100,12 +103,18 @@ class ProfileScreenViewModel private constructor() : ViewModel(), NavExtender {
 
         ViewQuestScreenViewModel.getInstance().setDisplayedQuest(quest)
 
-
         navController!!.navigate(Screens.VIEW_QUEST.name) {
             popUpTo(Screens.VIEW_QUEST.name) {
                 inclusive = false
             }
             launchSingleTop = true
         }
+    }
+
+    fun deleteQuest() {
+
+        usersQuests.remove(questForDeletion)
+
+        //TODO: Add deletion from database
     }
 }
