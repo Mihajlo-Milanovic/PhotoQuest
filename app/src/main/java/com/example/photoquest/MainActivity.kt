@@ -9,20 +9,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import com.example.photoquest.services.isUserSignedIn
 import com.example.photoquest.ui.components.bottomBar.NavBarViewModel
 import com.example.photoquest.ui.screens.auth.logIn.LogInScreen
 import com.example.photoquest.ui.screens.auth.signUp.SignUpScreen
-import com.example.photoquest.ui.screens.auxiliary.HardwareViewModel
 import com.example.photoquest.ui.screens.auxiliary.LocationNotEnabledSplashScreen
 import com.example.photoquest.ui.screens.auxiliary.NoInternetSplashScreen
 import com.example.photoquest.ui.screens.auxiliary.isInternetAvailable
 import com.example.photoquest.ui.screens.leaderboard.LeaderboardScreen
 import com.example.photoquest.ui.screens.makeQuest.MakeQuestScreen
 import com.example.photoquest.ui.screens.map.MapScreen
-import com.example.photoquest.ui.screens.pictureFullSize.PictureFullSize
 import com.example.photoquest.ui.screens.profile.ProfileScreen
 import com.example.photoquest.ui.screens.settings.SettingsScreen
 import com.example.photoquest.ui.screens.viewQuest.ViewQuestScreen
@@ -46,14 +43,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             PhotoQuestTheme {
 
-                val hvm = HardwareViewModel.getInstance(LocalContext.current)
-
                 val context = LocalContext.current
 
-                if (!hvm.isConnected) {
-                    NoInternetSplashScreen {
-                        hvm.isConnected = isInternetAvailable(context = context)
-                    }
+                if (!isInternetAvailable(context)) {
+                    NoInternetSplashScreen()
                 }
 
                 PhotoQuestApp()
@@ -114,24 +107,19 @@ fun PhotoQuestApp() {
                 navController.popBackStack()
             }
         }
-
-
-        dialog(Screens.PICTURE_FULL_SIZE.name) {
-//            navBarViewModel.setCurrentScreen(Screens.PICTURE_FULL_SIZE)
-            PictureFullSize(navController = navController)
-        }
     }
 }
 
 enum class Screens {
-    LOG_IN,
-    SIGN_UP,
 
-    PROFILE,
-    MAKE_QUEST,
-    MAP,
     LEADERBOARD,
     SETTINGS,
+    MAP,
+    MAKE_QUEST,
+    PROFILE,
+
+    LOG_IN,
+    SIGN_UP,
 
     VIEW_QUEST,
     NO_LOCATION_SPLASH,

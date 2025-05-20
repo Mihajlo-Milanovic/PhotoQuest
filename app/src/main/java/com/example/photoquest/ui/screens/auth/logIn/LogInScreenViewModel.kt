@@ -52,7 +52,7 @@ class LogInScreenViewModel private constructor() : ViewModel(), NavExtender {
 
     val passwordTransformation: MutableState<VisualTransformation> =
         mutableStateOf(PasswordVisualTransformation())
-    val passwordIcon = mutableIntStateOf(R.drawable.black_eye)
+    val passwordIcon = mutableIntStateOf(R.drawable.baseline_open_eye)
 
     fun onEmailChange(newEmail: String) {
         email.value = newEmail
@@ -66,7 +66,7 @@ class LogInScreenViewModel private constructor() : ViewModel(), NavExtender {
 
         passwordTransformation.value = when (passwordTransformation.value) {
             VisualTransformation.None -> {
-                passwordIcon.intValue = R.drawable.black_eye
+                passwordIcon.intValue = R.drawable.baseline_open_eye
                 PasswordVisualTransformation()
             }
 

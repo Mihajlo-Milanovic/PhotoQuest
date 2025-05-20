@@ -13,7 +13,6 @@ import com.example.photoquest.services.getUserWithUid
 import com.example.photoquest.services.reverseGeocode
 import com.example.photoquest.ui.screens.auxiliary.NavExtender
 import com.example.photoquest.ui.screens.map.MapScreenViewModel
-import com.example.photoquest.ui.screens.pictureFullSize.PictureFullSizeViewModel
 import com.example.photoquest.ui.screens.profile.ProfileScreenViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -39,6 +38,7 @@ class ViewQuestScreenViewModel private constructor() : ViewModel(), NavExtender 
     var quest by mutableStateOf(Quest())
         private set
     var showFullDescription by mutableStateOf(false)
+    var zoomPicture by mutableStateOf(false)
 
     var fullAddress by mutableStateOf<String?>(null)
     private var searchedForAddress by mutableStateOf(true)
@@ -56,22 +56,6 @@ class ViewQuestScreenViewModel private constructor() : ViewModel(), NavExtender 
 
     fun onDescriptionClick() {
         showFullDescription = !showFullDescription
-    }
-
-    fun questImageOnClick() {
-        PictureFullSizeViewModel
-            .getInstance()
-            .let {
-                it.imageUri = quest.pictureDownloadURL
-                it.contentDescription = quest.description
-            }
-
-        navController!!.navigate(Screens.PICTURE_FULL_SIZE.name) {
-            popUpTo(Screens.PICTURE_FULL_SIZE.name) {
-                inclusive = false
-            }
-            launchSingleTop = true
-        }
     }
 
     suspend fun getPublishersInfo() {
@@ -101,8 +85,6 @@ class ViewQuestScreenViewModel private constructor() : ViewModel(), NavExtender 
                 publisher = getUserWithUid(quest.publisherId)
             }
         }
-
-
     }
 
     private fun reset() {

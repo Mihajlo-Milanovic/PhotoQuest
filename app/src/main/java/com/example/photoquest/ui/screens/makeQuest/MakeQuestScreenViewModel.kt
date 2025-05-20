@@ -17,7 +17,6 @@ import com.example.photoquest.models.data.Quest
 import com.example.photoquest.services.createNewQuest
 import com.example.photoquest.services.currentUserUid
 import com.example.photoquest.ui.screens.auxiliary.NavExtender
-import com.example.photoquest.ui.screens.pictureFullSize.PictureFullSizeViewModel
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.CoroutineScope
 import kotlin.coroutines.EmptyCoroutineContext
@@ -90,12 +89,12 @@ class MakeQuestScreenViewModel private constructor() : ViewModel(), NavExtender 
     }
 
     fun zoomQuestPicture() {
-        PictureFullSizeViewModel.getInstance().let {
-            it.imageUri = imageUri
-            it.contentDescription = "Quest picture"
-        }
-
-        navController?.navigate(Screens.PICTURE_FULL_SIZE.name)
+//        PictureFullSizeViewModel.getInstance().let {
+//            it.imageUri = imageUri
+//            it.contentDescription = "Quest picture"
+//        }
+//
+//        navController?.navigate(Screens.PICTURE_FULL_SIZE.name)
     }
 
     fun goToNoLocationSplashScreen() {

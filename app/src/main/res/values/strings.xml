@@ -37,4 +37,5 @@
     <string name="sureAboutDeleting">Are you sure you want to delete this?</string>
     <string name="no">No</string>
     <string name="yes">Yes</string>
+    <string name="update_profile_pic">Update profile picture</string>
 </resources>

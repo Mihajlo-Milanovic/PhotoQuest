@@ -45,47 +45,50 @@ fun SwipeToRevealContentCard(
     cardContent: @Composable () -> Unit
 ) {
     val swipeOffset = remember { Animatable(0f) }
-    val animationCoroutine = rememberCoroutineScope()
+
+    var mod = modifier
+        .fillMaxWidth()
+        .background(Color.Transparent)
+        .clip(CardDefaults.shape)
+
+    if (leftContentExists || rightContentExists) {
+        val animationCoroutine = rememberCoroutineScope()
+
+        mod = mod.pointerInput(Unit) {
+            detectHorizontalDragGestures(
+                onHorizontalDrag = { change, dragAmount ->
+                    change.consume()
+
+                    val newOffset = (swipeOffset.value + dragAmount)
+                        .coerceIn(
+                            if (rightContentExists) -maxLeftCardOffset else 0f,
+                            if (leftContentExists) maxRightCardOffset else 0f
+                        )
+
+                    animationCoroutine.launch(Dispatchers.Default) {
+                        swipeOffset.snapTo(newOffset)
+                    }
+                },
+                onDragEnd = {
+                    animationCoroutine.launch(Dispatchers.Default) {
+                        swipeOffset.animateTo(
+                            if (swipeOffset.value > 0)
+                                if (swipeOffset.value > maxRightCardOffset / 2)
+                                    maxRightCardOffset
+                                else 0f
+                            else
+                                if (-swipeOffset.value > maxLeftCardOffset / 2)
+                                    -maxLeftCardOffset
+                                else 0f
+                        )
+                    }
+                }
+            )
+        }
+    }
 
     Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(Color.Transparent)
-            .clip(CardDefaults.shape)
-            .pointerInput(Unit) {
-                detectHorizontalDragGestures(
-                    onHorizontalDrag = { change, dragAmount ->
-                        change.consume()
-
-                        val newOffset = (swipeOffset.value + dragAmount)
-                            .coerceIn(
-                                if (rightContentExists) -maxLeftCardOffset else 0f,
-                                if (leftContentExists) maxRightCardOffset else 0f
-                            )
-
-                        animationCoroutine.launch(Dispatchers.Default) {
-                            swipeOffset.snapTo(newOffset)
-                        }
-                    },
-                    onDragEnd = {
-                        animationCoroutine.launch(Dispatchers.Default) {
-                            if (leftContentExists || rightContentExists) {
-                                swipeOffset.animateTo(
-                                    if (swipeOffset.value > 0)
-                                        if (swipeOffset.value > maxRightCardOffset / 2)
-                                            maxRightCardOffset
-                                        else 0f
-                                    else
-                                        if (-swipeOffset.value > maxLeftCardOffset / 2)
-                                            -maxLeftCardOffset
-                                        else 0f
-                                )
-                            } else
-                                swipeOffset.animateTo(0f)
-                        }
-                    }
-                )
-            }
+        modifier = mod
     ) {
 
         Row(
@@ -105,7 +108,6 @@ fun SwipeToRevealContentCard(
 
         Card(
             modifier = Modifier
-                //.background(Color.Transparent)
                 .offset { IntOffset(swipeOffset.value.roundToInt(), 0) }
                 .fillMaxSize()
                 .clickable(enabled = cardClickEnabled) { onCardClick() },

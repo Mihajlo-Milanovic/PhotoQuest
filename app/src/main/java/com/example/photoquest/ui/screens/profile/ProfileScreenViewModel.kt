@@ -13,7 +13,6 @@ import com.example.photoquest.models.data.User
 import com.example.photoquest.services.getUserWithUid
 import com.example.photoquest.services.getUsersQuests
 import com.example.photoquest.ui.screens.auxiliary.NavExtender
-import com.example.photoquest.ui.screens.pictureFullSize.PictureFullSizeViewModel
 import com.example.photoquest.ui.screens.viewQuest.ViewQuestScreenViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -50,6 +49,7 @@ class ProfileScreenViewModel private constructor() : ViewModel(), NavExtender {
 
     //TODO: var profilePictureUri = mutableStateOf()
 
+    var showProfilePicture by mutableStateOf(false)
 
     suspend fun getUsersInfo() = coroutineScope {
 
@@ -78,27 +78,6 @@ class ProfileScreenViewModel private constructor() : ViewModel(), NavExtender {
         }
     }
 
-    fun zoomProfilePicture() {
-//        PictureFullSizeViewModel.getInstance().imageUri.value = TODO finish this
-        navController?.navigate(Screens.PICTURE_FULL_SIZE.name)
-    }
-
-    fun questImageOnClick(quest: Quest) {
-        PictureFullSizeViewModel
-            .getInstance()
-            .let {
-                it.imageUri = quest.pictureDownloadURL
-                it.contentDescription = quest.description
-            }
-
-        navController!!.navigate(Screens.PICTURE_FULL_SIZE.name) {
-            popUpTo(Screens.PICTURE_FULL_SIZE.name) {
-                inclusive = false
-            }
-            launchSingleTop = true
-        }
-    }
-
     fun questOnClick(quest: Quest) {
 
         ViewQuestScreenViewModel.getInstance().setDisplayedQuest(quest)
@@ -116,5 +95,20 @@ class ProfileScreenViewModel private constructor() : ViewModel(), NavExtender {
         usersQuests.remove(questForDeletion)
 
         //TODO: Add deletion from database
+    }
+
+    fun updateProfilePicture() {
+
+    }
+
+    fun reset() {
+        displayedUser = User()
+        usersQuests = mutableStateListOf<Quest>()
+
+        userLoaded = false
+        usersQuestsLoaded = false
+
+        showDeleteDialog = false
+        questForDeletion = null
     }
 }

@@ -18,6 +18,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -30,21 +31,18 @@ import kotlinx.coroutines.delay
 //TODO: revisit these
 
 @Composable
-fun NoInternetSplashScreen(onRetry: () -> Unit) {
+fun NoInternetSplashScreen() {
     val context = LocalContext.current
-    val isConnected by remember { mutableStateOf(isInternetAvailable(context)) }
+    var isConnected by remember { mutableStateOf(isInternetAvailable(context)) }
 
     LaunchedEffect(Unit) {
         while (!isConnected) {
-            delay(3000) // Check every 3 seconds
-//            isConnected = isInternetAvailable(context)
-            if (isInternetAvailable(context))
-                onRetry()
+            delay(5000)
+            isConnected = isInternetAvailable(context)
         }
     }
     Scaffold { padding ->
 
-        // if (!isConnected) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -60,7 +58,6 @@ fun NoInternetSplashScreen(onRetry: () -> Unit) {
             Spacer(modifier = Modifier.height(16.dp))
             Text("No Internet Connection")
         }
-        //}
     }
 }
 

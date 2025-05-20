@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -53,7 +54,9 @@ import coil.compose.AsyncImage
 import com.example.photoquest.R
 import com.example.photoquest.extensions.roundTo
 import com.example.photoquest.models.data.Quest
+import com.example.photoquest.services.currentUserUid
 import com.example.photoquest.services.reverseGeocode
+import com.example.photoquest.ui.components.PictureFullSizeDialog
 import com.example.photoquest.ui.components.SwipeToRevealContentCard
 import com.example.photoquest.ui.components.YesNoDialog
 import com.example.photoquest.ui.components.bottomBar.NavBar
@@ -74,16 +77,16 @@ fun ProfileScreen(
             vm.setNavCtrl(navController)
     }
 
-    if (vm.showDeleteDialog && vm.questForDeletion != null)
-        YesNoDialog(
-            text = R.string.sureAboutDeleting,
-            onYes = {
-                vm.deleteQuest()
-            },
-            onNo = {}
-        ) {
-            vm.showDeleteDialog = false
-        }
+    LaunchedEffect(vm.userUID) {
+        Log.d("MIKI", "Loading the user")
+        vm.reset()
+        vm.getUsersInfo()
+    }
+
+    LaunchedEffect(Unit) {
+        Log.d("MIKI", "Loading the users quests")
+        vm.getUsersQuests()
+    }
 
     Scaffold(
         modifier = Modifier
@@ -93,14 +96,36 @@ fun ProfileScreen(
         },
     ) { paddingValues ->
 
-        LaunchedEffect(vm.userUID) {
-            Log.d("MIKI", "Loading the user")
-            vm.getUsersInfo()
+        //Delete dialog
+        if (vm.showDeleteDialog && vm.questForDeletion != null) {
+            YesNoDialog(
+                text = R.string.sureAboutDeleting,
+                onYes = {
+                    vm.deleteQuest()
+                },
+                onNo = {}
+            ) {
+                vm.showDeleteDialog = false
+            }
         }
 
-        LaunchedEffect(Unit) {
-            Log.d("MIKI", "Loading the users quests")
-            vm.getUsersQuests()
+        //Profile picture dialog
+        if (vm.showProfilePicture) {
+
+            PictureFullSizeDialog(
+                imageUri = vm.displayedUser.pictureUri,
+                contentDescription = vm.displayedUser.username,
+                onDismissRequest = { vm.showProfilePicture = false }
+            ) {
+                if (vm.userUID == currentUserUid()) {
+                    Button(
+                        onClick = { vm.updateProfilePicture() },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(stringResource(R.string.update_profile_pic))
+                    }
+                }
+            }
         }
 
         LazyColumn(
@@ -110,7 +135,6 @@ fun ProfileScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top,
         ) {
-
 
             item { //Picture, username, score ...
                 Row(
@@ -144,7 +168,7 @@ fun ProfileScreen(
                 items(vm.usersQuests) { q ->
 
                     SwipeToRevealContentCard(
-                        rightContentExists = true,
+                        rightContentExists = vm.userUID == currentUserUid(),
                         rightContent = { mod ->
                             Box(
                                 modifier = mod
@@ -169,17 +193,12 @@ fun ProfileScreen(
                     ) {
                         QuestPreview(
                             quest = q,
-                            vm = vm,
                         )
                     }
-
-                    //  }
                 }
             }
-
         }
     }
-
 }
 
 
@@ -215,8 +234,6 @@ fun ProfilePictureUsernameAndFullName(vm: ProfileScreenViewModel) {
             modifier = Modifier.align(Alignment.CenterHorizontally),
         )
     }
-
-
 }
 
 @Composable
@@ -254,11 +271,12 @@ fun ProfilePicture(vm: ProfileScreenViewModel, modifier: Modifier) {
         contentAlignment = Alignment.Center
     ) {
 
+        //TODO: fix this
         Image(
             painter = painterResource(id = R.drawable.ic_launcher_orange_camera_foreground),
             contentDescription = "Profile picture",
             modifier = Modifier
-                .clickable { vm.zoomProfilePicture() },
+                .clickable { vm.showProfilePicture = true },
         )
     }
 }
@@ -266,7 +284,6 @@ fun ProfilePicture(vm: ProfileScreenViewModel, modifier: Modifier) {
 @Composable
 fun QuestPreview(
     quest: Quest,
-    vm: ProfileScreenViewModel,
     modifier: Modifier = Modifier,
 ) {
 
@@ -284,8 +301,7 @@ fun QuestPreview(
         horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.Start),
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .padding(16.dp)
-            .clickable { vm.questOnClick(quest) },
+            .padding(16.dp),
     ) {
 
         AsyncImage(
@@ -294,7 +310,6 @@ fun QuestPreview(
             contentScale = ContentScale.Fit,
             modifier = Modifier
                 .fillMaxHeight()
-                .clickable { vm.questImageOnClick(quest) }
                 .border(
                     width = 1.dp,
                     color = MaterialTheme.colorScheme.secondaryContainer,
@@ -308,11 +323,10 @@ fun QuestPreview(
                 .background(MaterialTheme.colorScheme.secondaryContainer),
         )
 
-        Spacer(Modifier.width(16.dp))
+        Spacer(Modifier.width(8.dp))
 
         Column(
             modifier = Modifier
-                .clickable { vm.questOnClick(quest) },
         ) {
             Text(text = (quest.title))
 

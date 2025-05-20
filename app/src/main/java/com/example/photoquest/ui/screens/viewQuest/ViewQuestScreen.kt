@@ -52,6 +52,7 @@ import com.example.photoquest.extensions.fillMaxWidthSquare
 import com.example.photoquest.models.data.Quest
 import com.example.photoquest.services.getBoundsForRadius
 import com.example.photoquest.services.getDistanceFromLatLng
+import com.example.photoquest.ui.components.PictureFullSizeDialog
 import com.example.photoquest.ui.components.bottomBar.NavBar
 import com.example.photoquest.ui.theme.PhotoQuestTheme
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -72,8 +73,6 @@ import kotlinx.coroutines.launch
 fun ViewQuestScreen(
     navController: NavController
 ) {
-
-    val context = LocalContext.current
     val vm = remember { ViewQuestScreenViewModel.getInstance() }
 
     LaunchedEffect(vm) {
@@ -89,6 +88,17 @@ fun ViewQuestScreen(
         },
     ) { pv ->
 
+        //Full size picture dialog
+        if (vm.zoomPicture) {
+
+            PictureFullSizeDialog(
+                imageUri = vm.quest.pictureDownloadURL,
+                contentDescription = vm.quest.description,
+                onDismissRequest = { vm.zoomPicture = false },
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
+
         LazyColumn(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -102,13 +112,11 @@ fun ViewQuestScreen(
                     contentScale = ContentScale.Fit,
                     modifier = Modifier
                         .fillMaxWidthSquare()
-                        .clickable { vm.questImageOnClick() }
+                        .clickable { vm.zoomPicture = true }
                         .border(
                             width = 1.dp,
                             color = MaterialTheme.colorScheme.secondaryContainer,
-//                        shape = RoundedCornerShape(size = 8.dp)
                         )
-//                    .clip(RoundedCornerShape(size = 8.dp))
                         .background(MaterialTheme.colorScheme.secondaryContainer),
                 )
             }
