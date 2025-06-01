@@ -1,5 +1,6 @@
-package com.example.photoquest.extensions
+package com.example.photoquest.ui.extensions
 
+import android.content.Context
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -12,8 +13,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import com.google.firebase.Timestamp
 import java.util.Calendar
+
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 fun Double.roundTo(decimals: Int): Double {
     return "%.${decimals}f".format(this).toDouble()

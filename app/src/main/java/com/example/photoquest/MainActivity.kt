@@ -3,15 +3,16 @@ package com.example.photoquest
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.photoquest.services.isUserSignedIn
+import com.example.photoquest.data.services.isUserSignedIn
 import com.example.photoquest.ui.components.bottomBar.NavBarViewModel
+import com.example.photoquest.ui.extensions.dataStore
 import com.example.photoquest.ui.screens.auth.logIn.LogInScreen
 import com.example.photoquest.ui.screens.auth.signUp.SignUpScreen
 import com.example.photoquest.ui.screens.auxiliary.LocationNotEnabledSplashScreen
@@ -24,13 +25,17 @@ import com.example.photoquest.ui.screens.profile.ProfileScreen
 import com.example.photoquest.ui.screens.settings.SettingsScreen
 import com.example.photoquest.ui.screens.viewQuest.ViewQuestScreen
 import com.example.photoquest.ui.theme.PhotoQuestTheme
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        enableEdgeToEdge()
+        lifecycleScope.launch {
+            dataStore.data.first()
+        }
 
         setContent {
 

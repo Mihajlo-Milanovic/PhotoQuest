@@ -24,7 +24,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -52,14 +51,15 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.photoquest.R
-import com.example.photoquest.extensions.roundTo
-import com.example.photoquest.models.data.Quest
-import com.example.photoquest.services.currentUserUid
-import com.example.photoquest.services.reverseGeocode
+import com.example.photoquest.data.model.Quest
+import com.example.photoquest.data.services.currentUserUid
+import com.example.photoquest.data.services.reverseGeocode
 import com.example.photoquest.ui.components.PictureFullSizeDialog
+import com.example.photoquest.ui.components.ProfilePictureFullSizeDialog
 import com.example.photoquest.ui.components.SwipeToRevealContentCard
 import com.example.photoquest.ui.components.YesNoDialog
 import com.example.photoquest.ui.components.bottomBar.NavBar
+import com.example.photoquest.ui.extensions.roundTo
 import com.example.photoquest.ui.theme.PhotoQuestTheme
 
 @Composable
@@ -112,20 +112,21 @@ fun ProfileScreen(
         //Profile picture dialog
         if (vm.showProfilePicture) {
 
-            PictureFullSizeDialog(
-                imageUri = vm.displayedUser.pictureUri,
-                contentDescription = vm.displayedUser.username,
-                onDismissRequest = { vm.showProfilePicture = false }
-            ) {
-                if (vm.userUID == currentUserUid()) {
-                    Button(
-                        onClick = { vm.updateProfilePicture() },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(stringResource(R.string.update_profile_pic))
-                    }
-                }
+            if (vm.userUID == currentUserUid()) {
+                ProfilePictureFullSizeDialog(
+                    imageUri = vm.displayedUser.pictureUri,
+                    contentDescription = vm.displayedUser.username,
+                    onDismissRequest = { vm.showProfilePicture = false },
+                    buttonOnClick = { vm.updateProfilePicture() }
+                )
+            } else {
+                PictureFullSizeDialog(
+                    imageUri = vm.displayedUser.pictureUri,
+                    contentDescription = vm.displayedUser.username,
+                    onDismissRequest = { vm.showProfilePicture = false }
+                )
             }
+
         }
 
         LazyColumn(

@@ -1,16 +1,14 @@
-package com.example.photoquest.services
+package com.example.photoquest.data.services
 
 import android.net.Uri
 import android.util.Log
-import com.example.photoquest.models.data.Quest
-import com.example.photoquest.models.data.User
+import com.example.photoquest.data.model.Quest
 import com.example.photoquest.ui.screens.makeQuest.MakeQuestScreenViewModel
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.Firebase
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.firestore
-import com.google.firebase.firestore.toObject
 import com.google.firebase.storage.component1
 import com.google.firebase.storage.component2
 import com.google.firebase.storage.storage
@@ -24,27 +22,6 @@ private const val publisherId = "publisherId"
 private const val questPhotos = "questPhotos"
 private const val profilePhotos = "profilePhotos"
 private const val pictureDownloadURL = "pictureDownloadURL"
-
-suspend fun createNewUser(id: String, user: User): Boolean {
-
-    try {
-        Firebase.firestore.collection(users).document(id).set(user).await()
-        return true
-    } catch (ex: Exception) {
-        Log.e("MIKI", ex.message ?: "Error occurred while writing the user to the DB.")
-        return false
-    }
-}
-
-suspend fun getUserWithUid(uid: String): User? {
-
-    try {
-        return Firebase.firestore.collection(users).document(uid).get().await()?.toObject<User>()!!
-    } catch (ex: Exception) {
-        Log.e("MIKI", "Error occurred wile fetching the user data.\n\n ${ex.message}")
-        return null
-    }
-}
 
 
 suspend fun createNewQuest(quest: Quest): Boolean {

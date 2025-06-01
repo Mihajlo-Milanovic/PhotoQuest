@@ -1,4 +1,4 @@
-package com.example.photoquest.models.data
+package com.example.photoquest.ui.components.bottomBar
 
 import androidx.annotation.DrawableRes
 import com.example.photoquest.Screens

@@ -1,4 +1,4 @@
-package com.example.photoquest.services
+package com.example.photoquest.data.services
 
 import android.Manifest
 import android.content.Context

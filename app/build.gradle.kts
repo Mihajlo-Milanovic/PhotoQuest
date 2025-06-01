@@ -73,6 +73,7 @@ dependencies {
     implementation(libs.android.maps.compose)
     implementation(libs.coil.compose)
 
+    implementation(libs.androidx.datastore.preferences)
 
 
     testImplementation(libs.junit)

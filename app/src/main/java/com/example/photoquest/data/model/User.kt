@@ -1,4 +1,4 @@
-package com.example.photoquest.models.data
+package com.example.photoquest.data.model
 
 import android.net.Uri
 

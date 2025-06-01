@@ -35,11 +35,11 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.photoquest.R
-import com.example.photoquest.services.getUserCurrentLocation
+import com.example.photoquest.data.services.getUserCurrentLocation
 import com.example.photoquest.ui.components.bottomBar.NavBar
 import com.example.photoquest.ui.screens.auxiliary.isLocationEnabled
 import com.example.photoquest.ui.theme.PhotoQuestTheme
-import com.example.photoquest.utilities.createImageUri
+import com.example.photoquest.ui.utilities.createImageUri
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.Dispatchers

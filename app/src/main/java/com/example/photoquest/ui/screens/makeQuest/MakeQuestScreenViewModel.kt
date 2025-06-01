@@ -13,9 +13,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.photoquest.Screens
-import com.example.photoquest.models.data.Quest
-import com.example.photoquest.services.createNewQuest
-import com.example.photoquest.services.currentUserUid
+import com.example.photoquest.data.model.Quest
+import com.example.photoquest.data.services.createNewQuest
+import com.example.photoquest.data.services.currentUserUid
 import com.example.photoquest.ui.screens.auxiliary.NavExtender
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.CoroutineScope

@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.photoquest.R
 import com.example.photoquest.Screens
-import com.example.photoquest.models.data.NavButton
 import com.example.photoquest.ui.screens.auxiliary.NavExtender
 
 class NavBarViewModel private constructor() : ViewModel(), NavExtender {

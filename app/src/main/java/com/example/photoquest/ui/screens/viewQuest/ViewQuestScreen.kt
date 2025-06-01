@@ -48,12 +48,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.photoquest.R
-import com.example.photoquest.extensions.fillMaxWidthSquare
-import com.example.photoquest.models.data.Quest
-import com.example.photoquest.services.getBoundsForRadius
-import com.example.photoquest.services.getDistanceFromLatLng
+import com.example.photoquest.data.model.Quest
+import com.example.photoquest.data.services.getBoundsForRadius
+import com.example.photoquest.data.services.getDistanceFromLatLng
 import com.example.photoquest.ui.components.PictureFullSizeDialog
 import com.example.photoquest.ui.components.bottomBar.NavBar
+import com.example.photoquest.ui.extensions.fillMaxWidthSquare
 import com.example.photoquest.ui.theme.PhotoQuestTheme
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition

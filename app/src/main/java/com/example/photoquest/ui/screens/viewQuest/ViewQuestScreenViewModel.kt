@@ -7,10 +7,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.photoquest.Screens
-import com.example.photoquest.models.data.Quest
-import com.example.photoquest.models.data.User
-import com.example.photoquest.services.getUserWithUid
-import com.example.photoquest.services.reverseGeocode
+import com.example.photoquest.data.model.Quest
+import com.example.photoquest.data.model.User
+import com.example.photoquest.data.services.getUserWithUid
+import com.example.photoquest.data.services.reverseGeocode
 import com.example.photoquest.ui.screens.auxiliary.NavExtender
 import com.example.photoquest.ui.screens.map.MapScreenViewModel
 import com.example.photoquest.ui.screens.profile.ProfileScreenViewModel

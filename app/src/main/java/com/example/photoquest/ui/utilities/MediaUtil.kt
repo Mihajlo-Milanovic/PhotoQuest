@@ -1,4 +1,4 @@
-package com.example.photoquest.utilities
+package com.example.photoquest.ui.utilities
 
 import android.content.ContentValues
 import android.content.Context

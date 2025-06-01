@@ -27,8 +27,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.photoquest.Screens
-import com.example.photoquest.extensions.fillMaxHeightSquare
-import com.example.photoquest.services.currentUserUid
+import com.example.photoquest.data.services.currentUserUid
+import com.example.photoquest.ui.extensions.fillMaxHeightSquare
 import com.example.photoquest.ui.screens.profile.ProfileScreenViewModel
 import com.example.photoquest.ui.theme.PhotoQuestTheme
 

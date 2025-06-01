@@ -7,7 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.photoquest.Screens
-import com.example.photoquest.services.signUserOut
+import com.example.photoquest.data.services.signUserOut
 import com.example.photoquest.ui.screens.auxiliary.NavExtender
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

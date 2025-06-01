@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.photoquest.R
-import com.example.photoquest.services.getUserLocationUpdates
+import com.example.photoquest.data.services.getUserLocationUpdates
 import com.example.photoquest.ui.components.bottomBar.NavBar
 import com.example.photoquest.ui.permissions.PermitLocationTrackingDialog
 import com.google.android.gms.location.Priority

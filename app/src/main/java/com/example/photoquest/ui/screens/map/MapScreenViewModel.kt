@@ -10,9 +10,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.photoquest.Screens
-import com.example.photoquest.models.data.Quest
-import com.example.photoquest.services.getBoundsForRadius
-import com.example.photoquest.services.getQuestsInRadius
+import com.example.photoquest.data.model.Quest
+import com.example.photoquest.data.services.getBoundsForRadius
+import com.example.photoquest.data.services.getQuestsInRadius
 import com.example.photoquest.ui.screens.auxiliary.NavExtender
 import com.example.photoquest.ui.screens.settings.SettingsScreenViewModel
 import com.example.photoquest.ui.screens.viewQuest.ViewQuestScreenViewModel
