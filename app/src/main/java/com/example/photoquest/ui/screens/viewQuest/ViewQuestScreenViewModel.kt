@@ -8,15 +8,11 @@ import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.photoquest.Screens
 import com.example.photoquest.data.model.Quest
-import com.example.photoquest.data.model.User
-import com.example.photoquest.data.services.getUserWithUid
+import com.example.photoquest.data.model.UserView
 import com.example.photoquest.data.services.reverseGeocode
 import com.example.photoquest.ui.screens.auxiliary.NavExtender
 import com.example.photoquest.ui.screens.map.MapScreenViewModel
 import com.example.photoquest.ui.screens.profile.ProfileScreenViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class ViewQuestScreenViewModel private constructor() : ViewModel(), NavExtender {
 
@@ -45,7 +41,7 @@ class ViewQuestScreenViewModel private constructor() : ViewModel(), NavExtender 
 
     var closeUpView by mutableStateOf(false)
 
-    var publisher by mutableStateOf<User?>(null)
+    var publisher by mutableStateOf<UserView?>(null)
 
 
     fun searchForAddress(context: Context) {
@@ -60,7 +56,8 @@ class ViewQuestScreenViewModel private constructor() : ViewModel(), NavExtender 
 
     suspend fun getPublishersInfo() {
 
-        publisher = getUserWithUid(quest.publisherId)
+        //TODO:
+//        publisher = getUserWithUid(quest.publisherId)
     }
 
     fun viewPublishersProfile() {
@@ -76,15 +73,16 @@ class ViewQuestScreenViewModel private constructor() : ViewModel(), NavExtender 
     }
 
     fun setDisplayedQuest(quest: Quest) {
-        reset()
-        this.quest = quest
-
-        runBlocking {
-
-            launch(Dispatchers.Default) {
-                publisher = getUserWithUid(quest.publisherId)
-            }
-        }
+        //TODO:
+//        reset()
+//        this.quest = quest
+//
+//        runBlocking {
+//
+//            launch(Dispatchers.Default) {
+//                publisher = getUserWithUid(quest.publisherId)
+//            }
+//        }
     }
 
     private fun reset() {

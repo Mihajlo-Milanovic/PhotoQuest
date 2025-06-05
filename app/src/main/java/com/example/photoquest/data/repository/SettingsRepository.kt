@@ -6,11 +6,14 @@ import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
 import com.example.photoquest.data.model.UserSettings
 import com.example.photoquest.ui.extensions.dataStore
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 
 class SettingsRepository(
     private val context: Context,
+    private val ioDispatcher: CoroutineDispatcher
 ) {
 
     companion object {
@@ -26,9 +29,11 @@ class SettingsRepository(
             showSearchArea = settings[showSearchArea] ?: true,
             searchAutomatically = settings[searchAutomatically] ?: false,
         )
-    }
+
+    }.flowOn(ioDispatcher)
 
     suspend fun saveSettings(userSettings: UserSettings) {
+
 
         context.dataStore.edit { settings ->
 

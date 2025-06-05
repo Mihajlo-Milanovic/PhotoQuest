@@ -13,9 +13,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.photoquest.Screens
-import com.example.photoquest.data.model.Quest
-import com.example.photoquest.data.services.createNewQuest
-import com.example.photoquest.data.services.currentUserUid
 import com.example.photoquest.ui.screens.auxiliary.NavExtender
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.CoroutineScope
@@ -62,18 +59,19 @@ class MakeQuestScreenViewModel private constructor() : ViewModel(), NavExtender 
             else
                 Log.d("MIKI", "No, it is not...")
 
-            createNewQuest(
-                Quest(
-                    publisherId = currentUserUid()!!,
-                    title = title,
-                    pictureUri = imageUri,
-                    pictureDownloadURL = Uri.EMPTY,
-                    description = description,
-                    lat = location.value!!.latitude,
-                    lng = location.value!!.longitude,
-                    timestamp = Timestamp.now()
-                )
-            )
+//                  todo: repair
+//            createNewQuest(
+//                Quest(
+//                    publisherId = currentUserUid()!!,
+//                    title = title,
+//                    pictureUri = imageUri,
+//                    pictureDownloadURL = Uri.EMPTY,
+//                    description = description,
+//                    lat = location.value!!.latitude,
+//                    lng = location.value!!.longitude,
+//                    timestamp = Timestamp.now()
+//                )
+//            )
 
             reset()
         } catch (ex: Exception) {

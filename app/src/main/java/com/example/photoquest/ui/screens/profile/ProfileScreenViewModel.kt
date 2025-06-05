@@ -9,8 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.photoquest.Screens
 import com.example.photoquest.data.model.Quest
-import com.example.photoquest.data.model.User
-import com.example.photoquest.data.services.getUserWithUid
+import com.example.photoquest.data.model.UserView
 import com.example.photoquest.data.services.getUsersQuests
 import com.example.photoquest.ui.screens.auxiliary.NavExtender
 import com.example.photoquest.ui.screens.viewQuest.ViewQuestScreenViewModel
@@ -38,7 +37,7 @@ class ProfileScreenViewModel private constructor() : ViewModel(), NavExtender {
 
     var userUID by mutableStateOf<String?>(null)
 
-    var displayedUser by mutableStateOf(User())
+    var displayedUser by mutableStateOf(UserView())
     var usersQuests = mutableStateListOf<Quest>()
 
     private var userLoaded by mutableStateOf(false)
@@ -53,18 +52,19 @@ class ProfileScreenViewModel private constructor() : ViewModel(), NavExtender {
 
     suspend fun getUsersInfo() = coroutineScope {
 
-        launch(Dispatchers.Default) {
-
-            userUID?.let {
-                val user = getUserWithUid(it)
-
-                if (user != null) {
-                    displayedUser = user
-                    userLoaded = true
-                } else
-                    userLoaded = false
-            }
-        }
+        //TODO:
+//        launch(Dispatchers.Default) {
+//
+//            userUID?.let {
+//                val user = getUserWithUid(it)
+//
+//                if (user != null) {
+//                    displayedUser = user
+//                    userLoaded = true
+//                } else
+//                    userLoaded = false
+//            }
+//        }
     }
 
     suspend fun getUsersQuests() = coroutineScope {
@@ -102,7 +102,7 @@ class ProfileScreenViewModel private constructor() : ViewModel(), NavExtender {
     }
 
     fun reset() {
-        displayedUser = User()
+        displayedUser = UserView()
         usersQuests = mutableStateListOf<Quest>()
 
         userLoaded = false

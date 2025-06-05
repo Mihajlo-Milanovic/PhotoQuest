@@ -1,38 +1,61 @@
 package com.example.photoquest.data.repository
 
-import com.example.photoquest.data.model.User
+import android.content.Context
+import com.example.photoquest.data.local.UserLocalDataSource
+import com.example.photoquest.data.local.entities.LocalUser
 import com.example.photoquest.data.network.UserRemoteDataSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 class UserRepository(
+    applicationContext: Context,
     private val userRemoteDataSource: UserRemoteDataSource,
-    private val externalScope: CoroutineScope
+    private val userLocalDataSource: UserLocalDataSource,
+    private val externalScope: CoroutineScope,
 ) {
+
     private val userMutex = Mutex()
 
-    private var userMap: MutableMap<String, User> = mutableMapOf()
+    suspend fun getUserWithUid(uid: String, refresh: Boolean = false): Flow<LocalUser?> {
 
-    suspend fun getUserWithUid(uid: String, refresh: Boolean = false): User? {
+        var userFlow: Flow<LocalUser?>
 
-        if (refresh || userMap[uid] == null/*there is no local copy*/) {
-            externalScope.async {
-                userRemoteDataSource.getUserWithUid(uid)?.also { user ->
-                    // Thread-safe write
-                    userMutex.withLock {
-                        userMap[uid] = user
+        userMutex.withLock {
+            userFlow = userLocalDataSource.readUserWithUid(uid)
+        }
+
+        externalScope.async {
+            if (refresh || userFlow.first() == null) {
+                userMutex.withLock {
+                    userRemoteDataSource.readUserWithUid(uid).first()?.also { user ->
+                        userLocalDataSource.createUser(user)
                     }
                 }
-            }.await()
-        }
-        return userMutex.withLock { userMap[uid] }
+            }
+        }.await()
+
+        return userFlow
     }
 
-    suspend fun createNewUser(user: User): Boolean {
-        return externalScope.async {
-            userRemoteDataSource.createNewUser(user)
+    suspend fun createUser(user: LocalUser) {
+        externalScope.async {
+            userMutex.withLock {
+                userLocalDataSource.createUser(user)
+                userRemoteDataSource.createUser(user)
+            }
+        }.await()
+    }
+
+    suspend fun updateUser(user: LocalUser) {
+        externalScope.async {
+            userMutex.withLock {
+                userLocalDataSource.updateUser(user)
+                userRemoteDataSource.updateUser(user)
+            }
         }.await()
     }
 }

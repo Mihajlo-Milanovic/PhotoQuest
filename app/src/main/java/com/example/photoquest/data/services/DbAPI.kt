@@ -2,6 +2,8 @@ package com.example.photoquest.data.services
 
 import android.net.Uri
 import android.util.Log
+import androidx.core.net.toUri
+import com.example.photoquest.data.local.entities.LocalQuest
 import com.example.photoquest.data.model.Quest
 import com.example.photoquest.ui.screens.makeQuest.MakeQuestScreenViewModel
 import com.google.android.gms.maps.model.LatLng
@@ -24,14 +26,14 @@ private const val profilePhotos = "profilePhotos"
 private const val pictureDownloadURL = "pictureDownloadURL"
 
 
-suspend fun createNewQuest(quest: Quest): Boolean {
+suspend fun createNewQuest(quest: LocalQuest): Boolean {
 
     try {
 
         val newQuestId = Firebase.firestore.collection(users).document(quest.publisherId)
             .collection(quests).add(quest).await().id
 
-        quest.pictureUri?.let { imgUri ->
+        quest.pictureUri.toUri().let { imgUri ->
 
             val questPicRef = Firebase.storage.reference
                 .child("$questPhotos/$newQuestId/${quest.title}.jpg")
@@ -55,7 +57,7 @@ suspend fun createNewQuest(quest: Quest): Boolean {
                     .collection(quests).document(newQuestId)
                     .update(pictureDownloadURL, downloadURL)
 
-                quest.pictureDownloadURL = downloadURL
+                quest.pictureDownloadURL = downloadURL.toString()
 
                 vm.showUploadScreen = false
 
@@ -145,8 +147,6 @@ private fun getQuestFromDocument(doc: DocumentSnapshot): Quest {
         lat = doc.getDouble("lat") ?: 0.0,
         lng = doc.getDouble("lng") ?: 0.0,
         timestamp = doc.getTimestamp("timestamp") ?: Timestamp.now(),
-        pictureUri = doc.getString("pictureUri")?.let { Uri.parse(it) },
-        pictureDownloadURL = doc.getString("pictureDownloadURL")
-            ?.let { Uri.parse(it) } ?: Uri.EMPTY
+        pictureDownloadURL = doc.getString("pictureDownloadURL")?.toUri() ?: Uri.EMPTY
     )
 }

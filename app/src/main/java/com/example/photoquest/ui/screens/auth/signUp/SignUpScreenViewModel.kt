@@ -12,19 +12,13 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.photoquest.R
-import com.example.photoquest.Screens
-import com.example.photoquest.data.model.User
-import com.example.photoquest.data.services.createNewUser
-import com.example.photoquest.data.services.currentUserUid
-import com.example.photoquest.data.services.isUserSignedIn
-import com.example.photoquest.data.services.signUserIn
-import com.example.photoquest.data.services.signUserUp
 import com.example.photoquest.ui.screens.auxiliary.NavExtender
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 
 class SignUpScreenViewModel private constructor() : ViewModel(), NavExtender {
+
 
     companion object {
 
@@ -104,47 +98,48 @@ class SignUpScreenViewModel private constructor() : ViewModel(), NavExtender {
 
     suspend fun onSignInClick(context: Context) = coroutineScope {
 
-        if (validatePassword(context = context)) {
-
-            try {
-                signUserUp(email = email.value, password = password.value, context = context)
-
-                currentUserUid()?.let {
-                    createNewUser(
-                        id = it,
-                        user = User(
-                            username = username.value,
-                            lastName = lastName.value,
-                            firstName = firstName.value,
-                        )
-                    )
-                }
-
-                signUserIn(email = email.value, password = password.value, context = context)
-            } catch (ex: Exception) {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        context,
-                        ex.message ?: "Hmm...Something suspicious happened!",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-
-            if (isUserSignedIn()) {
-                withContext(Dispatchers.Main) {
-                    navController!!.navigate(Screens.PROFILE.name) {
-                        popUpTo(Screens.PROFILE.name) {
-                            inclusive = false
-                        }
-                        launchSingleTop = true
-                    }
-                }
-            }
-
-        }
-
-        signUpInProgress.value = false
+        //TODO:
+//        if (validatePassword(context = context)) {
+//
+//            try {
+//                signUserUp(email = email.value, password = password.value, context = context)
+//
+//                currentUserUid()?.let {
+//                    createNewUser(
+//                        id = it,
+//                        user = User(
+//                            username = username.value,
+//                            lastName = lastName.value,
+//                            firstName = firstName.value,
+//                        )
+//                    )
+//                }
+//
+//                signUserIn(email = email.value, password = password.value, context = context)
+//            } catch (ex: Exception) {
+//                withContext(Dispatchers.Main) {
+//                    Toast.makeText(
+//                        context,
+//                        ex.message ?: "Hmm...Something suspicious happened!",
+//                        Toast.LENGTH_SHORT
+//                    ).show()
+//                }
+//            }
+//
+//            if (isUserSignedIn()) {
+//                withContext(Dispatchers.Main) {
+//                    navController!!.navigate(Screens.PROFILE.name) {
+//                        popUpTo(Screens.PROFILE.name) {
+//                            inclusive = false
+//                        }
+//                        launchSingleTop = true
+//                    }
+//                }
+//            }
+//
+//        }
+//
+//        signUpInProgress.value = false
     }
 
     private suspend fun validatePassword(context: Context): Boolean = coroutineScope {

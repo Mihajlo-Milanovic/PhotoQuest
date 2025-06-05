@@ -1,7 +1,6 @@
 package com.example.photoquest.ui.screens.viewQuest
 
 import android.content.res.Configuration
-import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -48,7 +47,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.photoquest.R
-import com.example.photoquest.data.model.Quest
 import com.example.photoquest.data.services.getBoundsForRadius
 import com.example.photoquest.data.services.getDistanceFromLatLng
 import com.example.photoquest.ui.components.PictureFullSizeDialog
@@ -58,7 +56,6 @@ import com.example.photoquest.ui.theme.PhotoQuestTheme
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.firebase.Timestamp
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
@@ -377,23 +374,23 @@ fun UserInfo(
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL)
 @Composable
-fun ViewQuestPreView() {
+fun ViewQuestPreview() {
 
     PhotoQuestTheme {
 
-        ViewQuestScreenViewModel.getInstance().setDisplayedQuest(
-            Quest(
-                publisherId = "nNF46slnIlc4HeFE3bKbjDCOcxo1",
-                title = "Here is the title",
-                description = "Here is the description.\n\n\n\n\n\n\n\n\n\nAnd here is some looooooooooooooong dessssssccccrrriiipppttttiiiiooonnn!",
-                lat = 43.959861,
-                lng = 21.1741831,
-                numberOfLikes = 0,
-                pictureDownloadURL = Uri.parse("https://firebasestorage.googleapis.com/v0/b/photoquest-aa732.firebasestorage.app/o/questPhotos%2Fw7EIPH7Y2N8rl3PWCfqU%2FSelo.jpg?alt=media&token=bfcef57c-dd5d-4293-8cb4-d3f2c48e4580"),
-                pictureUri = Uri.parse("content://media/external/images/media/1000005009"),
-                timestamp = Timestamp.now(),
-            )
-        )
+//        ViewQuestScreenViewModel.getInstance().setDisplayedQuest(
+//            Quest(
+//                publisherId = "nNF46slnIlc4HeFE3bKbjDCOcxo1",
+//                title = "Here is the title",
+//                description = "Here is the description.\n\n\n\n\n\n\n\n\n\nAnd here is some looooooooooooooong dessssssccccrrriiipppttttiiiiooonnn!",
+//                lat = 43.959861,
+//                lng = 21.1741831,
+//                numberOfLikes = 0,
+//                pictureDownloadURL = Uri.parse("https://firebasestorage.googleapis.com/v0/b/photoquest-aa732.firebasestorage.app/o/questPhotos%2Fw7EIPH7Y2N8rl3PWCfqU%2FSelo.jpg?alt=media&token=bfcef57c-dd5d-4293-8cb4-d3f2c48e4580"),
+//                pictureUri = Uri.parse("content://media/external/images/media/1000005009"),
+//                timestamp = Timestamp.now(),
+//            )
+//        )
         ViewQuestScreen(navController = NavController(LocalContext.current))
     }
 }
